@@ -6,11 +6,42 @@ import { useState, useEffect } from 'react';
 function Billing(){
 
   const [items,setItems] = useState([
-    {},{},{},{},{}
+    {
+      "name": "",
+      "description": '',
+      "qty": "",
+      "rate": "",
+      "amount": "",
+    },{
+      name: "",
+      description: '',
+      qty: "",
+      rate: "",
+      amount: "",
+    },{
+      name: "",
+      description: '',
+      qty: "",
+      rate: "",
+      amount: "",
+    },{
+      name: "",
+      description: '',
+      qty: "",
+      rate: "",
+      amount: "",
+    },{
+      name: "",
+      description: '',
+      qty: "",
+      rate: "",
+      amount: "",
+    }
 ]);
 
   useEffect(()=>{
     console.log("Mounted")
+    console.log(items)
     const x = JSON.parse(localStorage.getItem('userOrder'));
     setItems(x);
     console.log(x)
@@ -27,7 +58,13 @@ function Billing(){
   }
   const createNewItem = () =>{
     const cpyItems = [...items];
-    cpyItems.push({});
+    cpyItems.push({
+      name: "",
+      description: '',
+      qty: "",
+      rate: "",
+      amount: "",
+    });
     setItems(cpyItems)
   }
 
@@ -44,8 +81,10 @@ function Billing(){
     let ans =0;
     // console.log(cpyItems)
     cpyItems.forEach((item,id)=>{
-      if(!isNaN(item.amount)){
+      if(!isNaN(item.amount)&& item.amount!=null && item.amount !== '' && !isNaN(ans)){
+        console.log(ans)
         ans = ans + parseInt(item.amount);
+       
       }
       console.log(ans)
     });
@@ -62,7 +101,37 @@ function Billing(){
   }
   const clearItem = () =>{
     localStorage.setItem('userOrder', JSON.stringify([
-      {},{},{},{},{}
+      {
+        "name": "",
+        "description": '',
+        "qty": "",
+        "rate": "",
+        "amount": "",
+      },{
+        name: "",
+        description: '',
+        qty: "",
+        rate: "",
+        amount: "",
+      },{
+        name: "",
+        description: '',
+        qty: "",
+        rate: "",
+        amount: "",
+      },{
+        name: "",
+        description: '',
+        qty: "",
+        rate: "",
+        amount: "",
+      },{
+        name: "",
+        description: '',
+        qty: "",
+        rate: "",
+        amount: "",
+      }
   ]))
   }
 
@@ -79,8 +148,9 @@ function Billing(){
           <th>Amount</th>
         </tr>
        
-        {items.map((item,id)=>(
+        {items && items.map((item,id)=>(
              <tr>
+              {console.log(item)}
               <td className="ex-small">{id +1}</td>
               <td><input type="text" value={item.name} onChange={(e) => handelInputChange(e,id,"name")}/></td>
               <td><input type="text" className="small" value={item.description} onChange={(e) => handelInputChange(e,id,"description")}/></td>
