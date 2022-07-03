@@ -9,12 +9,12 @@ function Billing(){
     {},{},{},{},{}
 ]);
 
-  // useEffect(()=>{
-  //   console.log("Mounted")
-  //   const x = JSON.parse(localStorage.getItem('userOrder'));
-  //   setItems(x);
-  //   console.log(x)
-  // },[])
+  useEffect(()=>{
+    console.log("Mounted")
+    const x = JSON.parse(localStorage.getItem('userOrder'));
+    setItems(x);
+    console.log(x)
+  },[])
 
   const handelInputChange = (e,id,type) =>{
     const cpyItems = [...items];
@@ -83,7 +83,7 @@ function Billing(){
              <tr>
               <td className="ex-small">{id +1}</td>
               <td><input type="text" value={item.name} onChange={(e) => handelInputChange(e,id,"name")}/></td>
-              <td><input type="text" value={item.description} onChange={(e) => handelInputChange(e,id,"description")}/></td>
+              <td><input type="text" className="small" value={item.description} onChange={(e) => handelInputChange(e,id,"description")}/></td>
               <td><input type="number" className="small" value={item.qty} onChange={(e) => handelInputChange(e,id,"qty")}/></td> 
               <td><input type="number" className="small" value={item.rate} onChange={(e) => handelInputChange(e,id,"rate")}/></td>
               <td><input type="text" className="small" value={item.amount}/></td>
