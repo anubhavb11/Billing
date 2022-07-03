@@ -37,7 +37,7 @@ function Billing(){
     // console.log(cpyItems)
     cpyItems.forEach((item,id)=>{
       
-      if(!isNaN(ans)){
+      if(!isNaN(item.total)){
         ans = ans + parseInt(item.total);
       }
       console.log(ans)
