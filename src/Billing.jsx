@@ -41,7 +41,9 @@ export default function Billing(){
       console.log("Mounted")
       console.log(items)
       const x = JSON.parse(localStorage.getItem('userOrder'));
+      if(x){
       setItems(x);
+      }
       console.log(x)
     },[])
   
