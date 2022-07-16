@@ -149,8 +149,9 @@ const [view,setView] = useState('Bill')
 
   return (
     <div className="App">
+        
       {view === 'Bill' &&  <Billing  items = {items} handelInputChange={handelInputChange} createNewItem={createNewItem} deleteItem={deleteItem} setlocal={setlocal} createTotal={createTotal} clearItem={clearItem}/>}
-      <button onClick={() => changeView()} >View</button>
+      <button  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => changeView()} >View</button>
       {view === 'Invoice' && <Invoice items = {items} createTotal={createTotal}  />}
     </div>
   );

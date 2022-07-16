@@ -16,8 +16,8 @@ const Invoice = ({items, createTotal }) => {
           {items && items.map((item,id)=>(
                <tr>
                 {console.log(item)}
-                <td className="ex-small">{id +1}</td>
-                <td>{item.name}</td>
+                <td  className="ex-small">{id +1}</td>
+                <td className="h-10 w-10 rounded-full"> {item.name}</td>
                 <td>{item.description}</td>
                 <td>{item.qty}</td> 
                 <td>{item.rate}</td>
