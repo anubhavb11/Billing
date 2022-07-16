@@ -1,9 +1,15 @@
 import React from 'react';
 import './App.css'
+import { useScreenshot } from 'use-react-screenshot'
+import { createRef } from 'react';
 const Invoice = ({items, createTotal }) => {
+  const ref = createRef(null)
+  const [image, takeScreenshot] = useScreenshot()
+  const getImage = () => takeScreenshot(ref.current)
     return (
         <div>
-        <table id="demo" class="editable">
+          <div ref={ref} className="invoice">
+          <table id="demo" class="editable">
           <tr>
             <th >Sno</th>
             <th>Name of the item</th>
@@ -39,8 +45,18 @@ const Invoice = ({items, createTotal }) => {
             <div>
             {createTotal()}
             </div>       
+        </div>
+
           </div>
+       
+        <div>
+          <button style={{ marginBottom: '10px' }} onClick={getImage}>
+            Take screenshot
+          </button>
+        </div>
+        <img  src={image} alt={'Screenshot'} />
       </div>
+
     );
 }
 

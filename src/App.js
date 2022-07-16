@@ -2,7 +2,6 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import Billing from './Billing';
 import Invoice from './Invoice';
-
 function App() {
   const [items,setItems] = useState([
     {
