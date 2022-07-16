@@ -91,7 +91,7 @@ const Invoice = ({items, createTotal }) => {
             Take screenshot
           </button>
         </div>
-        <img  src={image} alt={'Screenshot'} />
+        <img  className='smlImg' src={image} alt={'Screenshot'} />
       </div>
 
     );
