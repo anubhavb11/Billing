@@ -94,7 +94,7 @@ const [view,setView] = useState('Bill')
     // console.log(ans)
     // cpyItems.push({total: ans});
     // console.log(cpyItems);
-    return <p>{ans}</p>
+    return ans
     // setItems(cpyItems);
 
   }
@@ -150,7 +150,7 @@ const [view,setView] = useState('Bill')
   return (
     <div className="App">
       {view === 'Bill' &&  <Billing  items = {items} handelInputChange={handelInputChange} createNewItem={createNewItem} deleteItem={deleteItem} setlocal={setlocal} createTotal={createTotal} clearItem={clearItem}/>}
-      <button onClick={() => changeView()} >View</button>
+      <button className='btn' onClick={() => changeView()} >View</button>
       {view === 'Invoice' && <Invoice items = {items} createTotal={createTotal}  />}
     </div>
   );

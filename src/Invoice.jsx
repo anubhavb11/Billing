@@ -27,13 +27,19 @@ const Invoice = ({items, createTotal }) => {
                 <input>{item.qty*item.rate}</input> */}
               </tr>
           ))}
-          <div>
-            Total {createTotal()}
-          </div>
+          
             {/* <button onClick={() => createNewItem()}>+</button>
             <button onClick={() => setlocal()}>Save</button>
             <button onClick= {() => clearItem()}>Clear</button> */}
         </table>
+        <div className="total">
+            <div>
+             Total &nbsp;
+            </div>
+            <div>
+            {createTotal()}
+            </div>       
+          </div>
       </div>
     );
 }

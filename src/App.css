@@ -1,3 +1,7 @@
+.App{
+  padding-left: 10px;
+}
+
 .small{
   width: 60px;
 }
@@ -19,4 +23,47 @@
 }
 .editable td.edit {
   background: #ffe7e7;
+}
+
+.btn{
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 0.51rem 1rem ;
+  border-radius: 0.2rem;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+.btn-sec{
+  background-color: orange; /* Green */
+  border: none;
+  color: white;
+  padding: 0.51rem 1rem ;
+  border-radius: 0.2rem;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+.btn-sml{
+  background-color: #4CAF50; /* Green */
+  border: none;
+  color: white;
+  padding: 0.51rem 1rem ;
+  border-radius: 0.2rem;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 4px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
 }

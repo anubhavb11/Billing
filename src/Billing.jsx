@@ -1,4 +1,5 @@
 import './App.css';
+import './Billing.css'
 import { useState, useEffect } from 'react';
 
 export default function Billing({ items , handelInputChange, createNewItem ,deleteItem ,setlocal, createTotal ,clearItem}){
@@ -17,7 +18,6 @@ export default function Billing({ items , handelInputChange, createNewItem ,dele
          
           {items && items.map((item,id)=>(
                <tr>
-                {console.log(item)}
                 <td className="ex-small">{id +1}</td>
                 <td><input type="text" value={item.name} onChange={(e) => handelInputChange(e,id,"name")}/></td>
                 <td><input type="text" className="small" value={item.description} onChange={(e) => handelInputChange(e,id,"description")}/></td>
@@ -30,14 +30,24 @@ export default function Billing({ items , handelInputChange, createNewItem ,dele
                 <input>{item.qty*item.rate}</input> */}
               </tr>
           ))}
-          <div>
-            Total {createTotal()}
+          </table>
+          <div className="total">
+            <div>
+             Total &nbsp;
+            </div>
+            <div>
+            {createTotal()}
+            </div>       
           </div>
-            <button onClick={() => createNewItem()}>+</button>
-            {/* <button onClick={() => createTotal()}>Total</button> */}
-            <button onClick={() => setlocal()}>Save</button>
-            <button onClick= {() => clearItem()}>Clear</button>
-        </table>
+          <div className="add-item">
+            <button className='btn-sec' onClick={() => createNewItem()}>+</button>
+          </div>
+          <div className="save-clear">
+            <button className='btn' onClick={() => setlocal()}>Save</button> &nbsp; &nbsp;
+            <button className='btn' onClick= {() => clearItem()}>Clear</button>
+          </div>
+           
+        
       </div>
     )
   }
