@@ -9,21 +9,6 @@
   width: 10px;
 }
 
-.editable {
-  border-collapse: collapse;
-  margin-bottom: 10px;
-}
-.editable th, .editable td {
-  border: 1px solid #000;
-  padding: 10px;
-}
-.editable th {
-  color: #fff;
-  background: #000;
-}
-.editable td.edit {
-  background: #ffe7e7;
-}
 
 .btn{
   background-color: #4CAF50; /* Green */

@@ -1,7 +1,7 @@
 import './App.css';
 import './Billing.css'
 import { useState, useEffect } from 'react';
-
+import deleteicon from './assets/delete.svg'
 export default function Billing({ items , handelInputChange, createNewItem ,deleteItem ,setlocal, createTotal ,clearItem}){
   
     return(
@@ -24,7 +24,7 @@ export default function Billing({ items , handelInputChange, createNewItem ,dele
                 <td><input type="number" className="small" value={item.qty} onChange={(e) => handelInputChange(e,id,"qty")}/></td> 
                 <td><input type="number" className="small" value={item.rate} onChange={(e) => handelInputChange(e,id,"rate")}/></td>
                 <td><input type="text" className="small" value={item.amount}/></td>
-                <button onClick={() => deleteItem(id)} >Delete</button>
+                <img src={deleteicon} alt="" srcset="" onClick={() => deleteItem(id)} />
                 {/* <input>{item.name}</input>
                 <input>{item.rate}</input>
                 <input>{item.qty*item.rate}</input> */}

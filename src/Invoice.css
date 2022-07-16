@@ -1,0 +1,27 @@
+.invoice{
+    border-top: 10px #e25629 solid;
+    border-bottom: 10px #e25629 solid;
+    width: 30rem;
+}
+
+.store-name{
+    color:  #ff4000;
+}
+.editable {
+  border-collapse: collapse;
+  margin-bottom: 10px;
+}
+.editable th, .editable td {
+  border: 0.5px solid #000;
+  padding: 10px;
+}
+.editable th {
+  color: #fff;
+  background: #e25629;
+}
+.editable td.edit {
+  background: #ffe7e7;
+}
+.table-heading{
+    color: #e25629;
+}
