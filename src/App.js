@@ -2,6 +2,8 @@ import './App.css';
 import { useState, useEffect } from 'react';
 import Billing from './components/Billing/Billing';
 import Invoice from './components/Invoice/Invoice';
+import Bills from './components/Bills/Bills';
+import { Button } from 'reactstrap';
 function App() {
   const [items,setItems] = useState([
     {
@@ -45,6 +47,13 @@ const [view,setView] = useState('Bill')
     setItems(x);
     }
   },[])
+
+  const setBillView = (items) =>{
+    setItems(items);
+
+    setView('Invoice');
+    
+  }
 
   const handelInputChange = (e,id,type) =>{
     const cpyItems = [...items];
@@ -126,7 +135,11 @@ const [view,setView] = useState('Bill')
   ]))
   }
 
-  const changeView = () =>{
+  const changeView = (master = '') =>{
+    if(master === 'master'){
+      setView('AllBills');
+      return;
+    }
     if(view === 'Bill'){
     setView('Invoice')
     }
@@ -137,9 +150,11 @@ const [view,setView] = useState('Bill')
 
   return (
     <div className="App">
+      {view === 'AllBills' &&   <Bills setBillView={setBillView}/>}
       {view === 'Bill' &&  <Billing  items = {items} handelInputChange={handelInputChange} createNewItem={createNewItem} deleteItem={deleteItem} setlocal={setlocal} createTotal={createTotal} clearItem={clearItem}/>}
       <button className='btn' onClick={() => changeView()} >View</button>
       {view === 'Invoice' && <Invoice items = {items} createTotal={createTotal}  />}
+      <Button onClick={() => changeView("master")}>Master View</Button>
     </div>
   );
 }
