@@ -28,7 +28,7 @@ const Invoice = ({items, createTotal }) => {
     const updates = {};
     updates['/Invoice' + newPostKey] = obj;
     console.log(updates)
-    // toast.success("Saved !");
+    toast.success("Saved !");
     return update(ref(database), updates);
   }
   const handelCustomerChange = (name) =>{
