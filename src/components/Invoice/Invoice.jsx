@@ -2,13 +2,55 @@ import React from 'react';
 import './Invoice.css'
 import { useScreenshot } from 'use-react-screenshot'
 import { createRef } from 'react';
+import {database} from '../../firebase'
+import {ref,push,child,update} from "firebase/database";
+import { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 const Invoice = ({items, createTotal }) => {
-  const ref = createRef(null)
+  const refss = createRef(null)
   const [image, takeScreenshot] = useScreenshot()
-  const getImage = () => takeScreenshot(ref.current)
+  const [cusName, setCusName] = useState("");
+  const [cusAddress, setCusAddress] = useState("");
+  const getImage = () => takeScreenshot(refss.current);
+  const handleSubmit = () =>{
+    console.log(items)
+    let obj = {
+           items:  [...items],
+           name: cusName,
+           cusAddress: cusAddress,
+           dateAndTime: new Date()
+
+    } 
+        console.log("UPDATE")      
+    const newPostKey = push(child(ref(database),'dewd')).key;
+    console.log(newPostKey)
+    const updates = {};
+    updates['/Invoice' + newPostKey] = obj;
+    console.log(updates)
+    // toast.success("Saved !");
+    return update(ref(database), updates);
+  }
+  const handelCustomerChange = (name) =>{
+      setCusName(name);
+  }
+  const handelCustomerAddressChange = (add) => {
+    setCusAddress(add);
+  }
     return (
         <div>
-          <div ref={ref} className="invoice">
+          <input type="text" onChange={(e) => handelCustomerChange(e.target.value)}/>
+          <input type="text" onChange={(e) => handelCustomerAddressChange(e.target.value)}/>
+          <button onClick={() => handleSubmit()}>Save</button>
+          <ToastContainer
+          position="bottom-center"
+          autoClose={500}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+           />
+          <div ref={refss} className="invoice">
             <h2 className='store-name'>Bansal Store</h2>
             <p> A-135 Madhu Vihar Lane no - 8</p>
             <p>Contact no - 7678642241</p>
