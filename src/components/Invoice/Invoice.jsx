@@ -7,6 +7,7 @@ import {ref,push,child,update} from "firebase/database";
 import { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Button } from 'reactstrap';
 const Invoice = ({items, createTotal }) => {
   const refss = createRef(null)
   const [image, takeScreenshot] = useScreenshot()
@@ -41,7 +42,7 @@ const Invoice = ({items, createTotal }) => {
         <div>
           <input type="text" onChange={(e) => handelCustomerChange(e.target.value)}/>
           <input type="text" onChange={(e) => handelCustomerAddressChange(e.target.value)}/>
-          <button onClick={() => handleSubmit()}>Save</button>
+          <Button color="success" onClick={() => handleSubmit()}>Save</Button>
           <ToastContainer
           position="bottom-center"
           autoClose={500}

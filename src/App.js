@@ -4,6 +4,7 @@ import Billing from './components/Billing/Billing';
 import Invoice from './components/Invoice/Invoice';
 import Bills from './components/Bills/Bills';
 import { Button } from 'reactstrap';
+import { ToastContainer, toast } from 'react-toastify';
 function App() {
   const [items,setItems] = useState([
     {
@@ -97,9 +98,11 @@ const [view,setView] = useState('Bill')
   }
 
   const setlocal = () =>{
+    toast.success("Saved !");
     localStorage.setItem('userOrder', JSON.stringify(items))
   }
   const clearItem = () =>{
+    toast.success("Cleared !");
     localStorage.setItem('userOrder', JSON.stringify([
       {
         "name": "",
@@ -152,9 +155,17 @@ const [view,setView] = useState('Bill')
     <div className="App">
       {view === 'AllBills' &&   <Bills setBillView={setBillView}/>}
       {view === 'Bill' &&  <Billing  items = {items} handelInputChange={handelInputChange} createNewItem={createNewItem} deleteItem={deleteItem} setlocal={setlocal} createTotal={createTotal} clearItem={clearItem}/>}
-      <button className='btn' onClick={() => changeView()} >View</button>
+      <Button color="info" className='btn' onClick={() => changeView()} >View</Button>
       {view === 'Invoice' && <Invoice items = {items} createTotal={createTotal}  />}
       <Button onClick={() => changeView("master")}>Master View</Button>
+      <ToastContainer
+            position="bottom-center"
+            autoClose={500}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            />
     </div>
   );
 }

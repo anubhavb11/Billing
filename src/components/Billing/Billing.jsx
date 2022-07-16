@@ -1,6 +1,9 @@
 import './Billing.css'
 import { useState, useEffect } from 'react';
 import deleteicon from '../../assets/delete.svg'
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import { Button } from 'reactstrap';
 export default function Billing({ items , handelInputChange, createNewItem ,deleteItem ,setlocal, createTotal ,clearItem}){
 
     return(
@@ -39,11 +42,12 @@ export default function Billing({ items , handelInputChange, createNewItem ,dele
             </div>       
           </div>
           <div className="add-item">
-            <button className='btn-sec' onClick={() => createNewItem()}>+</button>
+            <Button  color='warning' className='btn-sec' onClick={() => createNewItem()}>+</Button>
           </div>
           <div className="save-clear">
-            <button className='btn' onClick={() => setlocal()}>Save</button> &nbsp; &nbsp;
-            <button className='btn' onClick= {() => clearItem()}>Clear</button>
+            <Button  color="success" className='btn' onClick={() => setlocal()}>Save</Button> &nbsp; &nbsp;
+           
+            <Button  color="danger" className='btn' onClick= {() => clearItem()}>Clear</Button>
           </div>
            
         
