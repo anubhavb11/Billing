@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css'
 import './Invoice.css'
 import { useScreenshot } from 'use-react-screenshot'
 import { createRef } from 'react';
@@ -9,7 +8,6 @@ const Invoice = ({items, createTotal }) => {
   const getImage = () => takeScreenshot(ref.current)
     return (
         <div>
-         
           <div ref={ref} className="invoice">
             <h2 className='store-name'>Bansal Store</h2>
             <p> A-135 Madhu Vihar Lane no - 8</p>
@@ -33,15 +31,8 @@ const Invoice = ({items, createTotal }) => {
                   <td>{item.qty}</td> 
                   <td>{item.rate}</td>
                   <td>{item.amount}</td>
-                  {/* <input>{item.name}</input>
-                  <input>{item.rate}</input>
-                  <input>{item.qty*item.rate}</input> */}
                 </tr>
             ))}
-            
-              {/* <button onClick={() => createNewItem()}>+</button>
-              <button onClick={() => setlocal()}>Save</button>
-              <button onClick= {() => clearItem()}>Clear</button> */}
           </table>
           <div className="total">
               <div>

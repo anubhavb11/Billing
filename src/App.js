@@ -1,7 +1,7 @@
 import './App.css';
 import { useState, useEffect } from 'react';
-import Billing from './Billing';
-import Invoice from './Invoice';
+import Billing from './components/Billing/Billing';
+import Invoice from './components/Invoice/Invoice';
 function App() {
   const [items,setItems] = useState([
     {
@@ -40,13 +40,10 @@ function App() {
 const [view,setView] = useState('Bill')
 
   useEffect(()=>{
-    console.log("Mounted")
-    console.log(items)
     const x = JSON.parse(localStorage.getItem('userOrder'));
     if(x){
     setItems(x);
     }
-    console.log(x)
   },[])
 
   const handelInputChange = (e,id,type) =>{
@@ -72,16 +69,13 @@ const [view,setView] = useState('Bill')
 
   const deleteItem = (id) =>{
     const cpyItems = [...items];
-    console.log(items);
     cpyItems.splice(id,1);
-    console.log(cpyItems)
     setItems(cpyItems)
   }
 
   const createTotal = () =>{
     const cpyItems = [...items];
     let ans =0;
-    // console.log(cpyItems)
     cpyItems.forEach((item,id)=>{
       if(!isNaN(item.amount)&& item.amount!=null && item.amount !== '' && !isNaN(ans)){
         console.log(ans)
@@ -90,12 +84,7 @@ const [view,setView] = useState('Bill')
       }
       console.log(ans)
     });
-    // console.log(ans)
-    // cpyItems.push({total: ans});
-    // console.log(cpyItems);
     return ans
-    // setItems(cpyItems);
-
   }
 
   const setlocal = () =>{

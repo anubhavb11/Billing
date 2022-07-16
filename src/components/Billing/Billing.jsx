@@ -1,9 +1,8 @@
-import './App.css';
 import './Billing.css'
 import { useState, useEffect } from 'react';
-import deleteicon from './assets/delete.svg'
+import deleteicon from '../../assets/delete.svg'
 export default function Billing({ items , handelInputChange, createNewItem ,deleteItem ,setlocal, createTotal ,clearItem}){
-  
+
     return(
       <div>
         <table>
