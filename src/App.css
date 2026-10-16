@@ -6,9 +6,14 @@
   --muted: #6b6b70;
   --line: #c9c9ce;
   --soft: #f2f2f4;
-  --green: #1a7f37;
-  --red: #c62828;
+  --green: #198754;
+  --red: #dc3545;
   --blue: #1f5fbf;
+  /* Button colours from the earlier version he is used to */
+  --yellow: #ffc107;
+  --cyan: #0dcaf0;
+  --grey: #6c757d;
+  --orange: #e25629;
   color-scheme: light;
 }
 
@@ -37,34 +42,26 @@ button {
 .app {
   max-width: 720px;
   margin: 0 auto;
-  padding: 0 8px 24px;
+  padding: 8px 8px 24px;
 }
 
-/* Tabs */
-.tabs {
+/* "← Bill" bar on View and Master View */
+.back-bar {
   display: flex;
-  gap: 4px;
-  padding: 8px 0;
-  position: sticky;
-  top: 0;
-  background: #fff;
-  z-index: 2;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
 }
 
-.tab {
-  flex: 1;
-  text-align: center;
-  padding: 8px 0;
-  border-radius: 6px;
+.back-title {
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.btn-back {
+  min-height: 40px;
   background: var(--soft);
   color: var(--ink);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.tab.active {
-  background: var(--ink);
-  color: #fff;
 }
 
 /* Bill header + customer */
@@ -198,47 +195,135 @@ select:focus {
   font-size: 22px;
 }
 
-.add-row {
-  width: 100%;
-  margin-top: 6px;
-  padding: 10px;
-  border: 1px dashed var(--line);
-  border-radius: 6px;
-  background: var(--soft);
-  cursor: pointer;
-}
-
 .actions {
   display: flex;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 10px;
 }
 
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 48px;
   padding: 0 16px;
+  border: none;
   border-radius: 6px;
   font-weight: 600;
+  text-decoration: none;
   cursor: pointer;
 }
 
-.btn-save {
-  flex: 2;
-  border: none;
-  background: var(--green);
-  color: #fff;
-}
-
-.btn-save:disabled {
+.btn:disabled {
   opacity: 0.6;
   cursor: default;
 }
 
+.btn-add {
+  flex: 0 0 64px;
+  background: var(--yellow);
+  color: var(--ink);
+  font-size: 26px;
+}
+
+.btn-save {
+  flex: 2;
+  background: var(--green);
+  color: #fff;
+}
+
 .btn-clear {
   flex: 1;
-  border: 1px solid var(--red);
+  background: var(--red);
+  color: #fff;
+}
+
+.btn-view {
+  flex: 1;
+  background: var(--cyan);
+  color: var(--ink);
+}
+
+.btn-master {
+  flex: 1;
+  background: var(--grey);
+  color: #fff;
+}
+
+.btn-light {
+  flex: 1;
+  background: var(--soft);
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+/* View (invoice) */
+.invoice {
+  border-top: 10px solid var(--orange);
+  border-bottom: 10px solid var(--orange);
+  padding: 8px 4px 4px;
   background: #fff;
-  color: var(--red);
+}
+
+.invoice p {
+  margin: 2px 0;
+}
+
+.store-name {
+  color: #ff4000;
+  margin: 4px 0;
+}
+
+.invoice-meta,
+.invoice-customer {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.invoice-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0;
+  font-size: 14px;
+}
+
+.invoice-table th,
+.invoice-table td {
+  border: 0.5px solid #000;
+  padding: 5px 3px;
+  text-align: left;
+}
+
+.invoice-table td {
+  overflow-wrap: anywhere;
+}
+
+.invoice-table th {
+  color: #fff;
+  background: var(--orange);
+  font-size: 13px;
+}
+
+/* Numbers and one-word headers never split across lines */
+.invoice-table .nowrap {
+  white-space: nowrap;
+  overflow-wrap: normal;
+}
+
+.invoice-table .num {
+  text-align: right;
+}
+
+.invoice-total {
+  font-size: 20px;
+  text-align: right;
+}
+
+.invoice-image {
+  display: block;
+  width: 100%;
+  margin-top: 8px;
+  border: 1px solid var(--line);
 }
 
 .link,

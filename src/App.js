@@ -5,10 +5,11 @@ import Billing from './Billing';
 import Bills from './Bills';
 import { DEFAULT_FILTERS } from './billsFilter';
 import { draftFromBill, hasUnsavedWork, loadDraft, saveDraft } from './bill';
+import Invoice from './Invoice';
 import PinScreen from './PinScreen';
 
-// "#/" is the bill on screen, "#/bills" the list. Hash links keep the phone's
-// back button working on any static host.
+// "#/" is the bill on screen, "#/view" its invoice, "#/bills" the list (Master
+// View). Hash links keep the phone's back button working on any static host.
 function useHash() {
   const [hash, setHash] = useState(window.location.hash);
   useEffect(() => {
@@ -56,26 +57,29 @@ export default function App() {
       return;
     }
     setDraft(draftFromBill(bill));
-    window.location.hash = '#/';
+    // Like the old Master View: a bill opens as its invoice; "Bill" goes on to edit it.
+    window.location.hash = '#/view';
   };
 
   if (!unlocked) return <PinScreen onUnlock={() => setUnlocked(true)} />;
 
-  const onList = hash === '#/bills';
+  const page = hash === '#/bills' ? 'bills' : hash === '#/view' ? 'view' : 'bill';
   return (
     <div className="app">
-      <nav className="tabs">
-        <a href="#/" className={onList ? 'tab' : 'tab active'}>
-          Bill
-        </a>
-        <a href="#/bills" className={onList ? 'tab active' : 'tab'}>
-          All Bills
-        </a>
-      </nav>
+      {page !== 'bill' && (
+        <nav className="back-bar">
+          <a href="#/" className="btn btn-back">
+            ← Bill
+          </a>
+          <span className="back-title">{page === 'view' ? 'View' : 'Master View'}</span>
+        </nav>
+      )}
 
-      {onList ? (
+      {page === 'bills' && (
         <Bills bills={bills} setBills={setBills} filters={filters} setFilters={setFilters} onOpen={openBill} />
-      ) : (
+      )}
+      {page === 'view' && <Invoice draft={draft} />}
+      {page === 'bill' && (
         <Billing draft={draft} setDraft={setDraft} notify={notify} onSaved={onSaved} onDeleted={onDeleted} />
       )}
 

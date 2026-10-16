@@ -231,23 +231,31 @@ export default function Billing({ draft, setDraft, notify, onSaved, onDeleted })
         </tfoot>
       </table>
 
-      <button type="button" className="add-row" onClick={addRow}>
-        + Add row
-      </button>
-
       {error && (
         <p className="error" role="alert">
           {error}
         </p>
       )}
 
+      {/* Same buttons, order and colours as the earlier version he is used to. */}
       <div className="actions">
-        <button type="button" className="btn btn-clear" onClick={clear}>
-          Clear
+        <button type="button" className="btn btn-add" aria-label="Add row" onClick={addRow}>
+          +
         </button>
         <button type="button" className="btn btn-save" onClick={save} disabled={saving || saved}>
           {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save'}
         </button>
+        <button type="button" className="btn btn-clear" onClick={clear}>
+          Clear
+        </button>
+      </div>
+      <div className="actions">
+        <a href="#/view" className="btn btn-view">
+          View
+        </a>
+        <a href="#/bills" className="btn btn-master">
+          Master View
+        </a>
       </div>
     </form>
   );

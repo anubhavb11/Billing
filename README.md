@@ -1,10 +1,11 @@
 # Billing
 
-A one-screen billing page for the shop, made to be used on a phone. Bills are saved to a
-Postgres database (Neon) through Netlify Functions, and the **All Bills** tab lists them with
-search, date filters and sorting.
+A one-screen billing page for the shop, made to be used on a phone. **Save** stores the bill in a
+Postgres database (Neon) through Netlify Functions, **View** shows the Bansal Store invoice with
+a screenshot to share, and **Master View** lists saved bills with search, date filters and sorting.
 
-- `src/` – the React app (Create React App). `#/` is the bill, `#/bills` is the list.
+- `src/` – the React app (Create React App). `#/` is the bill, `#/view` the invoice, `#/bills`
+  the list. Shop details printed on the invoice are in `src/shop.js`.
 - `netlify/functions/bills.mjs` – the API (`/api/bills`, `/api/ping`), code in `netlify/lib/`.
 - The `bills` table is created automatically on the first request.
 - Every API call needs the shop PIN (`SHOP_PIN`). The phone asks for it once and remembers it.
