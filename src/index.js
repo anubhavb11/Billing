@@ -2,12 +2,16 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import PublicBill from './PublicBill';
 import reportWebVitals from './reportWebVitals';
+
+// /b/<token> is a customer's bill link: show just that bill, no PIN.
+const linkToken = window.location.pathname.match(/^\/b\/([^/]+)\/?$/)?.[1];
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   // <React.StrictMode>
-    <App />
+  linkToken ? <PublicBill token={linkToken} /> : <App />
   // </React.StrictMode>
 );
 

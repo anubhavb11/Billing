@@ -7,8 +7,10 @@
 //   GET    /api/bills/:billNo   one bill
 //   PUT    /api/bills/:billNo   update a saved bill
 //   DELETE /api/bills/:billNo   hide a bill (kept in the table with deleted_at set)
+//   POST   /api/bills/:billNo/sent   mark a bill as sent to the customer
+//   GET    /api/public/bills/:token  one bill for the customer's link (no PIN)
 //
-// Every request needs the X-Shop-Pin header to match SHOP_PIN.
+// Every other request needs the X-Shop-Pin header to match SHOP_PIN.
 
 import { createHash, timingSafeEqual } from "node:crypto";
 
@@ -28,10 +30,17 @@ const SCHEMA = `
     deleted_at       timestamptz
   );
   create index if not exists bills_created_at_idx on bills (created_at desc) where deleted_at is null;
+  -- Bills start as drafts; sending one to the customer marks it sent.
+  alter table bills add column if not exists status text not null default 'draft';
+  alter table bills add column if not exists sent_at timestamptz;
+  -- Random code in the customer's bill link (/b/<token>); existing bills get one too.
+  alter table bills add column if not exists share_token text not null
+    default substr(replace(gen_random_uuid()::text, '-', ''), 1, 16);
+  create unique index if not exists bills_share_token_idx on bills (share_token);
 `;
 
 const COLUMNS =
-  "bill_no, customer_name, customer_phone, customer_address, items, total, created_at, updated_at";
+  "bill_no, customer_name, customer_phone, customer_address, items, total, status, created_at, updated_at, sent_at, share_token";
 
 class BadRequest extends Error {}
 
@@ -91,8 +100,22 @@ const toBill = (row) => ({
   customerAddress: row.customer_address,
   items: row.items,
   total: Number(row.total),
+  status: row.status,
   createdAt: row.created_at.toISOString(),
   updatedAt: row.updated_at.toISOString(),
+  sentAt: row.sent_at ? row.sent_at.toISOString() : null,
+  shareToken: row.share_token,
+});
+
+// What the customer's link shows: the bill itself, nothing about drafts or links.
+const toPublicBill = (row) => ({
+  billNo: row.bill_no,
+  customerName: row.customer_name,
+  customerPhone: row.customer_phone,
+  customerAddress: row.customer_address,
+  items: row.items,
+  total: Number(row.total),
+  createdAt: row.created_at.toISOString(),
 });
 
 const values = (bill) => [
@@ -137,15 +160,34 @@ export function createApi({ getPool, getPin }) {
     return schemaReady;
   }
 
+  async function publicBill(req, token) {
+    if (req.method !== "GET") return json(405, { error: "Method not allowed." });
+    try {
+      const pool = getPool();
+      await ensureSchema(pool);
+      const { rows } = await pool.query(
+        `select ${COLUMNS} from bills where share_token = $1 and deleted_at is null`,
+        [token]
+      );
+      return rows[0] ? json(200, { bill: toPublicBill(rows[0]) }) : json(404, { error: "This bill link is not valid." });
+    } catch (err) {
+      console.error(err);
+      return json(500, { error: "Server error. Try again in a moment." });
+    }
+  }
+
   return async function handle(req) {
+    const publicMatch = new URL(req.url).pathname.match(/^\/api\/public\/bills\/([a-f0-9]{16})\/?$/);
+    if (publicMatch) return publicBill(req, publicMatch[1]);
+
     const expected = getPin();
     if (!expected) return json(500, { error: "SHOP_PIN is not set on the server." });
     if (!pinMatches(req.headers.get("x-shop-pin") ?? "", expected)) return json(401, { error: "Wrong PIN." });
 
     const path = new URL(req.url).pathname.replace(/\/+$/, "");
-    const match = path.match(/^\/api\/(ping|bills)(?:\/(\d{1,9}))?$/);
+    const match = path.match(/^\/api\/(ping|bills)(?:\/(\d{1,9})(\/sent)?)?$/);
     if (!match) return json(404, { error: "Not found." });
-    const [, resource, id] = match;
+    const [, resource, id, sent] = match;
     const { method } = req;
 
     if (resource === "ping") return method === "GET" && !id ? noContent() : json(404, { error: "Not found." });
@@ -174,6 +216,16 @@ export function createApi({ getPool, getPin }) {
       }
 
       const billNo = Number(id);
+      if (sent) {
+        if (method !== "POST") return json(405, { error: "Method not allowed." });
+        const { rows } = await pool.query(
+          `update bills set status = 'sent', sent_at = now()
+            where bill_no = $1 and deleted_at is null
+           returning ${COLUMNS}`,
+          [billNo]
+        );
+        return rows[0] ? json(200, { bill: toBill(rows[0]) }) : json(404, { error: `Bill #${billNo} not found.` });
+      }
       if (method === "GET") {
         const { rows } = await pool.query(
           `select ${COLUMNS} from bills where bill_no = $1 and deleted_at is null`,

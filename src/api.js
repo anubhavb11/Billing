@@ -69,3 +69,4 @@ export const createBill = (bill) => request('/api/bills', { method: 'POST', body
 export const updateBill = (billNo, bill) =>
   request(`/api/bills/${billNo}`, { method: 'PUT', body: bill }).then((d) => d.bill);
 export const deleteBill = (billNo) => request(`/api/bills/${billNo}`, { method: 'DELETE' });
+export const markSent = (billNo) => request(`/api/bills/${billNo}/sent`, { method: 'POST' }).then((d) => d.bill);

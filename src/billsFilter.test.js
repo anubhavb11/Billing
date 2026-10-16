@@ -1,4 +1,4 @@
-import { DEFAULT_FILTERS, filterBills } from './billsFilter';
+import { DEFAULT_FILTERS, filterBills, itemPreview } from './billsFilter';
 
 const now = new Date(2026, 9, 16, 18, 0); // 16 Oct 2026, 6 pm local
 const at = (day, hour) => new Date(2026, 9, day, hour).toISOString();
@@ -45,4 +45,14 @@ test('sorts', () => {
   expect(run({ sort: 'oldest' })).toEqual([1, 2, 3, 4]);
   expect(run({ sort: 'total-desc' })).toEqual([3, 1, 4, 2]);
   expect(run({ sort: 'name' })).toEqual([2, 3, 1, 4]);
+});
+
+test('status filter and item preview', () => {
+  const withStatus = bills.map((b) => ({ ...b, status: b.billNo % 2 ? 'sent' : 'draft' }));
+  const ids = (status) => filterBills(withStatus, { ...DEFAULT_FILTERS, status }, now).map((b) => b.billNo);
+  expect(ids('draft')).toEqual([4, 2]);
+  expect(ids('sent')).toEqual([3, 1]);
+  expect(ids('all')).toEqual([4, 3, 2, 1]);
+  const many = { items: ['A', 'B', 'C', 'D'].map((name) => ({ name, description: '' })) };
+  expect(itemPreview(many)).toBe('A, B +2 more');
 });
