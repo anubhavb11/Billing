@@ -94,7 +94,7 @@ export default function PublicBill({ token }) {
         <a
           className={picture ? 'action' : 'action disabled'}
           href={picture?.url}
-          download={picture ? `${SHOP.name} Bill ${bill.billNo}.png` : undefined}
+          download={picture?.file.name}
           aria-disabled={!picture}
         >
           <Icon d={PICTURE} />

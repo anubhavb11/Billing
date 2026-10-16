@@ -1,36 +1,52 @@
-// Sending a bill to the customer, two ways:
-// - to their WhatsApp number: the bill as text with its link (waLink)
-// - as a picture through the phone's share menu, where he picks the chat (shareFile)
+// Sending a bill to the customer, two ways (both on the View & Send screen):
+// - WhatsApp to the bill's number: the bill as a text message with its link (waLink)
+// - Send picture: the bill picture through the share menu; he picks the chat (shareFile)
 import { flushSync } from 'react-dom';
 import { createRoot } from 'react-dom/client';
-import InvoiceSheet from './InvoiceSheet';
+import { rowHasContent } from './bill';
 import { formatAmount, formatDate, formatMoney } from './format';
-import { paymentUpiId } from './shopSettings';
+import InvoiceSheet from './InvoiceSheet';
 import { SHOP } from './shop';
+import { paymentUpiId } from './shopSettings';
 
-// The picture library is big, so load it in the background after the app opens:
-// by the time he taps Send it is ready and the phone still treats the share as
-// part of his tap.
-export const preloadImageTools = () => import('html2canvas');
+// The picture library is loaded in the background after the app opens, so it is
+// ready by the time he taps Send.
+export const preloadImageTools = () => import('html-to-image');
 
+const isSafari = () => isIPhone() || /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
+// The bill picture. The browser draws it itself (html-to-image), so it looks exactly
+// like the bill on screen (same spacing, fonts and Hindi letters), on a light frame
+// with a margin, at 3x so it stays sharp after WhatsApp compresses it.
 export async function renderBillImage(bill) {
   const host = document.createElement('div');
-  host.style.cssText = 'position:fixed;left:-10000px;top:0;width:380px;background:#fff';
+  host.style.cssText = 'position:fixed;left:-10000px;top:0;width:420px';
   document.body.appendChild(host);
   const root = createRoot(host);
   try {
     // Render outside whatever React is doing right now (this is often called from
-    // an effect), so the sheet is on the page before it is photographed.
+    // an effect), so the sheet is on the page before it is drawn.
     await new Promise((resolve) => {
       setTimeout(() => {
-        flushSync(() => root.render(<InvoiceSheet bill={bill} />));
+        flushSync(() =>
+          root.render(
+            <div className="shot-frame">
+              <InvoiceSheet bill={bill} />
+            </div>
+          )
+        );
         resolve();
       }, 0);
     });
-    const { default: html2canvas } = await import('html2canvas');
-    const canvas = await html2canvas(host.firstChild, { scale: 2, backgroundColor: '#ffffff' });
-    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
-    return new File([blob], `Bill-${bill.billNo ?? 'new'}.png`, { type: 'image/png' });
+    const { toCanvas } = await import('html-to-image');
+    const options = { pixelRatio: 3, backgroundColor: '#f4efe9', skipFonts: true };
+    // Safari only paints pictures inside the bill (a QR photo) on the second pass.
+    if (isSafari()) await toCanvas(host.firstChild, options);
+    const canvas = await toCanvas(host.firstChild, options);
+    const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', 0.92));
+    return new File([blob], `Bansal Store Bill ${bill.billNo ?? ''}.jpg`.replace(' .jpg', '.jpg'), {
+      type: 'image/jpeg',
+    });
   } finally {
     root.unmount();
     host.remove();
@@ -76,20 +92,18 @@ export function waNumber(phone) {
   return null;
 }
 
-const num = (v) => (v === '' || v == null ? '' : formatAmount(v));
+const money = (v) => (v === '' || v == null ? '' : formatAmount(v));
 
+// The bill as a WhatsApp message (*text* shows in bold there).
 export function billText(bill) {
-  const lines = [`*${SHOP.name}*`, `Bill #${bill.billNo} · ${formatDate(bill.createdAt)}`];
+  const lines = [`*${SHOP.name}*`, `Bill #${bill.billNo} · ${formatDate(bill.createdAt ?? new Date())}`];
   if (bill.customerName) lines.push(bill.customerName);
   lines.push('');
-  bill.items.forEach((item, i) => {
-    const name = item.description ? `${item.name} (${item.description})` : item.name;
-    const priced = num(item.qty) !== '' && num(item.rate) !== '';
-    lines.push(
-      priced
-        ? `${i + 1}. ${name} – ${num(item.qty)} × ₹${num(item.rate)} = ₹${num(item.amount)}`
-        : `${i + 1}. ${name}`
-    );
+  bill.items.filter(rowHasContent).forEach((item, i) => {
+    lines.push(`${i + 1}. ${item.description ? `${item.name} (${item.description})` : item.name}`);
+    if (money(item.qty) !== '' && money(item.rate) !== '') {
+      lines.push(`    ${item.qty} × ₹${money(item.rate)} = *₹${money(item.amount)}*`);
+    }
   });
   lines.push('', `*Total: ${formatMoney(bill.total)}*`);
   if (bill.delivery) {
@@ -98,8 +112,8 @@ export function billText(bill) {
   const upiId = bill.payment && paymentUpiId(bill.payment);
   if (upiId) lines.push(`Pay by UPI: ${upiId}`);
   const link = billLink(bill);
-  if (link) lines.push(`View bill: ${link}`);
-  lines.push('Thank you!');
+  if (link) lines.push('', `View bill: ${link}`);
+  lines.push('', `Thank you! ${SHOP.name} · Ph. ${SHOP.phone}`);
   return lines.join('\n');
 }
 

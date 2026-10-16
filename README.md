@@ -2,18 +2,19 @@
 
 A one-screen billing page for the shop, made to be used on a phone.
 
-- **Save** stores the bill (Postgres on Neon, through Netlify Functions) as a **Draft**.
-- **Send** shares the bill picture through the phone's share menu (WhatsApp etc.) with the
-  customer's private bill link, and marks the bill **Sent**. With a phone number, View also has
-  a WhatsApp button that opens that customer's chat with the bill as text.
-- **Master View** lists bills as cards (Drafts / Sent, missing rates, search, dates, sort) with
-  **Edit** to finish a draft and **Send**.
+- **Auto-save**: the bill saves itself (as a **Draft**) a second after typing; it gets its
+  number with the first item, shown in the top bar.
+- **Clear** starts the next bill (the current one stays in All bills).
+- **View & Send** shows the exact bill picture and **Send on WhatsApp** shares it through the
+  phone's share menu (with the bill link as caption on Android), then marks it **Sent**.
+- **All bills** lists bills (Drafts / Sent, missing rates, search, dates, sort) with **Edit**
+  and **View & Send**. Settings (gear) holds payment QRs and delivery people.
 - **Bill link** `/b/<token>` shows one bill to the customer without the PIN.
 
 Code:
 
-- `src/` – the React app (Create React App). `#/` is the bill, `#/view` the invoice, `#/bills`
-  Master View, `/b/<token>` the customer's page. Shop details (and an optional UPI ID that adds
+- `src/` – the React app (Create React App). `#/` is the bill, `#/send` View & Send, `#/bills`
+  All bills, `/b/<token>` the customer's page. Shop details (and an optional UPI ID that adds
   a scan-to-pay QR to every bill) are in `src/shop.js`.
 - `netlify/functions/bills.mjs` – the API, code in `netlify/lib/bills-api.mjs`.
 - The `bills` table (and later columns) are created automatically on the first request.

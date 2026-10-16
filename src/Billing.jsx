@@ -1,16 +1,10 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { deleteBill } from './api';
-import {
-  billTotal,
-  cleanNumber,
-  emptyRow,
-  hasUnsavedWork,
-  rowHasContent,
-  withAmount,
-} from './bill';
+import { billTotal, cleanNumber, emptyRow, rowHasContent, withAmount } from './bill';
 import { formatAmount, formatDate, formatMoney, formatWhen } from './format';
-import { deliverySnapshot, paymentSnapshot } from './shopSettings';
+import { ClearIcon, ListIcon, SendIcon } from './Icons';
 import Logo from './Logo';
+import { deliverySnapshot, paymentSnapshot } from './shopSettings';
 import StatusChips from './StatusChips';
 
 // Keeps a picked option visible even after it was removed from Settings.
@@ -47,9 +41,16 @@ function WrapText(props) {
   return <textarea ref={ref} rows={1} {...props} />;
 }
 
-export default function Billing({ draft, setDraft, settings, notify, onSave, onSend, onNew, sending, onDeleted }) {
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState('');
+const SAVE_TEXT = {
+  saving: 'Saving…',
+  offline: 'Not saved yet · no internet',
+  error: 'Not saved · will try again',
+};
+
+// The bill on screen. It saves itself as he types (see App), so the only actions
+// are Clear (start the next bill) and View & Send.
+export default function Billing({ draft, setDraft, settings, saveState, notify, onClear, onSend, onDeleted }) {
+  const [busy, setBusy] = useState(false);
 
   const edit = (change) => setDraft((d) => ({ ...change(d), dirty: true, rev: d.rev + 1 }));
 
@@ -75,88 +76,61 @@ export default function Billing({ draft, setDraft, settings, notify, onSave, onS
   const addRow = () => edit((d) => ({ ...d, items: [...d.items, emptyRow()] }));
 
   const deleteRow = (index) => {
-    if (rowHasContent(draft.items[index]) && !window.confirm(`Delete row ${index + 1}?`)) return;
+    if (rowHasContent(draft.items[index]) && !window.confirm(`Remove row ${index + 1}?`)) return;
     edit((d) => {
       const items = d.items.filter((_, i) => i !== index);
       return { ...d, items: items.length ? items : [emptyRow()] };
     });
   };
 
-  const clear = () => {
-    if (hasUnsavedWork(draft) && !window.confirm('Clear this bill? It is not saved yet.')) return;
-    onNew();
-    setError('');
-  };
-
-  const save = async () => {
-    if (!draft.items.some(rowHasContent)) {
-      setError('Add at least one item before saving.');
-      return;
-    }
-    setSaving(true);
-    setError('');
+  const run = (action) => async () => {
+    setBusy(true);
     try {
-      const bill = await onSave();
-      notify(`Saved · Bill #${bill.billNo}`);
-    } catch (err) {
-      if (err.status !== 401) setError(`Not saved. ${err.message}`);
+      await action();
     } finally {
-      setSaving(false);
+      setBusy(false);
     }
   };
 
   const remove = async () => {
     const billNo = draft.billNo;
-    if (!window.confirm(`Delete bill #${billNo}? It will be removed from Master View.`)) return;
+    if (!window.confirm(`Delete bill #${billNo}? It will be removed from All bills.`)) return;
     try {
       await deleteBill(billNo);
       onDeleted(billNo);
-      onNew();
-      setError('');
       notify(`Bill #${billNo} deleted`);
     } catch (err) {
-      if (err.status !== 401) setError(`Not deleted. ${err.message}`);
+      if (err.status !== 401) notify(`Not deleted. ${err.message}`);
     }
   };
 
-  const saved = Boolean(draft.billNo) && !draft.dirty;
   const total = billTotal(draft.items);
+  const saveText = draft.dirty ? SAVE_TEXT[saveState] : null;
+  let status;
+  if (!draft.billNo) status = draft.items.some(rowHasContent) ? 'Saving…' : `Today, ${formatDate(new Date())}`;
+  else status = saveText ?? `Saved · made ${formatWhen(draft.createdAt)}`;
 
   return (
     <form className="bill" onSubmit={(e) => e.preventDefault()} onKeyDown={focusNext} autoComplete="off">
       {/* Stays at the top while scrolling, so the bill number is always in view. */}
       <header className="topbar">
-        <Logo size={30} />
-        <span className="topbar-name">Bansal Store</span>
-        <span className="topbar-bill">
-          {draft.billNo ? (
-            <>
-              Bill <strong>#{draft.billNo}</strong>
-            </>
-          ) : (
-            <strong>New bill</strong>
-          )}
-        </span>
+        <Logo size={34} />
+        <div className="topbar-title">
+          <strong>{draft.billNo ? `Bill #${draft.billNo}` : 'New bill'}</strong>
+          <span className={saveText && saveState !== 'saving' ? 'topbar-status warn' : 'topbar-status'}>
+            {status}
+          </span>
+        </div>
+        <a href="#/bills" className="btn btn-secondary btn-small">
+          <ListIcon size={20} />
+          All bills
+        </a>
       </header>
 
-      {draft.billNo ? (
-        <div className={draft.status === 'sent' ? 'bill-meta editing sent' : 'bill-meta editing'}>
-          <div>
-            <strong>Editing Bill #{draft.billNo}</strong> <StatusChips bill={draft} />
-            <div className="bill-meta-sub">
-              Made {formatWhen(draft.createdAt)}
-              {draft.sentAt && ` · sent ${formatWhen(draft.sentAt)}`}
-            </div>
-          </div>
-          <button type="button" className="link-danger" onClick={remove}>
-            Delete
-          </button>
-        </div>
-      ) : (
-        <div className="bill-meta">
-          <span>
-            {formatDate(new Date())} · gets its number when saved
-          </span>
+      {draft.billNo && (
+        <div className="bill-status">
+          <StatusChips bill={draft} />
+          {draft.sentAt && <span className="muted">sent {formatWhen(draft.sentAt)}</span>}
         </div>
       )}
 
@@ -208,7 +182,7 @@ export default function Billing({ draft, setDraft, settings, notify, onSave, onS
             <th>Rate</th>
             <th className="num">Amount</th>
             <th>
-              <span className="sr-only">Delete</span>
+              <span className="sr-only">Remove</span>
             </th>
           </tr>
         </thead>
@@ -255,7 +229,7 @@ export default function Billing({ draft, setDraft, settings, notify, onSave, onS
                 <button
                   type="button"
                   className="row-delete"
-                  aria-label={`Delete row ${i + 1}`}
+                  aria-label={`Remove row ${i + 1}`}
                   onClick={() => deleteRow(i)}
                 >
                   ×
@@ -264,14 +238,16 @@ export default function Billing({ draft, setDraft, settings, notify, onSave, onS
             </tr>
           ))}
         </tbody>
-        <tfoot>
-          <tr>
-            <td colSpan={7} className="total">
-              Total <strong>{formatMoney(total)}</strong>
-            </td>
-          </tr>
-        </tfoot>
       </table>
+
+      <button type="button" className="add-item" onClick={addRow}>
+        + Add item
+      </button>
+
+      <div className="bill-total">
+        <span>Total</span>
+        <strong>{formatMoney(total)}</strong>
+      </div>
 
       {(settings.payments.length > 0 || settings.delivery.length > 0 || draft.payment || draft.delivery) && (
         <div className="bill-extras">
@@ -318,37 +294,26 @@ export default function Billing({ draft, setDraft, settings, notify, onSave, onS
         </div>
       )}
 
-      {error && (
-        <p className="error" role="alert">
-          {error}
-        </p>
-      )}
-
-      {/* Same buttons, order and colours as the earlier version he is used to. */}
-      <div className="actions">
-        <button type="button" className="btn btn-add" aria-label="Add row" onClick={addRow}>
-          +
-        </button>
-        <button type="button" className="btn btn-save" onClick={save} disabled={saving || saved || sending}>
-          {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save'}
-        </button>
-        <button type="button" className="btn btn-clear" onClick={clear}>
+      <div className="bill-actions">
+        <button type="button" className="btn btn-secondary" onClick={run(onClear)} disabled={busy}>
+          <ClearIcon />
           Clear
         </button>
-      </div>
-      <div className="actions">
-        <a href="#/view" className="btn btn-view">
-          View
-        </a>
-        <button type="button" className="btn btn-send" onClick={onSend} disabled={sending || saving}>
-          {sending ? 'Saving…' : 'Send'}
+        <button type="button" className="btn btn-primary" onClick={run(onSend)} disabled={busy}>
+          <SendIcon />
+          View &amp; Send
         </button>
-        <a href="#/bills" className="btn btn-master">
-          Master View
-        </a>
       </div>
-      <p className="settings-link">
-        <a href="#/settings">Settings · payment QR, delivery</a>
+      <p className="bill-hint">
+        Clear starts a new bill. This one stays saved in All bills.
+        {draft.billNo && (
+          <>
+            {' '}
+            <button type="button" className="link-danger" onClick={remove}>
+              Delete this bill
+            </button>
+          </>
+        )}
       </p>
     </form>
   );

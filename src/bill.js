@@ -52,7 +52,10 @@ export function padRows(items) {
   return rows;
 }
 
+const draftKey = () => `new-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+
 export const newDraft = () => ({
+  key: draftKey(),
   billNo: null,
   createdAt: null,
   updatedAt: null,
@@ -70,6 +73,7 @@ export const newDraft = () => ({
 });
 
 export const draftFromBill = (bill) => ({
+  key: `bill-${bill.billNo}`,
   billNo: bill.billNo,
   createdAt: bill.createdAt,
   updatedAt: bill.updatedAt,
@@ -135,7 +139,7 @@ export function loadDraft() {
   try {
     const saved = JSON.parse(localStorage.getItem(DRAFT_KEY));
     if (saved && Array.isArray(saved.items)) {
-      return { ...newDraft(), ...saved, items: padRows(saved.items), rev: 0 };
+      return { ...newDraft(), ...saved, key: saved.key || draftKey(), items: padRows(saved.items), rev: 0 };
     }
     const legacy = JSON.parse(localStorage.getItem(LEGACY_KEY));
     if (Array.isArray(legacy)) {

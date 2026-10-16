@@ -44,7 +44,7 @@ export default function PinScreen({ onUnlock }) {
           {error}
         </p>
       )}
-      <button type="submit" className="btn btn-save" disabled={checking || !pin}>
+      <button type="submit" className="btn btn-primary" disabled={checking || !pin}>
         {checking ? 'Checking…' : 'Unlock'}
       </button>
       <p className="muted">Asked only once on this phone.</p>

@@ -150,7 +150,7 @@ export default function Settings({ settings, onChange, notify }) {
           value={upi.upiId}
           onChange={(e) => setUpi({ ...upi, upiId: e.target.value })}
         />
-        <button type="submit" className="btn btn-save">
+        <button type="submit" className="btn btn-primary">
           Add UPI ID
         </button>
       </form>
@@ -165,7 +165,7 @@ export default function Settings({ settings, onChange, notify }) {
           value={qrLabel}
           onChange={(e) => setQrLabel(e.target.value)}
         />
-        <label className={reading ? 'btn btn-view disabled' : 'btn btn-view'}>
+        <label className={reading ? 'btn btn-secondary disabled' : 'btn btn-secondary'}>
           {reading ? 'Reading QR…' : 'Take or choose photo'}
           <input type="file" accept="image/*" hidden disabled={reading} onChange={addQrPhoto} />
         </label>
@@ -199,8 +199,8 @@ export default function Settings({ settings, onChange, notify }) {
           value={person.phone}
           onChange={(e) => setPerson({ ...person, phone: e.target.value })}
         />
-        <button type="submit" className="btn btn-save">
-          Add
+        <button type="submit" className="btn btn-primary">
+          Add delivery person
         </button>
       </form>
     </section>

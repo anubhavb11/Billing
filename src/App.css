@@ -1,25 +1,28 @@
-/* Phone first: everything on one screen at 360px wide, no sideways scroll.
-   Inputs stay at 16px so iPhones don't zoom in when a box is tapped. */
+/* Bansal Store app. Phone first, made to be read without glasses:
+   one accent (orange) for the main action on each screen, outlined buttons for
+   everything else, green only for "Sent", red only for delete and errors.
+   Inputs stay at 16px+ so iPhones don't zoom in when a box is tapped. */
 
 :root {
-  --ink: #1d1d1f;
-  --muted: #6b6b70;
-  --line: #c9c9ce;
-  --soft: #f2f2f4;
-  --green: #198754;
-  --red: #dc3545;
-  --blue: #1f5fbf;
-  /* Button colours from the earlier version he is used to */
-  --yellow: #ffc107;
-  --cyan: #0dcaf0;
-  --grey: #6c757d;
+  --ink: #1f1d1b;
+  --muted: #6d6863;
+  --line: #d9d3cc;
+  --soft: #f1ede8;
+  --page: #faf8f5;
   --orange: #e25629;
+  --orange-dark: #c4461d;
+  --orange-soft: #fbe7df;
+  --green: #1f7a4d;
+  --red: #c62f2f;
+  --blue: #1f5fbf;
+  --radius: 10px;
   color-scheme: light;
 }
 
 body {
-  background: #fff;
+  background: var(--page);
   color: var(--ink);
+  font-size: 16px;
 }
 
 input,
@@ -43,10 +46,132 @@ button {
 .app {
   max-width: 720px;
   margin: 0 auto;
-  padding: 8px 8px 24px;
+  padding: 8px 8px 32px;
 }
 
-/* "← Bill" bar on View and Master View */
+.muted {
+  color: var(--muted);
+}
+
+.error {
+  margin: 8px 0 0;
+  color: var(--red);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: 2px solid var(--orange);
+  outline-offset: -1px;
+  border-color: var(--orange);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 0 18px;
+  border: 1.5px solid transparent;
+  border-radius: var(--radius);
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.btn:disabled,
+.btn.disabled {
+  opacity: 0.55;
+  cursor: default;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background: var(--orange);
+  color: #fff;
+}
+
+.btn-primary:active {
+  background: var(--orange-dark);
+}
+
+.btn-secondary {
+  background: #fff;
+  border-color: var(--line);
+  color: var(--ink);
+}
+
+.btn-secondary:active {
+  background: var(--soft);
+}
+
+.btn-accent {
+  color: var(--orange-dark);
+}
+
+.btn-small {
+  min-height: 42px;
+  padding: 0 12px;
+  font-size: 16px;
+}
+
+.btn-wide {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.icon {
+  flex: 0 0 auto;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin-left: auto;
+  border-radius: var(--radius);
+  color: var(--ink);
+}
+
+.link,
+.link-danger {
+  padding: 0;
+  border: none;
+  background: none;
+  font-size: 15px;
+  color: var(--blue);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.link-danger {
+  color: var(--red);
+  white-space: nowrap;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 30;
+  max-width: calc(100% - 32px);
+  padding: 12px 18px;
+  border-radius: var(--radius);
+  background: var(--ink);
+  color: #fff;
+  font-weight: 600;
+  transform: translateX(-50%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Top bar on the bill: logo, bill number (always in view), All bills */
+.topbar,
 .back-bar {
   position: sticky;
   top: 0;
@@ -54,104 +179,57 @@ button {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: -8px -8px 8px;
+  margin: -8px -8px 10px;
   padding: 8px;
   background: #fff;
   border-bottom: 1px solid var(--soft);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
-/* Bill screen: brand + bill number, always in view */
-.topbar {
-  position: sticky;
-  top: 0;
-  z-index: 5;
+.topbar-title {
+  flex: 1;
+  min-width: 0;
   display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: -8px -8px 8px;
-  padding: 6px 8px;
-  background: #fff;
-  border-bottom: 1px solid var(--soft);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  flex-direction: column;
+  line-height: 1.2;
 }
 
-.topbar-name {
-  font-size: 18px;
-  font-weight: 700;
-  color: var(--orange);
+.topbar-title strong {
+  font-size: 21px;
+}
+
+.topbar-status {
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-}
-
-.topbar-bill {
-  margin-left: auto;
-  padding: 3px 10px;
-  border-radius: 999px;
-  background: #fbe7df;
-  color: #8a2e10;
-  font-size: 15px;
-  white-space: nowrap;
-}
-
-.topbar-bill strong {
-  font-size: 17px;
-}
-
-.back-title {
-  font-weight: 600;
-  font-size: 18px;
-}
-
-.back-link {
-  margin-left: auto;
-  font-size: 15px;
-  color: var(--blue);
-}
-
-.btn-back {
-  min-height: 40px;
-  background: var(--soft);
-  color: var(--ink);
-}
-
-/* Bill header + customer */
-.bill-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0 8px;
-  font-size: 14px;
-  color: var(--muted);
-  margin: 2px 0 6px;
-}
-
-.bill-meta strong {
-  color: var(--ink);
-}
-
-/* "Editing Bill #12" banner while a saved bill is open */
-.bill-meta.editing {
-  padding: 8px 10px;
-  border-radius: 8px;
-  background: #fff8e1;
-  color: var(--ink);
-}
-
-.bill-meta.editing.sent {
-  background: #e8f7ee;
-}
-
-.bill-meta-sub {
-  margin-top: 2px;
   font-size: 13px;
   color: var(--muted);
 }
 
+.topbar-status.warn {
+  color: var(--red);
+}
+
+.back-title {
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.bill-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: -2px 0 8px;
+  font-size: 14px;
+}
+
+/* Customer */
 .customer {
   display: grid;
   grid-template-columns: 3fr 2fr;
-  gap: 4px;
-  margin-bottom: 8px;
+  gap: 6px;
+  margin-bottom: 10px;
 }
 
 .customer-address {
@@ -164,29 +242,23 @@ button {
 .bills-search,
 .date-range input,
 .bills-bar select,
+.bill-extras select,
+.settings-form input,
 .pin input {
   width: 100%;
   box-sizing: border-box;
   min-width: 0;
-  padding: 6px 4px;
+  padding: 7px 5px;
   border: 1px solid var(--line);
-  border-radius: 4px;
+  border-radius: 6px;
   background: #fff;
 }
 
 .customer input {
-  padding: 6px 8px;
+  padding: 10px;
 }
 
-input:focus,
-textarea:focus,
-select:focus {
-  outline: 2px solid var(--blue);
-  outline-offset: -1px;
-  border-color: var(--blue);
-}
-
-/* Items table */
+/* Items table (kept as he knows it) */
 .items {
   width: 100%;
   table-layout: fixed;
@@ -213,10 +285,10 @@ select:focus {
 }
 
 .items th {
+  padding: 0 2px 4px;
   font-size: 13px;
   font-weight: 600;
   text-align: left;
-  padding: 0 2px 4px;
   color: var(--muted);
 }
 
@@ -230,7 +302,6 @@ select:focus {
   line-height: 20px;
 }
 
-/* Item and Description grow downward as the text wraps (see WrapText) */
 .items textarea {
   display: block;
   resize: none;
@@ -244,117 +315,94 @@ select:focus {
 
 .items .sno {
   padding-top: 9px;
+  text-align: center;
   font-size: 14px;
   color: var(--muted);
-  text-align: center;
 }
 
 .items .amount {
   padding-top: 9px;
-  font-size: 14px;
+  font-size: 15px;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
 }
 
 .row-delete {
   width: 100%;
-  height: 34px;
+  height: 36px;
   padding: 0;
   border: none;
   background: none;
-  color: var(--red);
   font-size: 22px;
   line-height: 1;
+  color: #a39d97;
   cursor: pointer;
 }
 
-.items .total {
-  text-align: right;
-  padding: 10px 4px 4px;
-  font-size: 18px;
-  border-top: 2px solid var(--ink);
-}
-
-.items .total strong {
-  margin-left: 8px;
-  font-size: 22px;
-}
-
-.actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+.add-item {
+  width: 100%;
   min-height: 48px;
-  padding: 0 16px;
-  border: none;
-  border-radius: 6px;
+  margin-top: 6px;
+  border: 1.5px dashed var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  font-size: 17px;
   font-weight: 600;
-  text-decoration: none;
+  color: var(--orange-dark);
   cursor: pointer;
 }
 
-.btn:disabled {
-  opacity: 0.6;
-  cursor: default;
+.bill-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 12px;
+  padding: 12px 4px;
+  border-top: 2px solid var(--ink);
+  font-size: 19px;
 }
 
-.btn-add {
-  flex: 0 0 64px;
-  background: var(--yellow);
-  color: var(--ink);
+.bill-total strong {
   font-size: 26px;
 }
 
-.btn-save {
-  flex: 2;
-  background: var(--green);
-  color: #fff;
+/* Payment QR / Delivery picked for this bill */
+.bill-extras {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
 }
 
-.btn-clear {
-  flex: 1;
-  background: var(--red);
-  color: #fff;
+.bill-extras label {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--muted);
 }
 
-.btn-view {
-  flex: 1;
-  background: var(--cyan);
+.bill-extras select {
+  padding: 10px 6px;
   color: var(--ink);
 }
 
-.btn-master {
-  flex: 1;
-  background: var(--grey);
-  color: #fff;
+/* Clear + View & Send */
+.bill-actions {
+  display: grid;
+  grid-template-columns: 1fr 1.6fr;
+  gap: 10px;
+  margin-top: 16px;
 }
 
-.btn-send {
-  flex: 1;
-  background: var(--orange);
-  color: #fff;
+.bill-hint {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 14px;
+  color: var(--muted);
 }
 
-.btn-wide {
-  width: 100%;
-  margin-top: 12px;
-  font-size: 18px;
-}
-
-.btn-light {
-  flex: 1;
-  background: var(--soft);
-  color: var(--ink);
-  border: 1px solid var(--line);
-}
-
-/* The bill (View screen, shared picture, customer link) */
+/* The bill (View & Send screen, shared picture, customer link) */
 .invoice {
   padding: 14px 12px 12px;
   border-top: 8px solid var(--orange);
@@ -366,6 +414,10 @@ select:focus {
 
 .invoice p {
   margin: 0;
+}
+
+.invoice a {
+  color: inherit;
 }
 
 .inv-label {
@@ -435,7 +487,7 @@ select:focus {
 
 .inv-table th {
   padding: 6px 4px;
-  background: #fbe7df;
+  background: var(--orange-soft);
   color: #8a2e10;
   font-size: 12px;
   text-align: left;
@@ -491,6 +543,16 @@ select:focus {
   font-size: 22px;
 }
 
+.inv-delivery {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: #f6f6f6;
+  font-size: 14px;
+}
+
 .inv-pay {
   display: flex;
   align-items: center;
@@ -509,6 +571,16 @@ select:focus {
   color: #222;
 }
 
+.inv-pay span {
+  display: block;
+}
+
+.inv-qr-photo {
+  width: 104px;
+  height: 104px;
+  object-fit: contain;
+}
+
 .inv-thanks {
   margin-top: 12px;
   text-align: center;
@@ -516,94 +588,167 @@ select:focus {
   color: #8a2e10;
 }
 
-.invoice-page .btn-wide {
+/* Frame around the bill in the shared picture */
+.shot-frame {
+  padding: 18px 14px 20px;
+  background: #f4efe9;
+}
+
+/* View & Send */
+.send-preview {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  background: #f4efe9;
+  overflow: hidden;
+}
+
+.send-preview img {
+  display: block;
+  width: 100%;
+}
+
+.send-preparing {
+  font-size: 17px;
+  color: var(--muted);
+}
+
+.send-warning {
+  margin: 12px 0 0;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: #fff4d6;
+  color: #6b4e00;
+  font-size: 15px;
+}
+
+/* The two ways to send */
+.send-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-top: 14px;
 }
 
-.bill-link {
+.send-option {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-top: 10px;
-  font-size: 13px;
+  gap: 14px;
+  width: 100%;
+  min-height: 68px;
+  box-sizing: border-box;
+  padding: 10px 16px;
+  border: 1.5px solid transparent;
+  border-radius: 12px;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.send-option span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.send-option strong {
+  font-size: 19px;
+}
+
+.send-option small {
+  font-size: 14px;
+  opacity: 0.92;
+}
+
+.send-option:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.option-whatsapp {
+  background: #1fa855;
+  color: #fff;
+}
+
+.option-whatsapp:active {
+  background: #178a45;
+}
+
+.option-picture {
+  background: var(--orange);
+  color: #fff;
+}
+
+.option-picture:active {
+  background: var(--orange-dark);
+}
+
+.option-hint {
+  background: #fff;
+  border-color: var(--line);
+  border-style: dashed;
   color: var(--muted);
 }
 
-.bill-link code {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.send-links {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin: 14px 0 0;
+  font-size: 15px;
 }
 
-/* Customer's bill link page */
-.public-bill {
-  max-width: 480px;
-  margin: 0 auto;
-  padding: 12px;
-}
-
-/* Text links, errors, notes and the pop-up message */
-.link,
-.link-danger {
-  border: none;
-  background: none;
-  padding: 0;
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: 14px;
+.send-links a {
   color: var(--blue);
 }
 
-.link-danger {
-  color: var(--red);
-  white-space: nowrap;
+.send-done {
+  padding: 40px 8px;
+  text-align: center;
 }
 
-.error {
-  color: var(--red);
-  margin: 8px 0 0;
+.send-done h2 {
+  margin: 8px 0 4px;
+  font-size: 24px;
 }
 
-.muted {
-  color: var(--muted);
+.send-done-mark {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #e3f4ea;
+  color: var(--green);
+  font-size: 40px;
+  line-height: 72px;
 }
 
-.toast {
-  position: fixed;
-  left: 50%;
-  bottom: 24px;
-  transform: translateX(-50%);
-  max-width: calc(100% - 32px);
-  padding: 10px 16px;
-  border-radius: 8px;
-  background: var(--ink);
-  color: #fff;
-  font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  z-index: 30; /* above the Send sheet */
-}
-
-/* Master View */
+/* All bills */
 .bills-search {
-  padding: 8px;
+  padding: 12px;
+  font-size: 17px;
 }
 
 .segmented {
   display: flex;
   gap: 4px;
-  margin: 8px 0;
-  padding: 3px;
-  border-radius: 8px;
+  margin: 10px 0;
+  padding: 4px;
+  border-radius: var(--radius);
   background: var(--soft);
 }
 
 .segment {
   flex: 1;
-  min-height: 40px;
+  min-height: 46px;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   background: none;
+  font-size: 17px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -615,10 +760,10 @@ select:focus {
 
 .segment-count {
   margin-left: 6px;
-  padding: 0 6px;
+  padding: 0 7px;
   border-radius: 999px;
   background: var(--line);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .segment.active .segment-count {
@@ -641,37 +786,37 @@ select:focus {
 
 .bills-bar select {
   flex: 1;
-  padding: 8px 6px;
+  padding: 10px 6px;
 }
 
 .bills-summary {
-  margin: 4px 0 8px;
-  font-size: 14px;
+  margin: 6px 0 10px;
   text-align: right;
+  font-size: 15px;
 }
 
 .bill-list {
-  list-style: none;
   margin: 0;
   padding: 0;
+  list-style: none;
 }
 
 .bill-card {
-  margin-bottom: 10px;
+  margin-bottom: 12px;
   border: 1px solid var(--line);
   border-left: 5px solid var(--green);
-  border-radius: 8px;
+  border-radius: var(--radius);
   background: #fff;
 }
 
 .bill-card.draft {
-  border-left-color: var(--yellow);
+  border-left-color: #e3a008;
 }
 
 .bill-card-main {
   display: block;
   width: 100%;
-  padding: 10px 10px 6px;
+  padding: 12px 12px 8px;
   border: none;
   background: none;
   text-align: left;
@@ -689,12 +834,12 @@ select:focus {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .bill-card-total {
-  font-size: 18px;
+  font-size: 20px;
   white-space: nowrap;
 }
 
@@ -702,8 +847,8 @@ select:focus {
 .bill-card-items,
 .bill-card-status {
   display: block;
-  margin-top: 3px;
-  font-size: 14px;
+  margin-top: 4px;
+  font-size: 16px;
   color: var(--muted);
 }
 
@@ -712,14 +857,10 @@ select:focus {
 }
 
 .bill-card-actions {
-  display: flex;
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
   gap: 8px;
-  padding: 0 10px 10px;
-}
-
-.bill-card-actions .btn {
-  flex: 1;
-  min-height: 44px;
+  padding: 0 12px 12px;
 }
 
 /* Draft / Sent labels */
@@ -731,21 +872,21 @@ select:focus {
 }
 
 .chip-status {
-  padding: 1px 8px;
+  padding: 2px 9px;
   border-radius: 999px;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
 }
 
 .chip-draft {
-  background: #fff3cd;
-  color: #7a5b00;
+  background: #fff1cc;
+  color: #6b4e00;
 }
 
 .chip-sent {
-  background: #d1f2df;
-  color: #11603a;
+  background: #dcf1e5;
+  color: #155c3a;
 }
 
 .chip-changed {
@@ -758,160 +899,28 @@ select:focus {
   color: #a51d2d;
 }
 
-/* Payment QR / Delivery pickers at the end of the bill */
-.bill-extras {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-.bill-extras label {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--muted);
-}
-
-.bill-extras select {
-  width: 100%;
-  min-width: 0;
-  padding: 8px 6px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
-  background: #fff;
-  color: var(--ink);
-}
-
-.settings-link {
-  margin: 14px 0 0;
-  text-align: center;
-  font-size: 14px;
-}
-
-.settings-link a {
-  color: var(--muted);
-}
-
-/* Delivery and payment on the bill */
-.inv-delivery {
-  display: flex;
-  flex-direction: column;
-  margin-top: 10px;
-  padding: 8px 10px;
-  border-radius: 6px;
-  background: #f6f6f6;
-  font-size: 14px;
-}
-
-.inv-pay span {
-  display: block;
-}
-
-.inv-qr-photo {
-  width: 104px;
-  height: 104px;
-  object-fit: contain;
-}
-
-.invoice a {
-  color: inherit;
-}
-
-/* Send choices */
-.sheet-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 20;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  background: rgba(0, 0, 0, 0.45);
-}
-
-.sheet {
-  width: 100%;
-  max-width: 520px;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 16px 12px calc(16px + env(safe-area-inset-bottom));
-  border-radius: 14px 14px 0 0;
-  background: #fff;
-}
-
-.sheet-title {
-  margin: 0 0 4px;
-  font-size: 17px;
-}
-
-.sheet-option {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 2px;
-  width: 100%;
-  min-height: 64px;
-  padding: 10px 14px;
-  border: none;
-  border-radius: 10px;
-  text-align: left;
-  cursor: pointer;
-}
-
-.sheet-option strong {
-  font-size: 18px;
-}
-
-.sheet-option span {
-  font-size: 14px;
-  opacity: 0.9;
-}
-
-.sheet-option:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
-.option-number {
-  background: #25d366;
-  color: #08361b;
-}
-
-.option-picture {
-  background: var(--orange);
-  color: #fff;
-}
-
-.btn.disabled {
-  opacity: 0.6;
-  pointer-events: none;
-}
-
 /* Settings */
 .settings h3 {
-  margin: 18px 0 2px;
+  margin: 20px 0 2px;
+  font-size: 19px;
 }
 
 .settings > .muted {
   margin: 0 0 8px;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .settings-list {
-  list-style: none;
   margin: 0 0 10px;
   padding: 0;
+  list-style: none;
 }
 
 .settings-item {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 0;
+  padding: 10px 0;
   border-bottom: 1px solid var(--soft);
 }
 
@@ -933,40 +942,78 @@ select:focus {
   overflow-wrap: anywhere;
 }
 
+.settings-text strong {
+  font-size: 17px;
+}
+
 .settings-text .muted {
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .settings-actions {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 6px;
+  gap: 8px;
 }
 
 .settings-form {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  margin: 8px 0 12px;
-  padding: 10px;
+  gap: 8px;
+  margin: 8px 0 14px;
+  padding: 12px;
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: var(--radius);
+  background: #fff;
 }
 
 .settings-form .muted {
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .settings-form input {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 8px;
-  border: 1px solid var(--line);
-  border-radius: 4px;
+  padding: 10px;
+}
+
+/* PIN */
+.pin {
+  max-width: 320px;
+  margin: 12vh auto 0;
+  padding: 0 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pin-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.pin h1 {
+  margin: 0;
+  font-size: 26px;
+  color: var(--orange);
+}
+
+.pin input {
+  padding: 12px;
+  font-size: 24px;
+  letter-spacing: 4px;
+  text-align: center;
 }
 
 /* Customer's bill page */
+.public-bill {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
 .public-hello {
   display: flex;
   align-items: center;
@@ -990,12 +1037,12 @@ select:focus {
   box-sizing: border-box;
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--radius);
   background: #fff;
-  color: var(--ink);
+  font: inherit;
   text-align: left;
   text-decoration: none;
-  font: inherit;
+  color: var(--ink);
   cursor: pointer;
 }
 
@@ -1024,35 +1071,4 @@ select:focus {
   width: 28px;
   height: 28px;
   fill: var(--orange);
-}
-
-/* PIN */
-.pin {
-  max-width: 320px;
-  margin: 15vh auto 0;
-  padding: 0 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.pin-brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.pin h1 {
-  margin: 0;
-  font-size: 26px;
-  color: var(--orange);
-}
-
-.pin input {
-  font-size: 24px;
-  letter-spacing: 4px;
-  text-align: center;
-  padding: 10px;
 }
