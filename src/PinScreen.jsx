@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { checkPin, setPin } from './api';
+import Logo from './Logo';
 
 export default function PinScreen({ onUnlock }) {
   const [pin, setPinValue] = useState('');
@@ -24,7 +25,10 @@ export default function PinScreen({ onUnlock }) {
 
   return (
     <form className="pin" onSubmit={submit}>
-      <h1>Billing</h1>
+      <div className="pin-brand">
+        <Logo size={72} />
+        <h1>Bansal Store</h1>
+      </div>
       <label htmlFor="shop-pin">Enter shop PIN</label>
       <input
         id="shop-pin"

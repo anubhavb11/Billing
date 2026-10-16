@@ -70,3 +70,6 @@ export const updateBill = (billNo, bill) =>
   request(`/api/bills/${billNo}`, { method: 'PUT', body: bill }).then((d) => d.bill);
 export const deleteBill = (billNo) => request(`/api/bills/${billNo}`, { method: 'DELETE' });
 export const markSent = (billNo) => request(`/api/bills/${billNo}/sent`, { method: 'POST' }).then((d) => d.bill);
+export const getSettings = () => request('/api/settings').then((d) => d.settings);
+export const putSettings = (settings) =>
+  request('/api/settings', { method: 'PUT', body: settings }).then((d) => d.settings);

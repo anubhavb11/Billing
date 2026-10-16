@@ -64,3 +64,42 @@ test('bill text carries the customer link when the bill has one', () => {
   });
   expect(text).toContain(`View bill: ${window.location.origin}/b/72cd3bd037d24683`);
 });
+
+describe('payment QR and picture caption', () => {
+  const { paymentUpiId, qrText, resolvePayment, upiPayLink } = require('./shopSettings');
+  const { shareFile } = require('./share');
+
+  test('UPI ID QR carries the amount; a scanned QR stays exactly as printed', () => {
+    const upi = { id: 'p1', type: 'upi', label: 'GPay', upiId: 'shop@okicici', payeeName: '' };
+    expect(upiPayLink(upi, { total: 505, billNo: 2 })).toBe(
+      'upi://pay?pa=shop@okicici&pn=Bansal%20Store&am=505.00&cu=INR&tn=Bill%202'
+    );
+    expect(upiPayLink(upi, { total: 0, billNo: null })).not.toContain('am=');
+    const scanned = { id: 'p2', type: 'qr', label: 'PhonePe', payload: 'upi://pay?pa=biz%40ybl&mc=5411' };
+    expect(qrText(scanned, { total: 505 })).toBe(scanned.payload);
+    expect(paymentUpiId(scanned)).toBe('biz@ybl');
+  });
+
+  test('a QR photo is looked up in settings and dropped once removed', () => {
+    const settings = { payments: [{ id: 'p3', type: 'image', label: 'QR', image: 'data:image/jpeg;base64,AA==' }] };
+    expect(resolvePayment({ id: 'p3', type: 'image', label: 'QR' }, settings).image).toContain('data:image');
+    expect(resolvePayment({ id: 'gone', type: 'image', label: 'QR' }, settings)).toBeNull();
+    expect(resolvePayment(null, settings)).toBeNull();
+  });
+
+  test('picture goes with the link on Android, alone on iPhone', async () => {
+    const file = new File(['png'], 'Bill-2.png', { type: 'image/png' });
+    const share = jest.fn().mockResolvedValue(undefined);
+    Object.assign(navigator, { canShare: () => true, share });
+    const ua = jest.spyOn(navigator, 'userAgent', 'get');
+
+    ua.mockReturnValue('Mozilla/5.0 (Linux; Android 14) Chrome/130');
+    await shareFile(file, 'Bansal Store · Bill #2\nhttps://x/b/abc');
+    expect(share).toHaveBeenLastCalledWith({ files: [file], text: 'Bansal Store · Bill #2\nhttps://x/b/abc' });
+
+    ua.mockReturnValue('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)');
+    await shareFile(file, 'Bansal Store · Bill #2\nhttps://x/b/abc');
+    expect(share).toHaveBeenLastCalledWith({ files: [file] });
+    ua.mockRestore();
+  });
+});

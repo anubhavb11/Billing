@@ -5,12 +5,17 @@ import {
   cleanNumber,
   emptyRow,
   hasUnsavedWork,
-  newDraft,
   rowHasContent,
   withAmount,
 } from './bill';
 import { formatAmount, formatDate, formatMoney, formatWhen } from './format';
+import { deliverySnapshot, paymentSnapshot } from './shopSettings';
+import Logo from './Logo';
 import StatusChips from './StatusChips';
+
+// Keeps a picked option visible even after it was removed from Settings.
+const withCurrent = (options, current) =>
+  current && !options.some((o) => o.id === current.id) ? [...options, { ...current, removed: true }] : options;
 
 // Enter / "Next" on the phone keyboard jumps to the next box instead of submitting
 // (or adding a new line in Item / Description).
@@ -42,7 +47,7 @@ function WrapText(props) {
   return <textarea ref={ref} rows={1} {...props} />;
 }
 
-export default function Billing({ draft, setDraft, notify, onSave, onSend, sending, onDeleted }) {
+export default function Billing({ draft, setDraft, settings, notify, onSave, onSend, onNew, sending, onDeleted }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -79,7 +84,7 @@ export default function Billing({ draft, setDraft, notify, onSave, onSend, sendi
 
   const clear = () => {
     if (hasUnsavedWork(draft) && !window.confirm('Clear this bill? It is not saved yet.')) return;
-    setDraft(newDraft());
+    onNew();
     setError('');
   };
 
@@ -106,7 +111,7 @@ export default function Billing({ draft, setDraft, notify, onSave, onSend, sendi
     try {
       await deleteBill(billNo);
       onDeleted(billNo);
-      setDraft(newDraft());
+      onNew();
       setError('');
       notify(`Bill #${billNo} deleted`);
     } catch (err) {
@@ -119,6 +124,21 @@ export default function Billing({ draft, setDraft, notify, onSave, onSend, sendi
 
   return (
     <form className="bill" onSubmit={(e) => e.preventDefault()} onKeyDown={focusNext} autoComplete="off">
+      {/* Stays at the top while scrolling, so the bill number is always in view. */}
+      <header className="topbar">
+        <Logo size={30} />
+        <span className="topbar-name">Bansal Store</span>
+        <span className="topbar-bill">
+          {draft.billNo ? (
+            <>
+              Bill <strong>#{draft.billNo}</strong>
+            </>
+          ) : (
+            <strong>New bill</strong>
+          )}
+        </span>
+      </header>
+
       {draft.billNo ? (
         <div className={draft.status === 'sent' ? 'bill-meta editing sent' : 'bill-meta editing'}>
           <div>
@@ -135,7 +155,7 @@ export default function Billing({ draft, setDraft, notify, onSave, onSend, sendi
       ) : (
         <div className="bill-meta">
           <span>
-            <strong>New bill</strong> · {formatDate(new Date())}
+            {formatDate(new Date())} · gets its number when saved
           </span>
         </div>
       )}
@@ -253,6 +273,51 @@ export default function Billing({ draft, setDraft, notify, onSave, onSend, sendi
         </tfoot>
       </table>
 
+      {(settings.payments.length > 0 || settings.delivery.length > 0 || draft.payment || draft.delivery) && (
+        <div className="bill-extras">
+          {(settings.payments.length > 0 || draft.payment) && (
+            <label>
+              <span>Payment QR</span>
+              <select
+                value={draft.payment?.id ?? ''}
+                onChange={(e) => {
+                  const picked = settings.payments.find((p) => p.id === e.target.value);
+                  edit((d) => ({ ...d, payment: paymentSnapshot(picked) }));
+                }}
+              >
+                <option value="">No QR</option>
+                {withCurrent(settings.payments, draft.payment).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.label}
+                    {p.removed ? ' (removed)' : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+          {(settings.delivery.length > 0 || draft.delivery) && (
+            <label>
+              <span>Delivery</span>
+              <select
+                value={draft.delivery?.id ?? ''}
+                onChange={(e) => {
+                  const picked = settings.delivery.find((p) => p.id === e.target.value);
+                  edit((d) => ({ ...d, delivery: deliverySnapshot(picked) ?? null }));
+                }}
+              >
+                <option value="">No delivery</option>
+                {withCurrent(settings.delivery, draft.delivery).map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                    {p.removed ? ' (removed)' : ''}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
+        </div>
+      )}
+
       {error && (
         <p className="error" role="alert">
           {error}
@@ -276,12 +341,15 @@ export default function Billing({ draft, setDraft, notify, onSave, onSend, sendi
           View
         </a>
         <button type="button" className="btn btn-send" onClick={onSend} disabled={sending || saving}>
-          {sending ? 'Sending…' : 'Send'}
+          {sending ? 'Saving…' : 'Send'}
         </button>
         <a href="#/bills" className="btn btn-master">
           Master View
         </a>
       </div>
+      <p className="settings-link">
+        <a href="#/settings">Settings · payment QR, delivery</a>
+      </p>
     </form>
   );
 }
