@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createBill, deleteBill, updateBill } from './api';
 import {
   billPayload,
@@ -12,14 +12,34 @@ import {
 } from './bill';
 import { formatAmount, formatDate, formatDateTime, formatMoney } from './format';
 
-// Enter / "Next" on the phone keyboard jumps to the next box instead of submitting.
+// Enter / "Next" on the phone keyboard jumps to the next box instead of submitting
+// (or adding a new line in Item / Description).
 function focusNext(e) {
-  if (e.key !== 'Enter' || e.target.tagName !== 'INPUT') return;
+  if (e.key !== 'Enter' || e.nativeEvent.isComposing) return;
+  if (e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') return;
   e.preventDefault();
-  const fields = Array.from(e.currentTarget.querySelectorAll('input'));
+  const fields = Array.from(e.currentTarget.querySelectorAll('input, textarea'));
   const next = fields[fields.indexOf(e.target) + 1];
   if (next) next.focus();
   else e.target.blur();
+}
+
+const fitHeight = (el) => {
+  el.style.height = 'auto';
+  el.style.height = `${el.scrollHeight + 2}px`; // + top and bottom border
+};
+
+// Long item names wrap onto more lines (the box grows downward) instead of
+// scrolling sideways out of view.
+function WrapText(props) {
+  const ref = useRef(null);
+  useLayoutEffect(() => fitHeight(ref.current), [props.value]);
+  useEffect(() => {
+    const refit = () => ref.current && fitHeight(ref.current);
+    window.addEventListener('resize', refit);
+    return () => window.removeEventListener('resize', refit);
+  }, []);
+  return <textarea ref={ref} rows={1} {...props} />;
 }
 
 export default function Billing({ draft, setDraft, notify, onSaved, onDeleted }) {
@@ -35,7 +55,12 @@ export default function Billing({ draft, setDraft, notify, onSaved, onDeleted })
 
   const setCell = (index, field) => (e) => {
     const raw = e.target.value;
-    const value = field === 'qty' ? cleanNumber(raw) : field === 'rate' ? cleanNumber(raw, true) : raw;
+    const value =
+      field === 'qty'
+        ? cleanNumber(raw)
+        : field === 'rate'
+          ? cleanNumber(raw, true)
+          : raw.replace(/\s*\n\s*/g, ' '); // pasted line breaks become spaces
     edit((d) => ({
       ...d,
       items: d.items.map((row, i) => (i === index ? withAmount({ ...row, [field]: value }) : row)),
@@ -175,7 +200,7 @@ export default function Billing({ draft, setDraft, notify, onSaved, onDeleted })
             <tr key={row.id}>
               <td className="sno">{i + 1}</td>
               <td>
-                <input
+                <WrapText
                   aria-label={`Row ${i + 1} item`}
                   value={row.name}
                   onChange={setCell(i, 'name')}
@@ -183,7 +208,7 @@ export default function Billing({ draft, setDraft, notify, onSaved, onDeleted })
                 />
               </td>
               <td>
-                <input
+                <WrapText
                   aria-label={`Row ${i + 1} description`}
                   value={row.description}
                   onChange={setCell(i, 'description')}
