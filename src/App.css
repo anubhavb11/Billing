@@ -23,6 +23,7 @@ body {
 }
 
 input,
+textarea,
 select,
 button {
   font: inherit;
@@ -93,6 +94,7 @@ button {
 
 .customer input,
 .items input,
+.items textarea,
 .bills-search,
 .date-range input,
 .bills-bar select,
@@ -111,6 +113,7 @@ button {
 }
 
 input:focus,
+textarea:focus,
 select:focus {
   outline: 2px solid var(--blue);
   outline-offset: -1px;
@@ -153,6 +156,20 @@ select:focus {
 
 .items td {
   padding: 2px;
+  vertical-align: top;
+}
+
+.items input,
+.items textarea {
+  line-height: 20px;
+}
+
+/* Item and Description grow downward as the text wraps (see WrapText) */
+.items textarea {
+  display: block;
+  resize: none;
+  overflow: hidden;
+  overflow-wrap: anywhere;
 }
 
 .items .num {
@@ -160,12 +177,14 @@ select:focus {
 }
 
 .items .sno {
+  padding-top: 9px;
   font-size: 14px;
   color: var(--muted);
   text-align: center;
 }
 
 .items .amount {
+  padding-top: 9px;
   font-size: 14px;
   font-variant-numeric: tabular-nums;
   overflow-wrap: anywhere;
