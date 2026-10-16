@@ -1,184 +1,93 @@
+import { useCallback, useEffect, useState } from 'react';
 import './App.css';
-import { useState, useEffect } from 'react';
-import Billing from './components/Billing/Billing';
-import Invoice from './components/Invoice/Invoice';
-import Bills from './components/Bills/Bills';
-import { Button } from 'reactstrap';
-import { ToastContainer, toast } from 'react-toastify';
-function App() {
+import { getPin } from './api';
+import Billing from './Billing';
+import Bills from './Bills';
+import { DEFAULT_FILTERS } from './billsFilter';
+import { draftFromBill, hasUnsavedWork, loadDraft, saveDraft } from './bill';
+import Invoice from './Invoice';
+import PinScreen from './PinScreen';
 
+// "#/" is the bill on screen, "#/view" its invoice, "#/bills" the list (Master
+// View). Hash links keep the phone's back button working on any static host.
+function useHash() {
+  const [hash, setHash] = useState(window.location.hash);
   useEffect(() => {
-    const unloadCallback = (event) => {
-      event.preventDefault();
-      event.returnValue = "";
-      return "";
-    };
-
-    window.addEventListener("beforeunload", unloadCallback);
-    return () => window.removeEventListener("beforeunload", unloadCallback);
+    const onChange = () => setHash(window.location.hash);
+    window.addEventListener('hashchange', onChange);
+    return () => window.removeEventListener('hashchange', onChange);
   }, []);
-  const [items, setItems] = useState([
-    {
-      "name": "",
-      "description": '',
-      "qty": "",
-      "rate": "",
-      "amount": "",
-    }, {
-      name: "",
-      description: '',
-      qty: "",
-      rate: "",
-      amount: "",
-    }, {
-      name: "",
-      description: '',
-      qty: "",
-      rate: "",
-      amount: "",
-    }, {
-      name: "",
-      description: '',
-      qty: "",
-      rate: "",
-      amount: "",
-    }, {
-      name: "",
-      description: '',
-      qty: "",
-      rate: "",
-      amount: "",
-    }
-  ]);
+  return hash;
+}
 
-  const [view, setView] = useState('Bill')
+export default function App() {
+  const hash = useHash();
+  const [unlocked, setUnlocked] = useState(() => getPin() !== '');
+  const [draft, setDraft] = useState(loadDraft);
+  const [bills, setBills] = useState(null);
+  const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [toast, setToast] = useState(null);
+
+  useEffect(() => saveDraft(draft), [draft]);
 
   useEffect(() => {
-    const x = JSON.parse(localStorage.getItem('userOrder'));
-    if (x) {
-      setItems(x);
-    }
-  }, [])
+    const lock = () => setUnlocked(false);
+    window.addEventListener('pin-required', lock);
+    return () => window.removeEventListener('pin-required', lock);
+  }, []);
 
-  const setBillView = (items) => {
-    setItems(items);
+  useEffect(() => {
+    if (!toast) return undefined;
+    const timer = setTimeout(() => setToast(null), 2500);
+    return () => clearTimeout(timer);
+  }, [toast]);
 
-    setView('Invoice');
+  const notify = useCallback((message) => setToast({ message, at: Date.now() }), []);
 
-  }
+  const onSaved = (bill) =>
+    setBills((list) => list && [bill, ...list.filter((b) => b.billNo !== bill.billNo)]);
+  const onDeleted = (billNo) => setBills((list) => list && list.filter((b) => b.billNo !== billNo));
 
-  const handelInputChange = (e, id, type) => {
-    const cpyItems = [...items];
-    cpyItems[id][type] = e.target.value;
-    let item = cpyItems[id];
-    if (type === 'rate' || type === 'qty') {
-      isNaN(item.qty * item.rate) ? item["amount"] = 0 : item["amount"] = item.qty * item.rate;
-    }
-    setItems(cpyItems)
-  }
-  const createNewItem = () => {
-    const cpyItems = [...items];
-    cpyItems.push({
-      name: "",
-      description: '',
-      qty: "",
-      rate: "",
-      amount: "",
-    });
-    setItems(cpyItems)
-  }
-
-  const deleteItem = (id) => {
-    const cpyItems = [...items];
-    cpyItems.splice(id, 1);
-    setItems(cpyItems)
-  }
-
-  const createTotal = () => {
-    const cpyItems = [...items];
-    let ans = 0;
-    cpyItems.forEach((item, id) => {
-      if (!isNaN(item.amount) && item.amount != null && item.amount !== '' && !isNaN(ans)) {
-        console.log(ans)
-        ans = ans + parseInt(item.amount);
-
-      }
-      console.log(ans)
-    });
-    return ans
-  }
-
-  const setlocal = () => {
-    toast.success("Saved !");
-    localStorage.setItem('userOrder', JSON.stringify(items))
-  }
-  const clearItem = () => {
-    toast.success("Cleared !");
-    localStorage.setItem('userOrder', JSON.stringify([
-      {
-        "name": "",
-        "description": '',
-        "qty": "",
-        "rate": "",
-        "amount": "",
-      }, {
-        name: "",
-        description: '',
-        qty: "",
-        rate: "",
-        amount: "",
-      }, {
-        name: "",
-        description: '',
-        qty: "",
-        rate: "",
-        amount: "",
-      }, {
-        name: "",
-        description: '',
-        qty: "",
-        rate: "",
-        amount: "",
-      }, {
-        name: "",
-        description: '',
-        qty: "",
-        rate: "",
-        amount: "",
-      }
-    ]))
-  }
-
-  const changeView = (master = '') => {
-    if (master === 'master') {
-      setView('AllBills');
+  const openBill = (bill) => {
+    if (
+      hasUnsavedWork(draft) &&
+      draft.billNo !== bill.billNo &&
+      !window.confirm(`The bill on screen is not saved. Open bill #${bill.billNo} anyway?`)
+    ) {
       return;
     }
-    if (view === 'Bill') {
-      setView('Invoice')
-    }
-    else {
-      setView('Bill')
-    }
-  }
+    setDraft(draftFromBill(bill));
+    // Like the old Master View: a bill opens as its invoice; "Bill" goes on to edit it.
+    window.location.hash = '#/view';
+  };
 
+  if (!unlocked) return <PinScreen onUnlock={() => setUnlocked(true)} />;
+
+  const page = hash === '#/bills' ? 'bills' : hash === '#/view' ? 'view' : 'bill';
   return (
-    <div className="App">
-      {view === 'AllBills' && <Bills setBillView={setBillView} />}
-      {view === 'Bill' && <Billing items={items} handelInputChange={handelInputChange} createNewItem={createNewItem} deleteItem={deleteItem} setlocal={setlocal} createTotal={createTotal} clearItem={clearItem} />}
-      <Button color="info" className='btn' onClick={() => changeView()} >View</Button>
-      {view === 'Invoice' && <Invoice items={items} createTotal={createTotal} />}
-      <Button onClick={() => changeView("master")}>Master View</Button>
-      <ToastContainer
-        position="bottom-center"
-        autoClose={500}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-      />
+    <div className="app">
+      {page !== 'bill' && (
+        <nav className="back-bar">
+          <a href="#/" className="btn btn-back">
+            ← Bill
+          </a>
+          <span className="back-title">{page === 'view' ? 'View' : 'Master View'}</span>
+        </nav>
+      )}
+
+      {page === 'bills' && (
+        <Bills bills={bills} setBills={setBills} filters={filters} setFilters={setFilters} onOpen={openBill} />
+      )}
+      {page === 'view' && <Invoice draft={draft} />}
+      {page === 'bill' && (
+        <Billing draft={draft} setDraft={setDraft} notify={notify} onSaved={onSaved} onDeleted={onDeleted} />
+      )}
+
+      {toast && (
+        <div className="toast" role="status" key={toast.at}>
+          {toast.message}
+        </div>
+      )}
     </div>
   );
 }
-
-export default App;
