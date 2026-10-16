@@ -24,3 +24,6 @@ yarn-error.log*
 
 # local API settings (see .env.example)
 .env
+
+# Netlify CLI local state
+.netlify

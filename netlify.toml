@@ -1,5 +1,6 @@
 [build]
-  command = "npm run build"
+  # Same as the project's existing Netlify setting: a lint warning shouldn't fail the deploy.
+  command = "CI= npm run build"
   publish = "build"
 
 [functions]
