@@ -1,70 +1,36 @@
-# Getting Started with Create React App
+# Billing
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A one-screen billing page for the shop, made to be used on a phone. Bills are saved to a
+Postgres database (Neon) through Netlify Functions, and the **All Bills** tab lists them with
+search, date filters and sorting.
 
-## Available Scripts
+- `src/` – the React app (Create React App). `#/` is the bill, `#/bills` is the list.
+- `netlify/functions/bills.mjs` – the API (`/api/bills`, `/api/ping`), code in `netlify/lib/`.
+- The `bills` table is created automatically on the first request.
+- Every API call needs the shop PIN (`SHOP_PIN`). The phone asks for it once and remembers it.
 
-In the project directory, you can run:
+## Run it locally
 
-### `npm start`
+Needs Node 20+ and a Postgres database (local Postgres, or a Neon branch).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```bash
+npm install
+cp .env.example .env        # then set DATABASE_URL and SHOP_PIN
+npm run api                 # terminal 1: API on http://localhost:8787
+npm start                   # terminal 2: app on http://localhost:3000 (proxies /api)
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+Tests: `npm test`.
 
-### `npm test`
+## Set up on Netlify
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. **Database.** Either add the Neon extension to the Netlify site (it sets
+   `NETLIFY_DATABASE_URL` for you), or create a free project on neon.tech and add its
+   connection string as `DATABASE_URL` under *Site configuration → Environment variables*.
+2. **PIN.** Add `SHOP_PIN` (6 or more digits) in the same place.
+3. **Deploy from Git or the Netlify CLI** (`npx netlify-cli deploy --build --prod`).
+   Drag-and-drop deploys only upload static files, so the bill-saving API would be missing.
+4. On the phone: open the site, enter the PIN once, then *Add to Home Screen*.
 
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Deleting a bill hides it from the app but keeps the row (`deleted_at` is set), so a
+mistaken delete can be undone in the database.
