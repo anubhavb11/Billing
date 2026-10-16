@@ -30,6 +30,15 @@ export function lineAmount(qty, rate) {
 
 export const withAmount = (row) => ({ ...row, amount: lineAmount(row.qty, row.rate) });
 
+// Once he types in the last row, two empty rows appear below it, so he never has
+// to tap "Add item" in the middle of a bill.
+export const SPARE_ROWS = 2;
+export function withSpareRows(items) {
+  const last = items[items.length - 1];
+  if (!last || !rowHasContent(last)) return items;
+  return [...items, ...Array.from({ length: SPARE_ROWS }, emptyRow)];
+}
+
 export const rowHasContent = (row) =>
   [row.name, row.description, row.qty, row.rate].some((v) => String(v ?? '').trim() !== '');
 
@@ -49,7 +58,7 @@ export function padRows(items) {
     })
   );
   while (rows.length < MIN_ROWS) rows.push(emptyRow());
-  return rows;
+  return withSpareRows(rows);
 }
 
 const draftKey = () => `new-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;

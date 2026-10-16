@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { deleteBill } from './api';
-import { billTotal, cleanNumber, emptyRow, rowHasContent, withAmount } from './bill';
+import { billTotal, cleanNumber, emptyRow, rowHasContent, withAmount, withSpareRows } from './bill';
 import { formatAmount, formatDate, formatMoney, formatWhen } from './format';
 import { ClearIcon, ListIcon, SendIcon } from './Icons';
 import Logo from './Logo';
@@ -69,7 +69,7 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
           : raw.replace(/\s*\n\s*/g, ' '); // pasted line breaks become spaces
     edit((d) => ({
       ...d,
-      items: d.items.map((row, i) => (i === index ? withAmount({ ...row, [field]: value }) : row)),
+      items: withSpareRows(d.items.map((row, i) => (i === index ? withAmount({ ...row, [field]: value }) : row))),
     }));
   };
 

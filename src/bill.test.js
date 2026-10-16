@@ -58,3 +58,21 @@ test('picks up a bill typed in the old version', () => {
   expect(hasUnsavedWork(draft)).toBe(true);
   localStorage.clear();
 });
+
+test('typing in the last row adds two empty rows below it', () => {
+  const { withSpareRows } = require('./bill');
+  const rows = newDraft().items; // 5 empty rows
+  expect(withSpareRows(rows)).toHaveLength(5);
+  const typedInLast = rows.map((r, i) => (i === 4 ? { ...r, name: 'Sugar' } : r));
+  const more = withSpareRows(typedInLast);
+  expect(more).toHaveLength(7);
+  expect(more.slice(5).every((r) => !r.name && !r.qty)).toBe(true);
+  expect(withSpareRows(more)).toHaveLength(7); // still spare rows: nothing added
+});
+
+test('a reopened bill with every row filled gets spare rows', () => {
+  const items = Array.from({ length: 5 }, (_, i) => ({ name: `Item ${i + 1}`, description: '', qty: 1, rate: 10, amount: 10 }));
+  const draft = draftFromBill({ billNo: 9, createdAt: '2026-10-17T10:00:00Z', items });
+  expect(draft.items).toHaveLength(7);
+  expect(billPayload(draft).items).toHaveLength(5); // empty rows are never saved
+});
