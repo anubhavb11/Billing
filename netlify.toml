@@ -5,3 +5,9 @@
 
 [functions]
   directory = "netlify/functions"
+
+# Customer bill links (/b/<token>) are served by the app.
+[[redirects]]
+  from = "/b/*"
+  to = "/index.html"
+  status = 200

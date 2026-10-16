@@ -1,14 +1,24 @@
 # Billing
 
-A one-screen billing page for the shop, made to be used on a phone. **Save** stores the bill in a
-Postgres database (Neon) through Netlify Functions, **View** shows the Bansal Store invoice with
-a screenshot to share, and **Master View** lists saved bills with search, date filters and sorting.
+A one-screen billing page for the shop, made to be used on a phone.
+
+- **Save** stores the bill (Postgres on Neon, through Netlify Functions) as a **Draft**.
+- **Send** shares the bill picture through the phone's share menu (WhatsApp etc.) with the
+  customer's private bill link, and marks the bill **Sent**. With a phone number, View also has
+  a WhatsApp button that opens that customer's chat with the bill as text.
+- **Master View** lists bills as cards (Drafts / Sent, missing rates, search, dates, sort) with
+  **Edit** to finish a draft and **Send**.
+- **Bill link** `/b/<token>` shows one bill to the customer without the PIN.
+
+Code:
 
 - `src/` – the React app (Create React App). `#/` is the bill, `#/view` the invoice, `#/bills`
-  the list. Shop details printed on the invoice are in `src/shop.js`.
-- `netlify/functions/bills.mjs` – the API (`/api/bills`, `/api/ping`), code in `netlify/lib/`.
-- The `bills` table is created automatically on the first request.
-- Every API call needs the shop PIN (`SHOP_PIN`). The phone asks for it once and remembers it.
+  Master View, `/b/<token>` the customer's page. Shop details (and an optional UPI ID that adds
+  a scan-to-pay QR to every bill) are in `src/shop.js`.
+- `netlify/functions/bills.mjs` – the API, code in `netlify/lib/bills-api.mjs`.
+- The `bills` table (and later columns) are created automatically on the first request.
+- Every API call except `/api/public/bills/:token` needs the shop PIN (`SHOP_PIN`). The phone
+  asks for it once and remembers it.
 
 ## Run it locally
 

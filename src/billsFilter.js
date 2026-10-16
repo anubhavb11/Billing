@@ -1,15 +1,23 @@
 import { rowHasContent } from './bill';
 
-export const DEFAULT_FILTERS = { q: '', range: 'all', from: '', to: '', sort: 'newest' };
+export const DEFAULT_FILTERS = { q: '', status: 'all', range: 'all', from: '', to: '', sort: 'newest' };
+
+export const STATUSES = [
+  ['all', 'All'],
+  ['draft', 'Drafts'],
+  ['sent', 'Sent'],
+];
 
 export const RANGES = [
-  ['all', 'All'],
+  ['all', 'Any date'],
   ['today', 'Today'],
   ['yesterday', 'Yesterday'],
   ['7d', 'Last 7 days'],
   ['month', 'This month'],
-  ['custom', 'Dates'],
+  ['custom', 'Pick dates…'],
 ];
+
+export const isDraft = (bill) => bill.status !== 'sent';
 
 export const SORTS = [
   ['newest', 'Newest first'],
@@ -86,9 +94,18 @@ export function filterBills(bills, filters, now = new Date()) {
       const created = new Date(bill.createdAt);
       if (start && created < start) return false;
       if (end && created >= end) return false;
+      if (filters.status === 'draft' && !isDraft(bill)) return false;
+      if (filters.status === 'sent' && isDraft(bill)) return false;
       return matchesSearch(bill, q);
     })
     .sort(SORTERS[filters.sort] || byNewest);
 }
 
 export const itemCount = (bill) => bill.items.filter(rowHasContent).length;
+
+// "अरहर दाल तूर, Mustard oil +2 more"
+export function itemPreview(bill, shown = 2) {
+  const names = bill.items.filter(rowHasContent).map((item) => item.name || item.description);
+  const extra = names.length - shown;
+  return names.slice(0, shown).join(', ') + (extra > 0 ? ` +${extra} more` : '');
+}

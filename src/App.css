@@ -81,6 +81,24 @@ button {
   color: var(--ink);
 }
 
+/* "Editing Bill #12" banner while a saved bill is open */
+.bill-meta.editing {
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: #fff8e1;
+  color: var(--ink);
+}
+
+.bill-meta.editing.sent {
+  background: #e8f7ee;
+}
+
+.bill-meta-sub {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
 .customer {
   display: grid;
   grid-template-columns: 3fr 2fr;
@@ -269,6 +287,24 @@ select:focus {
   color: #fff;
 }
 
+.btn-send {
+  flex: 1;
+  background: var(--orange);
+  color: #fff;
+}
+
+.btn-whatsapp {
+  flex: 1;
+  background: #25d366;
+  color: #0b3d1f;
+}
+
+.btn-wide {
+  width: 100%;
+  margin-top: 12px;
+  font-size: 18px;
+}
+
 .btn-light {
   flex: 1;
   background: var(--soft);
@@ -276,139 +312,225 @@ select:focus {
   border: 1px solid var(--line);
 }
 
-/* View (invoice) */
+/* The bill (View screen, shared picture, customer link) */
 .invoice {
-  border-top: 10px solid var(--orange);
-  border-bottom: 10px solid var(--orange);
-  padding: 8px 4px 4px;
+  padding: 14px 12px 12px;
+  border-top: 8px solid var(--orange);
+  border-radius: 6px;
   background: #fff;
+  color: #222;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
 }
 
 .invoice p {
-  margin: 2px 0;
+  margin: 0;
 }
 
-.store-name {
-  color: #ff4000;
-  margin: 4px 0;
+.inv-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--orange);
 }
 
-.invoice-meta,
-.invoice-customer {
+.inv-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  color: #555;
+}
+
+.inv-shop {
+  margin: 0 0 2px;
+  font-size: 24px;
+  color: var(--orange);
+}
+
+.inv-billno {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  white-space: nowrap;
+}
+
+.inv-billno strong {
+  font-size: 20px;
+  color: #222;
+}
+
+.inv-to {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
   font-size: 14px;
-  color: var(--muted);
 }
 
-.invoice-table {
+.inv-to strong {
+  font-size: 16px;
+}
+
+.inv-table {
   width: 100%;
+  margin-top: 8px;
   border-collapse: collapse;
-  margin: 8px 0;
   font-size: 14px;
 }
 
-.invoice-table th,
-.invoice-table td {
-  border: 0.5px solid #000;
-  padding: 5px 3px;
+.inv-table th {
+  padding: 6px 4px;
+  background: #fbe7df;
+  color: #8a2e10;
+  font-size: 12px;
   text-align: left;
+  white-space: nowrap;
 }
 
-.invoice-table td {
+.inv-table td {
+  padding: 7px 4px;
+  border-bottom: 1px solid #f0f0f0;
+  vertical-align: top;
+}
+
+.inv-table tbody tr:nth-child(even) td {
+  background: #fcfaf8;
+}
+
+.inv-table .num {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.inv-sno {
+  color: #888;
+}
+
+.inv-item {
+  display: block;
   overflow-wrap: anywhere;
 }
 
-.invoice-table th {
-  color: #fff;
-  background: var(--orange);
-  font-size: 13px;
-}
-
-/* Numbers and one-word headers never split across lines */
-.invoice-table .nowrap {
-  white-space: nowrap;
-  overflow-wrap: normal;
-}
-
-.invoice-table .num {
-  text-align: right;
-}
-
-.invoice-total {
-  font-size: 20px;
-  text-align: right;
-}
-
-.invoice-image {
+.inv-desc {
   display: block;
-  width: 100%;
-  margin-top: 8px;
-  border: 1px solid var(--line);
+  font-size: 12px;
+  color: #777;
+  overflow-wrap: anywhere;
 }
 
-.link,
-.link-danger {
-  border: none;
-  background: none;
-  padding: 0;
-  text-decoration: underline;
-  cursor: pointer;
+.inv-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-radius: 6px;
+  background: var(--orange);
+  color: #fff;
+  font-size: 15px;
+}
+
+.inv-total strong {
+  margin-left: 6px;
+  font-size: 22px;
+}
+
+.inv-pay {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  padding: 8px;
+  border: 1px dashed #ccc;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #555;
+}
+
+.inv-pay strong {
+  display: block;
+  font-size: 15px;
+  color: #222;
+}
+
+.inv-thanks {
+  margin-top: 12px;
+  text-align: center;
   font-size: 14px;
-  color: var(--blue);
+  color: #8a2e10;
 }
 
-.link-danger {
-  color: var(--red);
-  white-space: nowrap;
+.invoice-page .btn-wide {
+  margin-top: 14px;
 }
 
-.error {
-  color: var(--red);
-  margin: 8px 0 0;
-}
-
-.muted {
+.bill-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 13px;
   color: var(--muted);
 }
 
-.toast {
-  position: fixed;
-  left: 50%;
-  bottom: 24px;
-  transform: translateX(-50%);
-  max-width: calc(100% - 32px);
-  padding: 10px 16px;
-  border-radius: 8px;
-  background: var(--ink);
-  color: #fff;
-  font-weight: 600;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  z-index: 10;
+.bill-link code {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* All Bills */
+/* Customer's bill link page */
+.public-bill {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 12px;
+}
+
+/* Master View */
 .bills-search {
   padding: 8px;
 }
 
-.chips {
+.segmented {
   display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px;
   margin: 8px 0;
+  padding: 3px;
+  border-radius: 8px;
+  background: var(--soft);
 }
 
-.chip {
-  padding: 6px 12px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: #fff;
-  font-size: 14px;
+.segment {
+  flex: 1;
+  min-height: 40px;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  font-weight: 600;
   cursor: pointer;
 }
 
-.chip.active {
+.segment.active {
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.segment-count {
+  margin-left: 6px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--line);
+  font-size: 13px;
+}
+
+.segment.active .segment-count {
   background: var(--ink);
-  border-color: var(--ink);
   color: #fff;
 }
 
@@ -421,18 +543,17 @@ select:focus {
 
 .bills-bar {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .bills-bar select {
-  width: auto;
-  padding: 6px;
+  flex: 1;
+  padding: 8px 6px;
 }
 
 .bills-summary {
+  margin: 4px 0 8px;
   font-size: 14px;
   text-align: right;
 }
@@ -444,19 +565,31 @@ select:focus {
 }
 
 .bill-card {
+  margin-bottom: 10px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--green);
+  border-radius: 8px;
+  background: #fff;
+}
+
+.bill-card.draft {
+  border-left-color: var(--yellow);
+}
+
+.bill-card-main {
   display: block;
   width: 100%;
-  text-align: left;
-  padding: 10px 4px;
+  padding: 10px 10px 6px;
   border: none;
-  border-bottom: 1px solid var(--soft);
   background: none;
+  text-align: left;
   cursor: pointer;
 }
 
 .bill-card-top {
   display: flex;
   justify-content: space-between;
+  align-items: baseline;
   gap: 8px;
 }
 
@@ -464,17 +597,73 @@ select:focus {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 18px;
+  font-weight: 600;
 }
 
-.bill-no {
-  color: var(--muted);
+.bill-card-total {
+  font-size: 18px;
+  white-space: nowrap;
 }
 
-.bill-card-sub {
+.bill-card-sub,
+.bill-card-items,
+.bill-card-status {
   display: block;
-  margin-top: 2px;
+  margin-top: 3px;
   font-size: 14px;
   color: var(--muted);
+}
+
+.bill-card-items {
+  color: var(--ink);
+}
+
+.bill-card-actions {
+  display: flex;
+  gap: 8px;
+  padding: 0 10px 10px;
+}
+
+.bill-card-actions .btn {
+  flex: 1;
+  min-height: 44px;
+}
+
+/* Draft / Sent labels */
+.status-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  vertical-align: middle;
+}
+
+.chip-status {
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.chip-draft {
+  background: #fff3cd;
+  color: #7a5b00;
+}
+
+.chip-sent {
+  background: #d1f2df;
+  color: #11603a;
+}
+
+.chip-changed {
+  background: #ffe2cc;
+  color: #8a3b00;
+}
+
+.chip-missing {
+  background: #fde2e4;
+  color: #a51d2d;
 }
 
 /* PIN */

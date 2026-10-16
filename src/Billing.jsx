@@ -1,7 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { createBill, deleteBill, updateBill } from './api';
+import { deleteBill } from './api';
 import {
-  billPayload,
   billTotal,
   cleanNumber,
   emptyRow,
@@ -10,7 +9,8 @@ import {
   rowHasContent,
   withAmount,
 } from './bill';
-import { formatAmount, formatDate, formatDateTime, formatMoney } from './format';
+import { formatAmount, formatDate, formatMoney, formatWhen } from './format';
+import StatusChips from './StatusChips';
 
 // Enter / "Next" on the phone keyboard jumps to the next box instead of submitting
 // (or adding a new line in Item / Description).
@@ -42,7 +42,7 @@ function WrapText(props) {
   return <textarea ref={ref} rows={1} {...props} />;
 }
 
-export default function Billing({ draft, setDraft, notify, onSaved, onDeleted }) {
+export default function Billing({ draft, setDraft, notify, onSave, onSend, sending, onDeleted }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
 
@@ -88,15 +88,10 @@ export default function Billing({ draft, setDraft, notify, onSaved, onDeleted })
       setError('Add at least one item before saving.');
       return;
     }
-    const rev = draft.rev;
     setSaving(true);
     setError('');
     try {
-      const payload = billPayload(draft);
-      const bill = draft.billNo ? await updateBill(draft.billNo, payload) : await createBill(payload);
-      // Anything typed while saving stays marked as not saved.
-      setDraft((d) => ({ ...d, billNo: bill.billNo, createdAt: bill.createdAt, dirty: d.rev !== rev }));
-      onSaved(bill);
+      const bill = await onSave();
       notify(`Saved · Bill #${bill.billNo}`);
     } catch (err) {
       if (err.status !== 401) setError(`Not saved. ${err.message}`);
@@ -107,7 +102,7 @@ export default function Billing({ draft, setDraft, notify, onSaved, onDeleted })
 
   const remove = async () => {
     const billNo = draft.billNo;
-    if (!window.confirm(`Delete bill #${billNo}? It will be removed from All Bills.`)) return;
+    if (!window.confirm(`Delete bill #${billNo}? It will be removed from Master View.`)) return;
     try {
       await deleteBill(billNo);
       onDeleted(billNo);
@@ -124,24 +119,26 @@ export default function Billing({ draft, setDraft, notify, onSaved, onDeleted })
 
   return (
     <form className="bill" onSubmit={(e) => e.preventDefault()} onKeyDown={focusNext} autoComplete="off">
-      <div className="bill-meta">
-        <span>
-          {draft.billNo ? (
-            <>
-              <strong>Bill #{draft.billNo}</strong> · {formatDateTime(draft.createdAt)}
-            </>
-          ) : (
-            <>
-              <strong>New bill</strong> · {formatDate(new Date())}
-            </>
-          )}
-        </span>
-        {draft.billNo && (
+      {draft.billNo ? (
+        <div className={draft.status === 'sent' ? 'bill-meta editing sent' : 'bill-meta editing'}>
+          <div>
+            <strong>Editing Bill #{draft.billNo}</strong> <StatusChips bill={draft} />
+            <div className="bill-meta-sub">
+              Made {formatWhen(draft.createdAt)}
+              {draft.sentAt && ` · sent ${formatWhen(draft.sentAt)}`}
+            </div>
+          </div>
           <button type="button" className="link-danger" onClick={remove}>
-            Delete bill
+            Delete
           </button>
-        )}
-      </div>
+        </div>
+      ) : (
+        <div className="bill-meta">
+          <span>
+            <strong>New bill</strong> · {formatDate(new Date())}
+          </span>
+        </div>
+      )}
 
       <div className="customer">
         <input
@@ -267,7 +264,7 @@ export default function Billing({ draft, setDraft, notify, onSaved, onDeleted })
         <button type="button" className="btn btn-add" aria-label="Add row" onClick={addRow}>
           +
         </button>
-        <button type="button" className="btn btn-save" onClick={save} disabled={saving || saved}>
+        <button type="button" className="btn btn-save" onClick={save} disabled={saving || saved || sending}>
           {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save'}
         </button>
         <button type="button" className="btn btn-clear" onClick={clear}>
@@ -278,6 +275,9 @@ export default function Billing({ draft, setDraft, notify, onSaved, onDeleted })
         <a href="#/view" className="btn btn-view">
           View
         </a>
+        <button type="button" className="btn btn-send" onClick={onSend} disabled={sending || saving}>
+          {sending ? 'Sending…' : 'Send'}
+        </button>
         <a href="#/bills" className="btn btn-master">
           Master View
         </a>

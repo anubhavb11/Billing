@@ -6,5 +6,11 @@ const handle = createApi({ getPool, getPin: () => process.env.SHOP_PIN });
 export default (req) => handle(req);
 
 export const config = {
-  path: ["/api/ping", "/api/bills", "/api/bills/:billNo"],
+  path: [
+    "/api/ping",
+    "/api/bills",
+    "/api/bills/:billNo",
+    "/api/bills/:billNo/sent",
+    "/api/public/bills/:token",
+  ],
 };

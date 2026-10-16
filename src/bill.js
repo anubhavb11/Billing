@@ -55,6 +55,10 @@ export function padRows(items) {
 export const newDraft = () => ({
   billNo: null,
   createdAt: null,
+  updatedAt: null,
+  status: null,
+  sentAt: null,
+  shareToken: null,
   customerName: '',
   customerPhone: '',
   customerAddress: '',
@@ -66,6 +70,10 @@ export const newDraft = () => ({
 export const draftFromBill = (bill) => ({
   billNo: bill.billNo,
   createdAt: bill.createdAt,
+  updatedAt: bill.updatedAt,
+  status: bill.status,
+  sentAt: bill.sentAt,
+  shareToken: bill.shareToken ?? null,
   customerName: bill.customerName || '',
   customerPhone: bill.customerPhone || '',
   customerAddress: bill.customerAddress || '',
@@ -73,6 +81,31 @@ export const draftFromBill = (bill) => ({
   dirty: false,
   rev: 0,
 });
+
+const blank = (v) => v === '' || v == null;
+
+// Rows that have an item but no qty or rate yet (a draft waiting for rates).
+export const missingRates = (items) =>
+  items.filter((row) => rowHasContent(row) && (blank(row.qty) || blank(row.rate))).length;
+
+// The bill on screen in the same shape the server returns, for the invoice and sharing.
+export const draftAsBill = (draft) => ({
+  billNo: draft.billNo,
+  createdAt: draft.createdAt,
+  updatedAt: draft.updatedAt,
+  status: draft.status,
+  sentAt: draft.sentAt,
+  shareToken: draft.shareToken,
+  customerName: draft.customerName,
+  customerPhone: draft.customerPhone,
+  customerAddress: draft.customerAddress,
+  items: draft.items.filter(rowHasContent),
+  total: billTotal(draft.items),
+});
+
+// Sent bills edited afterwards need sending again.
+export const changedSinceSent = (bill) =>
+  bill.status === 'sent' && bill.sentAt && bill.updatedAt && new Date(bill.updatedAt) > new Date(bill.sentAt);
 
 export const hasUnsavedWork = (draft) =>
   draft.dirty &&
