@@ -9,6 +9,8 @@
 //   DELETE /api/bills/:billNo   hide a bill (kept in the table with deleted_at set)
 //   POST   /api/bills/:billNo/sent   mark a bill as sent to the customer
 //   GET    /api/public/bills/:token  one bill for the customer's link (no PIN)
+//   GET    /api/settings        payment QRs and delivery people
+//   PUT    /api/settings        replace them
 //
 // Every other request needs the X-Shop-Pin header to match SHOP_PIN.
 
@@ -37,10 +39,19 @@ const SCHEMA = `
   alter table bills add column if not exists share_token text not null
     default substr(replace(gen_random_uuid()::text, '-', ''), 1, 16);
   create unique index if not exists bills_share_token_idx on bills (share_token);
+  -- Which payment QR and delivery person were picked for the bill (copied from settings).
+  alter table bills add column if not exists payment jsonb;
+  alter table bills add column if not exists delivery jsonb;
+  -- One row of shop settings: payment QRs (UPI IDs, QR codes, QR photos) and delivery people.
+  create table if not exists settings (
+    id         integer primary key,
+    data       jsonb not null default '{}'::jsonb,
+    updated_at timestamptz not null default now()
+  );
 `;
 
 const COLUMNS =
-  "bill_no, customer_name, customer_phone, customer_address, items, total, status, created_at, updated_at, sent_at, share_token";
+  "bill_no, customer_name, customer_phone, customer_address, items, total, status, created_at, updated_at, sent_at, share_token, payment, delivery";
 
 class BadRequest extends Error {}
 
@@ -63,6 +74,58 @@ function toNumber(value) {
   if (value === "" || value === null || value === undefined) return null;
   const n = typeof value === "number" ? value : Number(String(value).trim());
   return Number.isFinite(n) && Math.abs(n) <= MAX_NUMBER ? n : NaN;
+}
+
+const UPI_ID = /^[a-zA-Z0-9._-]{2,256}@[a-zA-Z][a-zA-Z0-9.-]{1,64}$/;
+const PAYMENT_TYPES = new Set(["upi", "qr", "image"]);
+const QR_PICTURE = /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/;
+const EMPTY_SETTINGS = { payments: [], delivery: [], defaultPaymentId: null };
+
+// A payment QR as stored on a bill: "upi" (QR made from a UPI ID, with the bill's
+// amount), "qr" (the exact text read from a QR photo) or "image" (the photo itself,
+// kept in settings and looked up by id).
+function parsePayment(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const id = text(raw.id, 40);
+  if (!id || !PAYMENT_TYPES.has(raw.type)) return null;
+  const payment = { id, type: raw.type, label: text(raw.label, 60) };
+  if (raw.type === "upi") {
+    payment.upiId = text(raw.upiId, 100);
+    payment.payeeName = text(raw.payeeName, 100);
+    if (!UPI_ID.test(payment.upiId)) throw new BadRequest(`UPI ID "${payment.upiId}" doesn't look right.`);
+  }
+  if (raw.type === "qr") {
+    payment.payload = text(raw.payload, 1000);
+    if (!payment.payload) throw new BadRequest("The QR code is empty.");
+  }
+  return payment;
+}
+
+function parseDelivery(raw) {
+  if (!raw || typeof raw !== "object") return null;
+  const name = text(raw.name, 80);
+  return name ? { id: text(raw.id, 40), name, phone: text(raw.phone, 20) } : null;
+}
+
+export function parseSettings(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body)) throw new BadRequest("Settings must be a JSON object.");
+  const payments = (Array.isArray(body.payments) ? body.payments : []).slice(0, 20).map((raw) => {
+    const payment = parsePayment(raw);
+    if (!payment) throw new BadRequest("Each payment QR needs an id and a type.");
+    if (payment.type === "image") {
+      const image = typeof raw.image === "string" ? raw.image : "";
+      if (image.length > 600_000 || !QR_PICTURE.test(image)) throw new BadRequest("The QR photo is missing or too big.");
+      payment.image = image;
+    }
+    return payment;
+  });
+  const delivery = (Array.isArray(body.delivery) ? body.delivery : []).slice(0, 30).map(parseDelivery).filter(Boolean);
+  const ids = new Set(payments.map((p) => p.id));
+  return {
+    payments,
+    delivery,
+    defaultPaymentId: ids.has(body.defaultPaymentId) ? body.defaultPaymentId : payments[0]?.id ?? null,
+  };
 }
 
 export function parseBill(body) {
@@ -90,6 +153,8 @@ export function parseBill(body) {
     customerAddress: text(body.customerAddress, LIMITS.address),
     items,
     total: round2(items.reduce((sum, item) => sum + item.amount, 0)),
+    payment: parsePayment(body.payment),
+    delivery: parseDelivery(body.delivery),
   };
 }
 
@@ -105,6 +170,8 @@ const toBill = (row) => ({
   updatedAt: row.updated_at.toISOString(),
   sentAt: row.sent_at ? row.sent_at.toISOString() : null,
   shareToken: row.share_token,
+  payment: row.payment,
+  delivery: row.delivery,
 });
 
 // What the customer's link shows: the bill itself, nothing about drafts or links.
@@ -116,6 +183,8 @@ const toPublicBill = (row) => ({
   items: row.items,
   total: Number(row.total),
   createdAt: row.created_at.toISOString(),
+  payment: row.payment,
+  delivery: row.delivery,
 });
 
 const values = (bill) => [
@@ -124,6 +193,8 @@ const values = (bill) => [
   bill.customerAddress,
   JSON.stringify(bill.items),
   bill.total,
+  bill.payment && JSON.stringify(bill.payment),
+  bill.delivery && JSON.stringify(bill.delivery),
 ];
 
 async function readJson(req) {
@@ -160,6 +231,27 @@ export function createApi({ getPool, getPin }) {
     return schemaReady;
   }
 
+  async function readSettings(pool) {
+    const { rows } = await pool.query("select data from settings where id = 1");
+    return { ...EMPTY_SETTINGS, ...(rows[0]?.data ?? {}) };
+  }
+
+  async function settingsRoute(req) {
+    const pool = getPool();
+    await ensureSchema(pool);
+    if (req.method === "GET") return json(200, { settings: await readSettings(pool) });
+    if (req.method === "PUT") {
+      const settings = parseSettings(await readJson(req));
+      await pool.query(
+        `insert into settings (id, data, updated_at) values (1, $1::jsonb, now())
+         on conflict (id) do update set data = excluded.data, updated_at = now()`,
+        [JSON.stringify(settings)]
+      );
+      return json(200, { settings });
+    }
+    return json(405, { error: "Method not allowed." });
+  }
+
   async function publicBill(req, token) {
     if (req.method !== "GET") return json(405, { error: "Method not allowed." });
     try {
@@ -169,7 +261,15 @@ export function createApi({ getPool, getPin }) {
         `select ${COLUMNS} from bills where share_token = $1 and deleted_at is null`,
         [token]
       );
-      return rows[0] ? json(200, { bill: toPublicBill(rows[0]) }) : json(404, { error: "This bill link is not valid." });
+      if (!rows[0]) return json(404, { error: "This bill link is not valid." });
+      const bill = toPublicBill(rows[0]);
+      // A QR photo lives in settings; show it only while it is still there.
+      if (bill.payment?.type === "image") {
+        const settings = await readSettings(pool);
+        const photo = settings.payments.find((p) => p.id === bill.payment.id && p.type === "image");
+        bill.payment = photo ? { ...bill.payment, image: photo.image } : null;
+      }
+      return json(200, { bill });
     } catch (err) {
       console.error(err);
       return json(500, { error: "Server error. Try again in a moment." });
@@ -185,6 +285,15 @@ export function createApi({ getPool, getPin }) {
     if (!pinMatches(req.headers.get("x-shop-pin") ?? "", expected)) return json(401, { error: "Wrong PIN." });
 
     const path = new URL(req.url).pathname.replace(/\/+$/, "");
+    if (path === "/api/settings") {
+      try {
+        return await settingsRoute(req);
+      } catch (err) {
+        if (err instanceof BadRequest) return json(400, { error: err.message });
+        console.error(err);
+        return json(500, { error: "Server error. Try again in a moment." });
+      }
+    }
     const match = path.match(/^\/api\/(ping|bills)(?:\/(\d{1,9})(\/sent)?)?$/);
     if (!match) return json(404, { error: "Not found." });
     const [, resource, id, sent] = match;
@@ -206,8 +315,8 @@ export function createApi({ getPool, getPin }) {
         if (method === "POST") {
           const bill = parseBill(await readJson(req));
           const { rows } = await pool.query(
-            `insert into bills (customer_name, customer_phone, customer_address, items, total)
-             values ($1, $2, $3, $4::jsonb, $5) returning ${COLUMNS}`,
+            `insert into bills (customer_name, customer_phone, customer_address, items, total, payment, delivery)
+             values ($1, $2, $3, $4::jsonb, $5, $6::jsonb, $7::jsonb) returning ${COLUMNS}`,
             values(bill)
           );
           return json(201, { bill: toBill(rows[0]) });
@@ -238,7 +347,8 @@ export function createApi({ getPool, getPin }) {
         const { rows } = await pool.query(
           `update bills
               set customer_name = $2, customer_phone = $3, customer_address = $4,
-                  items = $5::jsonb, total = $6, updated_at = now()
+                  items = $5::jsonb, total = $6, payment = $7::jsonb, delivery = $8::jsonb,
+                  updated_at = now()
             where bill_no = $1 and deleted_at is null
            returning ${COLUMNS}`,
           [billNo, ...values(bill)]

@@ -1,6 +1,7 @@
 [build]
   # Same as the project's existing Netlify setting: a lint warning shouldn't fail the deploy.
-  command = "CI= npm run build"
+  # REACT_APP_SITE_URL ($URL is set by Netlify) makes the link-preview image an absolute URL.
+  command = "CI= REACT_APP_SITE_URL=$URL npm run build"
   publish = "build"
 
 [functions]

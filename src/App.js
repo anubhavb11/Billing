@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import './App.css';
-import { createBill, getPin, markSent, updateBill } from './api';
+import { createBill, getPin, getSettings, markSent, putSettings, updateBill } from './api';
 import Billing from './Billing';
 import Bills from './Bills';
 import { DEFAULT_FILTERS } from './billsFilter';
@@ -11,15 +11,21 @@ import {
   hasUnsavedWork,
   loadDraft,
   missingRates,
+  newDraft,
   rowHasContent,
   saveDraft,
 } from './bill';
 import Invoice from './Invoice';
+import Logo from './Logo';
 import PinScreen from './PinScreen';
-import { preloadImageTools, renderBillImage, shareCaption, shareFile, waLink } from './share';
+import SendSheet from './SendSheet';
+import Settings from './Settings';
+import { cacheSettings, cachedSettings, defaultPayment, paymentSnapshot, resolveBill } from './shopSettings';
+import { preloadImageTools } from './share';
 
 // "#/" is the bill on screen, "#/view" its invoice, "#/bills" the list (Master
-// View). Hash links keep the phone's back button working on any static host.
+// View), "#/settings" payment QRs and delivery people. Hash links keep the phone's
+// back button working on any static host.
 function useHash() {
   const [hash, setHash] = useState(window.location.hash);
   useEffect(() => {
@@ -30,10 +36,15 @@ function useHash() {
   return hash;
 }
 
+const PAGES = { '#/bills': 'bills', '#/view': 'view', '#/settings': 'settings' };
+const TITLES = { bills: 'Master View', view: 'View', settings: 'Settings' };
+
 const confirmRates = (items) => {
   const n = missingRates(items);
   return n === 0 || window.confirm(`${n} ${n === 1 ? 'item has' : 'items have'} no qty or rate yet. Send anyway?`);
 };
+
+const isBlank = (draft) => !draft.billNo && !draft.dirty && !draft.items.some(rowHasContent);
 
 export default function App() {
   const hash = useHash();
@@ -41,10 +52,13 @@ export default function App() {
   const [draft, setDraft] = useState(loadDraft);
   const [bills, setBills] = useState(null);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
+  const [settings, setSettings] = useState(cachedSettings);
   const [toast, setToast] = useState(null);
-  const [sending, setSending] = useState(null); // 'current' or a bill number
+  const [saving, setSaving] = useState(false);
+  const [sendTarget, setSendTarget] = useState(null); // bill shown in the Send sheet
   const draftRef = useRef(draft);
   draftRef.current = draft;
+  const sendBill = useMemo(() => sendTarget && resolveBill(sendTarget, settings), [sendTarget, settings]);
 
   useEffect(() => saveDraft(draft), [draft]);
 
@@ -62,11 +76,32 @@ export default function App() {
 
   useEffect(() => {
     if (!unlocked) return undefined;
+    getSettings()
+      .then((fresh) => {
+        setSettings(fresh);
+        cacheSettings(fresh);
+      })
+      .catch(() => {}); // offline: the cached settings are used
     const timer = setTimeout(() => preloadImageTools().catch(() => {}), 1500);
     return () => clearTimeout(timer);
   }, [unlocked]);
 
+  // A fresh, untouched bill gets the default payment QR.
+  useEffect(() => {
+    const fallback = paymentSnapshot(defaultPayment(settings));
+    setDraft((d) => (isBlank(d) && !d.payment && fallback ? { ...d, payment: fallback } : d));
+  }, [settings]);
+
   const notify = useCallback((message) => setToast({ message, at: Date.now() }), []);
+
+  const startNewBill = () => setDraft({ ...newDraft(), payment: paymentSnapshot(defaultPayment(settings)) });
+
+  const saveSettings = async (next) => {
+    const saved = await putSettings(next);
+    setSettings(saved);
+    cacheSettings(saved);
+    return saved;
+  };
 
   const upsertCached = (bill) =>
     setBills((list) => list && [bill, ...list.filter((b) => b.billNo !== bill.billNo)]);
@@ -105,91 +140,53 @@ export default function App() {
     return bill;
   };
 
-  // Opens the phone's share menu with the bill picture (WhatsApp etc.). If the
-  // phone wants a fresh tap, the View screen opens with the picture ready.
-  const deliver = async (bill, file) => {
-    const picture = file ?? (await renderBillImage(bill));
-    const result = await shareFile(picture, shareCaption(bill));
-    if (result === 'shared') {
-      try {
-        applyBill(await markSent(bill.billNo));
-        notify(`Sent · Bill #${bill.billNo}`);
-      } catch {
-        notify('Shared, but could not mark it as sent.');
-      }
-    } else if (result !== 'cancelled') {
-      window.location.hash = '#/view';
-      if (result === 'blocked') notify('Picture ready. Tap Send to customer.');
+  const onSent = async (bill) => {
+    try {
+      applyBill(await markSent(bill.billNo));
+      notify(`Sent · Bill #${bill.billNo}`);
+    } catch {
+      notify('Sent, but could not mark it as sent.');
     }
   };
 
-  const failed = (err) => err.status !== 401 && notify(`Not sent. ${err.message}`);
-
-  const sendCurrent = async (readyFile = null) => {
+  // Send from the bill screen or View: save first if needed, then show the choices.
+  const sendCurrent = async () => {
     const current = draftRef.current;
     if (!current.items.some(rowHasContent)) {
       notify('Add at least one item before sending.');
       return;
     }
     if (!confirmRates(current.items)) return;
-    setSending('current');
-    try {
-      const unsaved = current.dirty || !current.billNo;
-      const bill = unsaved ? await saveCurrent() : draftAsBill(current);
-      await deliver(bill, unsaved ? null : readyFile);
-    } catch (err) {
-      failed(err);
-    } finally {
-      setSending(null);
-    }
-  };
-
-  const whatsAppCurrent = async () => {
-    const current = draftRef.current;
-    if (!confirmRates(current.items)) return;
-    setSending('current');
+    setSaving(true);
     try {
       const bill = current.dirty || !current.billNo ? await saveCurrent() : draftAsBill(current);
-      try {
-        applyBill(await markSent(bill.billNo));
-      } catch {
-        // Still open WhatsApp; the bill just stays a draft.
-      }
-      window.location.href = waLink(current.customerPhone, bill);
+      setSendTarget(bill);
     } catch (err) {
-      failed(err);
+      if (err.status !== 401) notify(`Not saved. ${err.message}`);
     } finally {
-      setSending(null);
+      setSaving(false);
     }
   };
 
-  const okToSwitch = (bill) =>
-    !hasUnsavedWork(draft) ||
-    draft.billNo === bill.billNo ||
-    window.confirm(`The bill on screen is not saved. Open bill #${bill.billNo} anyway?`);
+  const sendFromList = (bill) => {
+    if (confirmRates(bill.items)) setSendTarget(bill);
+  };
 
   const editBill = (bill) => {
-    if (!okToSwitch(bill)) return;
+    if (
+      hasUnsavedWork(draft) &&
+      draft.billNo !== bill.billNo &&
+      !window.confirm(`The bill on screen is not saved. Open bill #${bill.billNo} anyway?`)
+    ) {
+      return;
+    }
     setDraft(draftFromBill(bill));
     window.location.hash = '#/';
   };
 
-  const sendFromList = async (bill) => {
-    if (!okToSwitch(bill) || !confirmRates(bill.items)) return;
-    setDraft(draftFromBill(bill));
-    setSending(bill.billNo);
-    try {
-      await deliver(bill, null);
-    } catch (err) {
-      failed(err);
-    } finally {
-      setSending(null);
-    }
-  };
-
   if (!unlocked) return <PinScreen onUnlock={() => setUnlocked(true)} />;
 
-  const page = hash === '#/bills' ? 'bills' : hash === '#/view' ? 'view' : 'bill';
+  const page = PAGES[hash] ?? 'bill';
   return (
     <div className="app">
       {page !== 'bill' && (
@@ -197,7 +194,13 @@ export default function App() {
           <a href="#/" className="btn btn-back">
             ← Bill
           </a>
-          <span className="back-title">{page === 'view' ? 'View' : 'Master View'}</span>
+          <Logo size={26} />
+          <span className="back-title">{TITLES[page]}</span>
+          {page === 'bills' && (
+            <a href="#/settings" className="back-link">
+              Settings
+            </a>
+          )}
         </nav>
       )}
 
@@ -209,21 +212,32 @@ export default function App() {
           setFilters={setFilters}
           onEdit={editBill}
           onSend={sendFromList}
-          sending={sending}
         />
       )}
       {page === 'view' && (
-        <Invoice draft={draft} onSend={sendCurrent} onWhatsApp={whatsAppCurrent} sending={sending !== null} />
+        <Invoice draft={draft} settings={settings} onSend={sendCurrent} busy={saving} />
       )}
+      {page === 'settings' && <Settings settings={settings} onChange={saveSettings} notify={notify} />}
       {page === 'bill' && (
         <Billing
           draft={draft}
           setDraft={setDraft}
+          settings={settings}
           notify={notify}
           onSave={saveCurrent}
-          onSend={() => sendCurrent()}
-          sending={sending !== null}
+          onSend={sendCurrent}
+          onNew={startNewBill}
+          sending={saving}
           onDeleted={onDeleted}
+        />
+      )}
+
+      {sendBill && (
+        <SendSheet
+          bill={sendBill}
+          onClose={() => setSendTarget(null)}
+          onSent={onSent}
+          notify={notify}
         />
       )}
 

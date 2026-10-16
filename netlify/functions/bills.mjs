@@ -12,5 +12,6 @@ export const config = {
     "/api/bills/:billNo",
     "/api/bills/:billNo/sent",
     "/api/public/bills/:token",
+    "/api/settings",
   ],
 };

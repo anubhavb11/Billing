@@ -1,7 +1,9 @@
 import { rowHasContent } from './bill';
 import { formatAmount, formatDate, formatMoney } from './format';
+import Logo from './Logo';
+import QrCode from './QrCode';
+import { paymentUpiId, qrText } from './shopSettings';
 import { SHOP } from './shop';
-import UpiQr from './UpiQr';
 
 const blank = (v) => v === '' || v == null;
 const money = (v) => (blank(v) ? '' : formatAmount(v));
@@ -10,19 +12,28 @@ const time = (value) =>
   new Date(value).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
 
 // The bill as the customer sees it: on the View screen, in the shared picture and
-// on the customer's bill link, so all three always look the same.
-export default function InvoiceSheet({ bill }) {
+// on the customer's bill link, so all three always look the same. `bill.payment`
+// must already have its QR photo filled in (see resolveBill). On the customer's
+// page, `linkPhones` makes the phone numbers tap-to-call.
+export default function InvoiceSheet({ bill, linkPhones = false }) {
   const items = bill.items.filter(rowHasContent);
   const when = bill.createdAt ?? new Date();
   const hasCustomer = [bill.customerName, bill.customerPhone, bill.customerAddress].some((v) => v && v.trim());
+  const phone = (number) =>
+    linkPhones && number ? <a href={`tel:${number.replace(/[^\d+]/g, '')}`}>{number}</a> : number;
+
+  const payment = bill.total > 0 ? bill.payment : null;
+  const qr = payment && qrText(payment, bill);
+  const upiId = payment && paymentUpiId(payment);
 
   return (
     <div className="invoice">
       <header className="inv-head">
-        <div>
+        <Logo size={46} className="inv-logo" />
+        <div className="inv-shop-block">
           <h2 className="inv-shop">{SHOP.name}</h2>
           <p>{SHOP.address}</p>
-          <p>Ph. {SHOP.phone}</p>
+          <p>Ph. {phone(SHOP.phone)}</p>
         </div>
         <div className="inv-billno">
           <span className="inv-label">Bill</span>
@@ -36,7 +47,7 @@ export default function InvoiceSheet({ bill }) {
         <section className="inv-to">
           <span className="inv-label">Bill to</span>
           {bill.customerName && <strong>{bill.customerName}</strong>}
-          {bill.customerPhone && <span>{bill.customerPhone}</span>}
+          {bill.customerPhone && <span>{phone(bill.customerPhone)}</span>}
           {bill.customerAddress && <span>{bill.customerAddress}</span>}
         </section>
       )}
@@ -76,12 +87,23 @@ export default function InvoiceSheet({ bill }) {
         </span>
       </div>
 
-      {SHOP.upi && bill.total > 0 && (
+      {bill.delivery && (
+        <section className="inv-delivery">
+          <span className="inv-label">Delivery by</span>
+          <span>
+            <strong>{bill.delivery.name}</strong>
+            {bill.delivery.phone && <> · {phone(bill.delivery.phone)}</>}
+          </span>
+        </section>
+      )}
+
+      {payment && (qr || payment.image) && (
         <div className="inv-pay">
-          <UpiQr bill={bill} />
+          {qr ? <QrCode text={qr} /> : <img className="inv-qr-photo" src={payment.image} alt="Payment QR" />}
           <div>
             <strong>Scan to pay {formatMoney(bill.total)}</strong>
-            <span>Any UPI app · {SHOP.upi}</span>
+            <span>{[payment.label, upiId].filter(Boolean).join(' · ')}</span>
+            {payment.type !== 'upi' && <span>Please enter {formatMoney(bill.total)} when paying</span>}
           </div>
         </div>
       )}

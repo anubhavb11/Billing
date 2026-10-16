@@ -6,7 +6,7 @@ import StatusChips from './StatusChips';
 
 // Master View: every saved bill as a card with everything needed to pick it out
 // on a phone, plus Edit (finish a draft) and Send (share it with the customer).
-export default function Bills({ bills, setBills, filters, setFilters, onEdit, onSend, sending }) {
+export default function Bills({ bills, setBills, filters, setFilters, onEdit, onSend }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -136,13 +136,8 @@ export default function Bills({ bills, setBills, filters, setFilters, onEdit, on
                 <button type="button" className="btn btn-light" onClick={() => onEdit(bill)}>
                   Edit
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-send"
-                  onClick={() => onSend(bill)}
-                  disabled={sending !== null}
-                >
-                  {sending === bill.billNo ? 'Sending…' : 'Send'}
+                <button type="button" className="btn btn-send" onClick={() => onSend(bill)}>
+                  Send
                 </button>
               </div>
             </li>

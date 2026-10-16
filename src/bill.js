@@ -59,6 +59,8 @@ export const newDraft = () => ({
   status: null,
   sentAt: null,
   shareToken: null,
+  payment: null, // payment QR picked for this bill (see settings.js)
+  delivery: null, // delivery person picked for this bill
   customerName: '',
   customerPhone: '',
   customerAddress: '',
@@ -74,6 +76,8 @@ export const draftFromBill = (bill) => ({
   status: bill.status,
   sentAt: bill.sentAt,
   shareToken: bill.shareToken ?? null,
+  payment: bill.payment ?? null,
+  delivery: bill.delivery ?? null,
   customerName: bill.customerName || '',
   customerPhone: bill.customerPhone || '',
   customerAddress: bill.customerAddress || '',
@@ -96,6 +100,8 @@ export const draftAsBill = (draft) => ({
   status: draft.status,
   sentAt: draft.sentAt,
   shareToken: draft.shareToken,
+  payment: draft.payment ?? null,
+  delivery: draft.delivery ?? null,
   customerName: draft.customerName,
   customerPhone: draft.customerPhone,
   customerAddress: draft.customerAddress,
@@ -113,6 +119,8 @@ export const hasUnsavedWork = (draft) =>
     [draft.customerName, draft.customerPhone, draft.customerAddress].some((v) => v.trim() !== ''));
 
 export const billPayload = (draft) => ({
+  payment: draft.payment ?? null,
+  delivery: draft.delivery ?? null,
   customerName: draft.customerName,
   customerPhone: draft.customerPhone,
   customerAddress: draft.customerAddress,
