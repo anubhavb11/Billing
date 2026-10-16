@@ -1,31 +1,5 @@
 import { changedSinceSent, missingRates } from './bill';
 import { formatWhen } from './format';
-import { billText, waNumber } from './share';
-
-test('WhatsApp numbers get the India prefix', () => {
-  expect(waNumber('98765 43210')).toBe('919876543210');
-  expect(waNumber('098765-43210')).toBe('919876543210');
-  expect(waNumber('+91 98765 43210')).toBe('919876543210');
-  expect(waNumber('12345')).toBeNull();
-  expect(waNumber('')).toBeNull();
-});
-
-test('bill text lists priced and unpriced items', () => {
-  const text = billText({
-    billNo: 12,
-    createdAt: '2026-10-16T10:00:00.000Z',
-    customerName: 'Ramesh',
-    items: [
-      { name: 'अरहर दाल तूर', description: '1 kg', qty: 2, rate: 160, amount: 320 },
-      { name: 'Mustard oil', description: '', qty: null, rate: null, amount: 0 },
-    ],
-    total: 320,
-  });
-  expect(text).toContain('Bill #12');
-  expect(text).toContain('1. अरहर दाल तूर (1 kg) – 2 × ₹160 = ₹320');
-  expect(text).toContain('2. Mustard oil\n');
-  expect(text).toContain('*Total: ₹320*');
-});
 
 test('missing rates counts filled rows without qty or rate', () => {
   expect(
@@ -51,18 +25,6 @@ test('friendly dates', () => {
   expect(formatWhen(new Date(2026, 9, 15, 18, 10), now)).toMatch(/^Yesterday, 6:10/);
   expect(formatWhen(new Date(2026, 9, 14, 15, 5), now)).toMatch(/^14 Oct, 3:05/);
   expect(formatWhen(new Date(2025, 9, 14, 15, 5), now)).toMatch(/^14 Oct 2025, 3:05/);
-});
-
-test('bill text carries the customer link when the bill has one', () => {
-  const text = billText({
-    billNo: 3,
-    createdAt: '2026-10-16T10:00:00.000Z',
-    customerName: '',
-    shareToken: '72cd3bd037d24683',
-    items: [{ name: 'Sugar', description: '', qty: 1, rate: 45, amount: 45 }],
-    total: 45,
-  });
-  expect(text).toContain(`View bill: ${window.location.origin}/b/72cd3bd037d24683`);
 });
 
 describe('payment QR and picture caption', () => {
@@ -101,5 +63,43 @@ describe('payment QR and picture caption', () => {
     await shareFile(file, 'Bansal Store · Bill #2\nhttps://x/b/abc');
     expect(share).toHaveBeenLastCalledWith({ files: [file] });
     ua.mockRestore();
+  });
+});
+
+describe('WhatsApp text bill', () => {
+  const { billText, waLink, waNumber } = require('./share');
+  const bill = {
+    billNo: 12,
+    createdAt: '2026-10-16T10:00:00.000Z',
+    customerName: 'Ramesh',
+    customerPhone: '98765 43210',
+    shareToken: '72cd3bd037d24683',
+    payment: { id: 'p1', type: 'upi', label: 'GPay', upiId: 'shop@okicici' },
+    delivery: { id: 'd1', name: 'Raju', phone: '98100 11111' },
+    items: [
+      { name: 'अरहर दाल तूर', description: '1 kg', qty: 2, rate: 160, amount: 320 },
+      { name: 'Mustard oil', description: '', qty: null, rate: null, amount: 0 },
+    ],
+    total: 320,
+  };
+
+  test('numbers get the India prefix', () => {
+    expect(waNumber('98765 43210')).toBe('919876543210');
+    expect(waNumber('098765-43210')).toBe('919876543210');
+    expect(waNumber('+91 98765 43210')).toBe('919876543210');
+    expect(waNumber('12345')).toBeNull();
+  });
+
+  test('the message has items, total, delivery, UPI and the bill link', () => {
+    const text = billText(bill);
+    expect(text).toContain('*Bansal Store*');
+    expect(text).toContain('Bill #12');
+    expect(text).toContain('1. अरहर दाल तूर (1 kg)\n    2 × ₹160 = *₹320*');
+    expect(text).toContain('2. Mustard oil\n');
+    expect(text).toContain('*Total: ₹320*');
+    expect(text).toContain('Delivery: Raju · 98100 11111');
+    expect(text).toContain('Pay by UPI: shop@okicici');
+    expect(text).toContain(`View bill: ${window.location.origin}/b/72cd3bd037d24683`);
+    expect(waLink(bill)).toMatch(/^https:\/\/wa\.me\/919876543210\?text=/);
   });
 });

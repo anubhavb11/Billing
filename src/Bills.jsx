@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { listBills } from './api';
 import { RANGES, SORTS, STATUSES, filterBills, isDraft, itemCount, itemPreview } from './billsFilter';
 import { formatMoney, formatWhen } from './format';
+import { EditIcon, SendIcon } from './Icons';
 import StatusChips from './StatusChips';
 
 // Master View: every saved bill as a card with everything needed to pick it out
@@ -45,7 +46,7 @@ export default function Bills({ bills, setBills, filters, setFilters, onEdit, on
       <input
         type="search"
         className="bills-search"
-        placeholder="Search name, phone, item, #bill no."
+        placeholder="Search name, phone, item or #bill"
         aria-label="Search bills"
         value={filters.q}
         onChange={(e) => set({ q: e.target.value })}
@@ -121,9 +122,9 @@ export default function Bills({ bills, setBills, filters, setFilters, onEdit, on
                   <strong className="bill-card-total">{formatMoney(bill.total)}</strong>
                 </span>
                 <span className="bill-card-sub">
-                  #{bill.billNo} · {formatWhen(bill.createdAt)}
-                  {bill.customerPhone && ` · ${bill.customerPhone}`}
+                  Bill #{bill.billNo} · {formatWhen(bill.createdAt)}
                 </span>
+                {bill.customerPhone && <span className="bill-card-sub">{bill.customerPhone}</span>}
                 <span className="bill-card-items">
                   {count} {count === 1 ? 'item' : 'items'}: {itemPreview(bill)}
                 </span>
@@ -133,11 +134,13 @@ export default function Bills({ bills, setBills, filters, setFilters, onEdit, on
                 </span>
               </button>
               <div className="bill-card-actions">
-                <button type="button" className="btn btn-light" onClick={() => onEdit(bill)}>
+                <button type="button" className="btn btn-secondary" onClick={() => onEdit(bill)}>
+                  <EditIcon />
                   Edit
                 </button>
-                <button type="button" className="btn btn-send" onClick={() => onSend(bill)}>
-                  Send
+                <button type="button" className="btn btn-secondary btn-accent" onClick={() => onSend(bill)}>
+                  <SendIcon />
+                  View &amp; Send
                 </button>
               </div>
             </li>
