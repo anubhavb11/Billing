@@ -247,7 +247,7 @@ select:focus {
 /* Customer */
 .customer {
   display: grid;
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: 1fr 1fr;
   gap: 6px;
   margin-bottom: 10px;
 }
@@ -276,6 +276,41 @@ select:focus {
 
 .customer input {
   padding: 10px;
+}
+
+/* Suggestion chips: at most 3, under the box he is typing in */
+.suggest-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 2px 0 8px;
+}
+
+.suggest-chip {
+  max-width: 100%;
+  padding: 7px 12px;
+  border: 1px solid #f3c6b4;
+  border-radius: 999px;
+  background: #fdf1ec;
+  color: #7a2e12;
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.suggest-chip:active {
+  background: #fbe0d4;
+}
+
+.chip-row td {
+  padding: 0 2px 4px;
+}
+
+.chip-row .suggest-chips {
+  margin: 0;
 }
 
 /* Items table (kept as he knows it) */
@@ -758,6 +793,29 @@ select:focus {
   font-size: 17px;
 }
 
+.bills-for {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border: 1px solid #f3c6b4;
+  border-radius: 12px;
+  background: #fdf1ec;
+  color: #7a2e12;
+  font-size: 16px;
+}
+
+.bills-for strong {
+  overflow-wrap: anywhere;
+}
+
+.bills-for .link {
+  flex-shrink: 0;
+  font-size: 16px;
+}
+
 .segmented {
   display: flex;
   gap: 4px;
@@ -886,6 +944,167 @@ select:focus {
   grid-template-columns: 1fr 1.4fr;
   gap: 8px;
   padding: 0 12px 12px;
+}
+
+/* Bills · Items · Customers tabs */
+.data-tabs {
+  display: flex;
+  gap: 4px;
+  margin: -4px 0 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.data-tab {
+  flex: 1;
+  padding: 10px 0;
+  border-bottom: 3px solid transparent;
+  text-align: center;
+  text-decoration: none;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.data-tab.active {
+  border-bottom-color: var(--orange);
+  color: var(--ink);
+}
+
+/* Items / Customers lists */
+.data-page {
+  padding-bottom: 72px; /* room for the Merge bar */
+}
+
+.data-help {
+  margin: 0 0 10px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.data-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.data-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.data-row.is-hidden {
+  opacity: 0.6;
+}
+
+.data-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  min-height: 56px;
+  cursor: pointer;
+}
+
+.data-check input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--orange);
+}
+
+.data-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.data-main {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: 10px 10px 10px 0;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+}
+
+.data-main strong {
+  font-size: 18px;
+  overflow-wrap: anywhere;
+}
+
+.data-sub {
+  font-size: 15px;
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.data-detail {
+  padding: 0 10px 12px 0;
+}
+
+.data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.data-form {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.data-form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.data-spellings {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.data-spellings li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--soft);
+  font-size: 15px;
+}
+
+.merge-bar {
+  position: fixed;
+  left: 50%;
+  bottom: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 720px;
+  box-sizing: border-box;
+  padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid var(--line);
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  transform: translateX(-50%);
+}
+
+.merge-bar span {
+  flex: 1;
+  font-weight: 600;
 }
 
 /* Draft / Sent labels */

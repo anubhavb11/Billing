@@ -43,6 +43,16 @@ export default function Bills({ bills, setBills, filters, setFilters, onEdit, on
 
   return (
     <section className="bills">
+      {filters.customer && (
+        <div className="bills-for">
+          <span>
+            Bills of <strong>{filters.customer.label}</strong>
+          </span>
+          <button type="button" className="link" onClick={() => set({ customer: null })}>
+            Show all
+          </button>
+        </div>
+      )}
       <input
         type="search"
         className="bills-search"
