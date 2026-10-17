@@ -26,7 +26,7 @@ flowchart LR
   end
   WA["WhatsApp\n(share menu / wa.me)"]
   subgraph Netlify
-    CDN["Static build\n(main → billingbansal,\nmain-dev → bansalstore)"]
+    CDN["Static build\n(main-dev → bansalstore)"]
     Fn["Function bills.mjs\n→ netlify/lib/bills-api.mjs\n→ netlify/lib/catalog.mjs"]
   end
   DB[("Neon Postgres\nbills · settings · catalog_rules")]

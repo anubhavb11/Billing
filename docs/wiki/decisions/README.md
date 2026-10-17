@@ -8,7 +8,7 @@ updated: 2026-10-17
 
 Every product and architecture decision behind the app, one file each, numbered roughly in
 the order they were made (grouped by build round, so a few times overlap).
-49 decisions: **26 by the founder**, **6 where the founder chose
+50 decisions: **27 by the founder**, **6 where the founder chose
 an agent proposal**, and **17 technical calls by the agent** inside the founder's brief.
 
 **Decided by** means:
@@ -33,7 +33,7 @@ Records are never deleted or rewritten. When a decision changes, add a new recor
 | [D006](D006-no-login-shop-pin.md) | No user accounts; one shop PIN protects the API | accepted | founder | 2026-10-16 16:44 | — | — |
 | [D007](D007-bill-fields.md) | Each bill has a number, customer name, phone, address and date; no paid/due status | accepted | founder | 2026-10-16 16:43 | — | — |
 | [D008](D008-own-neon-not-netlify-database.md) | Use the founder's own free Neon project, not Netlify Database | accepted | founder-accepted | 2026-10-16 17:13 | — | — |
-| [D009](D009-two-sites-one-database.md) | Two Netlify sites share one database: main is checked on billingbansal before main-dev goes to the father | accepted | founder | 2026-10-16 17:27 | — | — |
+| [D009](D009-two-sites-one-database.md) | Two Netlify sites share one database: main is checked on billingbansal before main-dev goes to the father | superseded | founder | 2026-10-16 17:27 | — | [D050](D050-one-live-site-main-dev-only.md) |
 | [D010](D010-keep-fathers-buttons.md) | Keep the father's buttons and colours when replacing the Firebase version | superseded | agent | 2026-10-16 17:23 | — | [D031](D031-auto-save.md), [D032](D032-calm-bigger-ui.md), [D033](D033-view-and-send-two-options.md) |
 | [D011](D011-phone-fit-rules.md) | Phone-fit rules: 360px with no sideways scroll, 16px inputs, number keypad | accepted | agent | 2026-10-16 17:00 | — | — |
 | [D012](D012-schema-on-first-request.md) | Create and migrate the database schema on the first request, additive only | accepted | agent | 2026-10-16 16:53 | — | — |
@@ -71,9 +71,10 @@ Records are never deleted or rewritten. When a decision changes, add a new recor
 | [D044](D044-fuzzy-matching-own-normaliser.md) | Fuzzy matching: normalise, then allow small typos, in one module shared by app and server | accepted | agent | 2026-10-17 07:18 | — | — |
 | [D045](D045-no-extras-in-first-build.md) | No extras in the first suggestions build | accepted | founder | 2026-10-17 07:08 | — | — |
 | [D046](D046-see-bills-by-customer-group.md) | "See bills" shows every bill in a customer's group, not a phone search | accepted | agent | 2026-10-17 07:24 | — | — |
-| [D047](D047-branch-demo-ship-workflow.md) | Feature branch, demo on local, ship only on the founder's word | accepted | founder | 2026-10-16 17:02 | — | — |
+| [D047](D047-branch-demo-ship-workflow.md) | Feature branch, demo on local, ship only on the founder's word | partly superseded | founder | 2026-10-16 17:02 | — | [D050](D050-one-live-site-main-dev-only.md) |
 | [D048](D048-agent-access-and-secrets.md) | The founder holds the secrets; agents work through the CLIs the founder authorised | accepted | founder | 2026-10-16 17:26 | — | — |
 | [D049](D049-keep-an-llm-wiki.md) | Keep an LLM wiki of every decision in the repo | accepted | founder | 2026-10-17 07:38 | — | — |
+| [D050](D050-one-live-site-main-dev-only.md) | One live site: bansalstore.netlify.app; ship with one PR into main-dev; billingbansal is deprecated | accepted | founder | 2026-10-17 08:18 | [D009](D009-two-sites-one-database.md), [D047](D047-branch-demo-ship-workflow.md) | — |
 
 ## By area
 
@@ -86,11 +87,11 @@ Records are never deleted or rewritten. When a decision changes, add a new recor
 - **docs:** [D049](D049-keep-an-llm-wiki.md)
 - **frontend:** [D011](D011-phone-fit-rules.md), [D015](D015-hash-routing.md), [D017](D017-bill-survives-refresh.md), [D030](D030-bill-picture-html-to-image.md), [D031](D031-auto-save.md), [D046](D046-see-bills-by-customer-group.md)
 - **history:** [D001](D001-build-on-the-2022-app.md)
-- **infrastructure:** [D003](D003-host-on-netlify.md), [D004](D004-neon-postgres.md), [D008](D008-own-neon-not-netlify-database.md), [D009](D009-two-sites-one-database.md), [D029](D029-site-name-bansalstore.md)
+- **infrastructure:** [D003](D003-host-on-netlify.md), [D004](D004-neon-postgres.md), [D008](D008-own-neon-not-netlify-database.md), [D009](D009-two-sites-one-database.md), [D029](D029-site-name-bansalstore.md), [D050](D050-one-live-site-main-dev-only.md)
 - **matching:** [D043](D043-customer-identity-key.md), [D044](D044-fuzzy-matching-own-normaliser.md), [D046](D046-see-bills-by-customer-group.md)
 - **payments:** [D025](D025-payment-qr-in-settings.md)
 - **performance:** [D042](D042-catalog-built-on-read.md)
-- **process:** [D009](D009-two-sites-one-database.md), [D047](D047-branch-demo-ship-workflow.md), [D048](D048-agent-access-and-secrets.md), [D049](D049-keep-an-llm-wiki.md)
+- **process:** [D009](D009-two-sites-one-database.md), [D047](D047-branch-demo-ship-workflow.md), [D048](D048-agent-access-and-secrets.md), [D049](D049-keep-an-llm-wiki.md), [D050](D050-one-live-site-main-dev-only.md)
 - **product:** [D002](D002-father-first-minimal-change.md), [D007](D007-bill-fields.md), [D019](D019-draft-and-sent-status.md), [D020](D020-all-bills-cards-with-edit.md), [D021](D021-private-bill-link.md), [D023](D023-picture-is-the-bill-plus-text-option.md), [D024](D024-customer-page-three-actions.md), [D025](D025-payment-qr-in-settings.md), [D026](D026-delivery-people.md), [D037](D037-suggestions-before-other-ideas.md), [D039](D039-address-first-customer-box.md), [D040](D040-inventory-from-bills-items-customers-tabs.md), [D045](D045-no-extras-in-first-build.md)
 - **roadmap:** [D037](D037-suggestions-before-other-ideas.md), [D045](D045-no-extras-in-first-build.md)
 - **security:** [D005](D005-api-through-netlify-functions.md), [D006](D006-no-login-shop-pin.md), [D021](D021-private-bill-link.md), [D048](D048-agent-access-and-secrets.md)

@@ -45,15 +45,15 @@ Tips from the build session:
 
 ## What can't be tested locally
 
-- **Sharing to WhatsApp**: needs HTTPS and a real phone. The founder checks on billingbansal.
+- **Sharing to WhatsApp**: needs HTTPS and a real phone. The founder checks on bansalstore after the deploy.
 - **iPhone caption behaviour** ([D034](../decisions/D034-iphone-picture-without-caption.md)): unverified.
-- **Real Neon cold starts and Netlify routing**: check on the check site after merging to `main`.
+- **Real Neon cold starts and Netlify routing**: check bansalstore right after the deploy (there is no check site any more, [D050](../decisions/D050-one-live-site-main-dev-only.md)).
 
 ## Test data
 
 - Use made-up customers (Sharma ji, Verma ji, Gupta aunty, Kapoor ji) and fake numbers.
-- Local data lives in the local database only. **Anything created on billingbansal is in the
-  father's real database** ([D009](../decisions/D009-two-sites-one-database.md)): clean it up
-  or avoid it.
+- Local data lives in the local database only. **Anything created on bansalstore (or earlier on
+  billingbansal) is in the father's real database**: use the local setup for test data, and
+  clean up anything made live.
 - After testing clean-ups locally, reset the rules (`PUT /api/catalog/rules {}`) so the
   founder can try them fresh.

@@ -40,9 +40,9 @@ npm run wiki:lint
 
 ## Ship
 
-See [release process](release-process.md). In short: the founder says "commit, push, merge
-into both"; open PRs into `main` and `main-dev`; merge; confirm both Netlify deploys are
-`ready` and serve the same `main.*.js`.
+See [release process](release-process.md). In short: the founder says "commit, push, merge";
+open **one PR into `main-dev`** (`--base main-dev`); merge; confirm the bansalstore deploy is
+`ready`. Never PR into `main` ([D050](../decisions/D050-one-live-site-main-dev-only.md)).
 
 ## Common tasks
 

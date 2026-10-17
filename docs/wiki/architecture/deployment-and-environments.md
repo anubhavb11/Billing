@@ -3,7 +3,7 @@ type: architecture
 title: Deployment and environments
 updated: 2026-10-17
 last-verified: 2026-10-17
-sources: [../../../netlify.toml, ../decisions/D008-own-neon-not-netlify-database.md, ../decisions/D009-two-sites-one-database.md]
+sources: [../../../netlify.toml, ../decisions/D008-own-neon-not-netlify-database.md, ../decisions/D050-one-live-site-main-dev-only.md]
 ---
 
 # Deployment and environments
@@ -13,7 +13,7 @@ sources: [../../../netlify.toml, ../decisions/D008-own-neon-not-netlify-database
 | Environment | URL | Branch | Database | Who uses it |
 |---|---|---|---|---|
 | **Father's site** | https://bansalstore.netlify.app | `main-dev` | Neon (shared) | The father (his live site) |
-| **Check site** | https://billingbansal.netlify.app | `main` | Neon (shared) | The founder, before the father |
+| ~~Check site~~ | ~~billingbansal.netlify.app~~ | `main` | — | **Deleted 17 Oct 2026** ([D050](../decisions/D050-one-live-site-main-dev-only.md)) |
 | Deploy Previews | `deploy-preview-N--<site>.netlify.app` | PR branches | Neon (shared, if the env vars apply to previews) | Optional checks |
 | Local dev | http://localhost:3000 (+ API :8787) | any | local Postgres `billing_dev` or a Neon branch | Agents and the founder |
 | Local production build | http://localhost:5050 (static server proxying `/api` to :8787) | any | same as local | Picture and style checks ([D030](../decisions/D030-bill-picture-html-to-image.md)) |
@@ -81,8 +81,8 @@ warning in Netlify's build on 16 Oct 2026; the build works. Pinning a current LT
 ```bash
 # Latest deploy per site (Netlify CLI logged in as the founder's account)
 netlify api listSiteDeploys --data '{"site_id":"<site id>","per_page":1}'
-# Both sites serve the same bundle?
-for h in bansalstore billingbansal; do curl -s https://$h.netlify.app/ | grep -o 'static/js/main\.[a-z0-9]*\.js'; done
+# Which bundle is live?
+curl -s https://bansalstore.netlify.app/ | grep -o 'static/js/main\.[a-z0-9]*\.js'
 # API is up and protected (expect 401)
 curl -s -o /dev/null -w '%{http_code}\n' https://bansalstore.netlify.app/api/catalog
 ```

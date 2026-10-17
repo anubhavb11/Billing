@@ -13,7 +13,7 @@ sources: [../sources/founder-chat-2026-10-16.md]
 | Who | What they do | Device | Notes |
 |---|---|---|---|
 | **The father** (shopkeeper) | Makes every bill, finishes drafts, sends bills | His phone (Android or iPhone not confirmed) | The primary user. Item names on his bills are in Hindi and English (अरहर दाल तूर, Sugar). Started using the rebuilt app on 17 Oct 2026. |
-| **The founder** (repo owner) | Decides features, reviews every change, tries it on billingbansal | Phone + Mac | Talks to agents, approves commits and merges. |
+| **The founder** (repo owner) | Decides features, reviews every change, tries it on bansalstore after each release | Phone + Mac | Talks to agents, approves commits and merges. |
 | **Customers** | Receive the bill on WhatsApp, open the link, pay by UPI | Their phones | Known by address ("A-135") or phone more than name. |
 | **Delivery people** | Deliver orders; their name and phone are printed on the bill | — | Set in Settings ([D026](../decisions/D026-delivery-people.md)). |
 | **AI agents** | Build, test and document changes | — | Follow [AGENTS.md](../../../AGENTS.md). |
@@ -54,5 +54,5 @@ meaning the father. Whether the founder helps is an [open question](../knowledge
 
 ## Journey 5: the founder ships a change
 
-Local demo → "Commit it, push and merge into both main and main-dev" → checks on billingbansal
-→ father's site updates. See [release process](../operations/release-process.md).
+Local demo → "Commit it, push and merge" → one PR into `main-dev` → bansalstore updates → the
+founder tries it on the phone ([D050](../decisions/D050-one-live-site-main-dev-only.md)). See [release process](../operations/release-process.md).

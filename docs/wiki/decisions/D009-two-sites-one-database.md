@@ -2,13 +2,13 @@
 id: D009
 title: "Two Netlify sites share one database: main is checked on billingbansal before main-dev goes to the father"
 type: decision
-status: accepted
+status: superseded
 date: 2026-10-16
 time-utc: "17:27"
 decision-makers: [founder]
 area: [process, infrastructure]
 supersedes: []
-superseded-by: []
+superseded-by: [D050]
 related: [D012, D029, D047]
 evidence:
   - "chat 2026-10-16 17:16 (env:clone)"
@@ -21,7 +21,8 @@ last-verified: 2026-10-17
 
 # D009 · Two Netlify sites share one database: main is checked on billingbansal before main-dev goes to the father
 
-> **Status:** accepted · **Decided by:** Founder · **When:** 16 Oct 2026, 17:27 UTC
+> **Status:** superseded · **Decided by:** Founder · **When:** 16 Oct 2026, 17:27 UTC
+> **Superseded by:** [D050](D050-one-live-site-main-dev-only.md)
 
 ## Context and problem
 

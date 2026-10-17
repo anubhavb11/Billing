@@ -11,7 +11,7 @@ Read this first. Every page in the wiki, with one line on what it holds. How the
 
 ## Start here
 
-- [overview.md](overview.md): what the app is, who uses it, where it runs, what it does today.
+- [overview.md](overview.md): what the app is, who uses it, where it runs (bansalstore.netlify.app only), what it does today.
 - [conventions.md](conventions.md): the wiki's layers, page types, frontmatter, and the ingest / query / lint routines.
 - [log.md](log.md): what happened, oldest first, from the 2022 version to now.
 - [/AGENTS.md](../../AGENTS.md): the short guide every agent loads: commands, Always / Ask first / Never.
@@ -50,10 +50,11 @@ Read this first. Every page in the wiki, with one line on what it holds. How the
 ## Sources (never edited)
 
 - [sources/founder-chat-2026-10-16.md](sources/founder-chat-2026-10-16.md): the founder's messages and every question/answer round, word for word, 16–17 Oct 2026.
+- [sources/founder-chat-2026-10-17.md](sources/founder-chat-2026-10-17.md): the founder's follow-up messages on 17 Oct, including "We are only using this website" (D050).
 - [sources/agent-proposals-2026-10-16.md](sources/agent-proposals-2026-10-16.md): the agent's plans, findings and offered options at each turning point, word for word (scrubbed).
 - [sources/research.md](sources/research.md): web research R1 (Netlify vs Neon), R2 (fuzzy address matching), R3 (LLM wiki practices), with links.
 
-## Decisions (49)
+## Decisions (50)
 
 Full table with status and supersede links: [decisions/README.md](decisions/README.md).
 Template: [decisions/_template.md](decisions/_template.md).
@@ -68,7 +69,7 @@ Template: [decisions/_template.md](decisions/_template.md).
 - [D006](decisions/D006-no-login-shop-pin.md) No user accounts; one shop PIN protects the API (founder)
 - [D007](decisions/D007-bill-fields.md) Each bill has a number, customer name, phone, address and date; no paid/due status (founder)
 - [D008](decisions/D008-own-neon-not-netlify-database.md) Use the founder's own free Neon project, not Netlify Database (founder, agent's proposal)
-- [D009](decisions/D009-two-sites-one-database.md) Two Netlify sites share one database: main is checked on billingbansal before main-dev goes to the father (founder)
+- [D009](decisions/D009-two-sites-one-database.md) Two Netlify sites share one database: main is checked on billingbansal before main-dev goes to the father (founder) · *superseded*
 - [D010](decisions/D010-keep-fathers-buttons.md) Keep the father's buttons and colours when replacing the Firebase version (agent) · *superseded*
 - [D011](decisions/D011-phone-fit-rules.md) Phone-fit rules: 360px with no sideways scroll, 16px inputs, number keypad (agent)
 - [D012](decisions/D012-schema-on-first-request.md) Create and migrate the database schema on the first request, additive only (agent)
@@ -124,6 +125,7 @@ Template: [decisions/_template.md](decisions/_template.md).
 
 ### Process and governance
 
-- [D047](decisions/D047-branch-demo-ship-workflow.md) Feature branch, demo on local, ship only on the founder's word (founder)
+- [D047](decisions/D047-branch-demo-ship-workflow.md) Feature branch, demo on local, ship only on the founder's word (founder) · *partly superseded*
 - [D048](decisions/D048-agent-access-and-secrets.md) The founder holds the secrets; agents work through the CLIs the founder authorised (founder)
 - [D049](decisions/D049-keep-an-llm-wiki.md) Keep an LLM wiki of every decision in the repo (founder)
+- [D050](decisions/D050-one-live-site-main-dev-only.md) One live site: bansalstore.netlify.app; ship with one PR into main-dev; billingbansal is deprecated (founder)

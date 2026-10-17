@@ -22,6 +22,8 @@ answered, record the answer (a decision or a page update) and strike it here wit
 | Q5 | Are blocks in the area lettered `H`? | The matcher drops a lone `h` ([matching](../architecture/matching-and-catalog.md#known-limits)) | 17 Oct (wiki) |
 | Q6 | Should test bills made on billingbansal be deleted from the shared database? | They show in the father's All bills and catalog | 16 Oct |
 | Q7 | Is the shop's signal reliable? | Decides whether an offline queue is worth it | 16 Oct |
+| ~~Q8~~ | ~~billingbansal is deprecated: delete it or remove its env vars?~~ **Answered 17 Oct 08:23: deleted** ([D050](../decisions/D050-one-live-site-main-dev-only.md)) | — | 17 Oct |
+| Q9 | Switch GitHub's default branch from `main` to `main-dev` (then delete `main`)? Needs repo admin, so only the founder can | Agents and `gh` default to the stale `main` | 17 Oct |
 
 ## Never verified (agents couldn't test these)
 
@@ -40,7 +42,7 @@ answered, record the answer (a decision or a page update) and strike it here wit
 | R1 | Shared PIN, no rate limit on guesses | 6+ digit PIN; HTTPS | A leak, more staff, or any sign of misuse ([security](../architecture/security-and-privacy.md)) |
 | R2 | Netlify credits run out, so **both sites go offline** | Batch deploys; DB is outside Netlify | Credits low in the Netlify dashboard |
 | R3 | Create React App is deprecated | Still builds | A Netlify build-image or Node change breaks it |
-| R4 | Test and real data share one database | Made-up test names; clean up | Confusion in the father's list |
+| R4 | Test data made on the live site lands in real data | Test locally; made-up names; clean up | Confusion in the father's list |
 | R5 | `/api/catalog` grows with every bill | Fine at shop scale | Over ~1 s response or ~10,000 bills ([D042](../decisions/D042-catalog-built-on-read.md)) |
 | R6 | Bill links can't be revoked | Delete the bill | A customer complaint |
 | R7 | No backups beyond what Neon Free keeps | — | Check Neon's restore window; add an export |
