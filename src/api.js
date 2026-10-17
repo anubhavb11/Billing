@@ -73,3 +73,6 @@ export const markSent = (billNo) => request(`/api/bills/${billNo}/sent`, { metho
 export const getSettings = () => request('/api/settings').then((d) => d.settings);
 export const putSettings = (settings) =>
   request('/api/settings', { method: 'PUT', body: settings }).then((d) => d.settings);
+// -> { catalog: { items, customers }, rules }
+export const getCatalog = () => request('/api/catalog');
+export const putCatalogRules = (rules) => request('/api/catalog/rules', { method: 'PUT', body: rules });

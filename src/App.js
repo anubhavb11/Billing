@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
-import { createBill, getPin, getSettings, markSent, putSettings, updateBill } from './api';
+import { createBill, getCatalog, getPin, getSettings, markSent, putCatalogRules, putSettings, updateBill } from './api';
 import Billing from './Billing';
 import Bills from './Bills';
+import { cacheCatalog, cachedCatalog } from './catalog';
+import CustomersPage from './CustomersPage';
 import { DEFAULT_FILTERS } from './billsFilter';
 import {
   billPayload,
@@ -14,6 +16,7 @@ import {
   saveDraft,
 } from './bill';
 import { BackIcon, SettingsIcon } from './Icons';
+import ItemsPage from './ItemsPage';
 import Logo from './Logo';
 import PinScreen from './PinScreen';
 import SendPage from './SendPage';
@@ -22,8 +25,9 @@ import { cacheSettings, cachedSettings, defaultPayment, paymentSnapshot } from '
 import { preloadImageTools } from './share';
 
 // "#/" is the bill on screen, "#/send" its picture and Send on WhatsApp, "#/bills"
-// All bills, "#/settings" payment QRs and delivery people. Hash links keep the
-// phone's back button working on any static host.
+// All bills, "#/items" and "#/customers" the lists worked out from the bills (for
+// merging and cleaning up), "#/settings" payment QRs and delivery people. Hash
+// links keep the phone's back button working on any static host.
 function useHash() {
   const [hash, setHash] = useState(window.location.hash);
   useEffect(() => {
@@ -34,8 +38,20 @@ function useHash() {
   return hash;
 }
 
-const PAGES = { '#/bills': 'bills', '#/send': 'send', '#/view': 'send', '#/settings': 'settings' };
-const TITLES = { bills: 'All bills', send: 'View & Send', settings: 'Settings' };
+const PAGES = {
+  '#/bills': 'bills',
+  '#/items': 'items',
+  '#/customers': 'customers',
+  '#/send': 'send',
+  '#/view': 'send',
+  '#/settings': 'settings',
+};
+const TITLES = { bills: 'All bills', items: 'Items', customers: 'Customers', send: 'View & Send', settings: 'Settings' };
+const DATA_TABS = [
+  ['bills', 'Bills'],
+  ['items', 'Items'],
+  ['customers', 'Customers'],
+];
 const AUTOSAVE_DELAY = 1000;
 
 const isBlank = (draft) => !draft.billNo && !draft.dirty && !draft.items.some(rowHasContent);
@@ -49,6 +65,7 @@ export default function App() {
   const [bills, setBills] = useState(null);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);
   const [settings, setSettings] = useState(cachedSettings);
+  const [catalogData, setCatalogData] = useState(cachedCatalog); // { catalog: { items, customers }, rules }
   const [toast, setToast] = useState(null);
   const [saveState, setSaveState] = useState('idle'); // idle | saving | offline | error
   const draftRef = useRef(draft);
@@ -69,8 +86,15 @@ export default function App() {
     return () => clearTimeout(timer);
   }, [toast]);
 
+  const applyCatalog = useCallback((data) => {
+    setCatalogData(data);
+    cacheCatalog(data);
+  }, []);
+  const refreshCatalog = useCallback(() => getCatalog().then(applyCatalog).catch(() => {}), [applyCatalog]);
+
   useEffect(() => {
     if (!unlocked) return undefined;
+    refreshCatalog();
     getSettings()
       .then((fresh) => {
         setSettings(fresh);
@@ -79,7 +103,7 @@ export default function App() {
       .catch(() => {}); // offline: the cached settings are used
     const timer = setTimeout(() => preloadImageTools().catch(() => {}), 1500);
     return () => clearTimeout(timer);
-  }, [unlocked]);
+  }, [unlocked, refreshCatalog]);
 
   // A fresh, untouched bill gets the default payment QR.
   useEffect(() => {
@@ -158,6 +182,20 @@ export default function App() {
   const startNewBill = () => {
     setDraft({ ...newDraft(), payment: paymentSnapshot(defaultPayment(settings)) });
     setSaveState('idle');
+    refreshCatalog(); // so items from the bill just made are suggested too
+  };
+
+  const saveRules = async (rules) => {
+    const data = await putCatalogRules(rules);
+    applyCatalog(data);
+    return data;
+  };
+
+  const showCustomerBills = (customer) => {
+    // Every bill of this customer, including ones merged in under another phone or address.
+    const label = customer.address || customer.name || customer.phone;
+    setFilters({ ...DEFAULT_FILTERS, customer: { label, keys: customer.keys } });
+    window.location.hash = '#/bills';
   };
 
   // Finish saving the bill on screen before leaving it. Returns false if he chose to stay.
@@ -235,11 +273,20 @@ export default function App() {
           </a>
           <Logo size={28} />
           <span className="back-title">{TITLES[page]}</span>
-          {page === 'bills' && (
+          {['bills', 'items', 'customers'].includes(page) && (
             <a href="#/settings" className="icon-button" aria-label="Settings">
               <SettingsIcon size={24} />
             </a>
           )}
+        </nav>
+      )}
+      {['bills', 'items', 'customers'].includes(page) && (
+        <nav className="data-tabs" aria-label="Bills, items and customers">
+          {DATA_TABS.map(([key, label]) => (
+            <a key={key} href={`#/${key}`} className={page === key ? 'data-tab active' : 'data-tab'}>
+              {label}
+            </a>
+          ))}
         </nav>
       )}
 
@@ -248,6 +295,7 @@ export default function App() {
           draft={draft}
           setDraft={setDraft}
           settings={settings}
+          catalog={catalogData.catalog}
           saveState={saveState}
           notify={notify}
           onNewBill={newBill}
@@ -275,6 +323,18 @@ export default function App() {
           setFilters={setFilters}
           onEdit={(bill) => openBill(bill, '#/')}
           onSend={(bill) => openBill(bill, '#/send')}
+        />
+      )}
+      {page === 'items' && (
+        <ItemsPage data={catalogData} onRefresh={refreshCatalog} onRulesChange={saveRules} notify={notify} />
+      )}
+      {page === 'customers' && (
+        <CustomersPage
+          data={catalogData}
+          onRefresh={refreshCatalog}
+          onRulesChange={saveRules}
+          onShowBills={showCustomerBills}
+          notify={notify}
         />
       )}
       {page === 'settings' && <Settings settings={settings} onChange={saveSettings} notify={notify} />}

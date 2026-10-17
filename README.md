@@ -4,19 +4,26 @@ A one-screen billing page for the shop, made to be used on a phone.
 
 - **Auto-save**: the bill saves itself (as a **Draft**) a second after typing; it gets its
   number with the first item, shown in the top bar.
-- **Clear** starts the next bill (the current one stays in All bills).
+- **New bill** starts the next bill (the current one stays in All bills as a draft).
+- **Suggestions**: typing an address, phone, name or item shows up to 3 chips from past bills;
+  a tap fills the rest. Addresses match however they were typed ("A-135" = "A135" = "a 135").
 - **View & Send** shows the exact bill picture and **Send on WhatsApp** shares it through the
   phone's share menu (with the bill link as caption on Android), then marks it **Sent**.
 - **All bills** lists bills (Drafts / Sent, missing rates, search, dates, sort) with **Edit**
   and **View & Send**. Settings (gear) holds payment QRs and delivery people.
+- **Items** and **Customers** tabs (next to All bills) list everything from the bills for a
+  weekly clean-up: merge spellings of the same item or customer, rename, hide, fix details.
+  Bills are never changed; the clean-up rules only decide grouping and suggestions.
 - **Bill link** `/b/<token>` shows one bill to the customer without the PIN.
 
 Code:
 
 - `src/` – the React app (Create React App). `#/` is the bill, `#/send` View & Send, `#/bills`
-  All bills, `/b/<token>` the customer's page. Shop details (and an optional UPI ID that adds
+  All bills, `#/items` and `#/customers` the clean-up tabs, `/b/<token>` the customer's page. Shop details (and an optional UPI ID that adds
   a scan-to-pay QR to every bill) are in `src/shop.js`.
-- `netlify/functions/bills.mjs` – the API, code in `netlify/lib/bills-api.mjs`.
+- `netlify/functions/bills.mjs` – the API, code in `netlify/lib/bills-api.mjs`. `/api/catalog`
+  works out items and customers from the bills (`netlify/lib/catalog.mjs`); the text matching
+  is shared with the app in `src/normalize.mjs`.
 - The `bills` table (and later columns) are created automatically on the first request.
 - Every API call except `/api/public/bills/:token` needs the shop PIN (`SHOP_PIN`). The phone
   asks for it once and remembers it.

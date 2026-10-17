@@ -1,6 +1,11 @@
 import { rowHasContent } from './bill';
+import { customerKey } from './normalize.mjs';
 
-export const DEFAULT_FILTERS = { q: '', status: 'all', range: 'all', from: '', to: '', sort: 'newest' };
+// customer: { label, keys } from the Customers tab ("See bills"), or null.
+export const DEFAULT_FILTERS = { q: '', status: 'all', range: 'all', from: '', to: '', sort: 'newest', customer: null };
+
+const billCustomerKey = (bill) =>
+  customerKey({ phone: bill.customerPhone, address: bill.customerAddress, name: bill.customerName });
 
 export const STATUSES = [
   ['all', 'All'],
@@ -96,6 +101,7 @@ export function filterBills(bills, filters, now = new Date()) {
       if (end && created >= end) return false;
       if (filters.status === 'draft' && !isDraft(bill)) return false;
       if (filters.status === 'sent' && isDraft(bill)) return false;
+      if (filters.customer && !filters.customer.keys.includes(billCustomerKey(bill))) return false;
       return matchesSearch(bill, q);
     })
     .sort(SORTERS[filters.sort] || byNewest);

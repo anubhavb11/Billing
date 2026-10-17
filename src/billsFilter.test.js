@@ -56,3 +56,16 @@ test('status filter and item preview', () => {
   const many = { items: ['A', 'B', 'C', 'D'].map((name) => ({ name, description: '' })) };
   expect(itemPreview(many)).toBe('A, B +2 more');
 });
+
+test('bills of one customer, including merged-in phones and addresses', () => {
+  const list = [
+    bill(1, at(1, 10), { customerPhone: '98111 22233' }),
+    bill(2, at(2, 10), { customerName: 'Test draft' }),
+    bill(3, at(3, 10), { customerAddress: 'A-140, Madhu Vihar' }),
+    bill(4, at(4, 10), { customerPhone: '+91 98111-22233', customerAddress: 'somewhere' }),
+    bill(5, at(5, 10), { customerPhone: '98100 12345' }),
+  ];
+  const customer = { label: 'Verma ji', keys: ['p:9811122233', 'n:test draft', 'a:a 140 madhu vihar'] };
+  const shown = filterBills(list, { ...DEFAULT_FILTERS, customer }, now).map((b) => b.billNo);
+  expect(shown).toEqual([4, 3, 2, 1]);
+});

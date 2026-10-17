@@ -11,10 +11,13 @@
 //   GET    /api/public/bills/:token  one bill for the customer's link (no PIN)
 //   GET    /api/settings        payment QRs and delivery people
 //   PUT    /api/settings        replace them
+//   GET    /api/catalog         items and customers worked out from the bills
+//   PUT    /api/catalog/rules   save merge / rename / hide / edit rules
 //
 // Every other request needs the X-Shop-Pin header to match SHOP_PIN.
 
 import { createHash, timingSafeEqual } from "node:crypto";
+import { EMPTY_RULES, buildCatalog, parseRules } from "./catalog.mjs";
 
 const LIMITS = { name: 120, phone: 20, address: 300, itemName: 120, description: 200, rows: 300 };
 const MAX_NUMBER = 1e9;
@@ -44,6 +47,12 @@ const SCHEMA = `
   alter table bills add column if not exists delivery jsonb;
   -- One row of shop settings: payment QRs (UPI IDs, QR codes, QR photos) and delivery people.
   create table if not exists settings (
+    id         integer primary key,
+    data       jsonb not null default '{}'::jsonb,
+    updated_at timestamptz not null default now()
+  );
+  -- Clean-up rules for the Items / Customers tabs (one row).
+  create table if not exists catalog_rules (
     id         integer primary key,
     data       jsonb not null default '{}'::jsonb,
     updated_at timestamptz not null default now()
@@ -252,6 +261,49 @@ export function createApi({ getPool, getPin }) {
     return json(405, { error: "Method not allowed." });
   }
 
+  async function readRules(pool) {
+    const { rows } = await pool.query("select data from catalog_rules where id = 1");
+    return { ...EMPTY_RULES, ...(rows[0]?.data ?? {}) };
+  }
+
+  async function catalogResponse(pool, rules) {
+    const { rows } = await pool.query(
+      `select bill_no, created_at, customer_name, customer_phone, customer_address, total, items
+         from bills where deleted_at is null`
+    );
+    const bills = rows.map((row) => ({
+      billNo: row.bill_no,
+      createdAt: row.created_at.toISOString(),
+      customerName: row.customer_name,
+      customerPhone: row.customer_phone,
+      customerAddress: row.customer_address,
+      total: Number(row.total),
+      items: row.items,
+    }));
+    return json(200, { catalog: buildCatalog(bills, rules), rules });
+  }
+
+  async function catalogRoute(req, path) {
+    const pool = getPool();
+    await ensureSchema(pool);
+    if (path === "/api/catalog" && req.method === "GET") return catalogResponse(pool, await readRules(pool));
+    if (path === "/api/catalog/rules" && req.method === "PUT") {
+      let rules;
+      try {
+        rules = parseRules(await readJson(req));
+      } catch (err) {
+        throw err instanceof BadRequest ? err : new BadRequest(err.message);
+      }
+      await pool.query(
+        `insert into catalog_rules (id, data, updated_at) values (1, $1::jsonb, now())
+         on conflict (id) do update set data = excluded.data, updated_at = now()`,
+        [JSON.stringify(rules)]
+      );
+      return catalogResponse(pool, rules);
+    }
+    return json(405, { error: "Method not allowed." });
+  }
+
   async function publicBill(req, token) {
     if (req.method !== "GET") return json(405, { error: "Method not allowed." });
     try {
@@ -285,9 +337,9 @@ export function createApi({ getPool, getPin }) {
     if (!pinMatches(req.headers.get("x-shop-pin") ?? "", expected)) return json(401, { error: "Wrong PIN." });
 
     const path = new URL(req.url).pathname.replace(/\/+$/, "");
-    if (path === "/api/settings") {
+    if (path === "/api/settings" || path.startsWith("/api/catalog")) {
       try {
-        return await settingsRoute(req);
+        return await (path === "/api/settings" ? settingsRoute(req) : catalogRoute(req, path));
       } catch (err) {
         if (err instanceof BadRequest) return json(400, { error: err.message });
         console.error(err);

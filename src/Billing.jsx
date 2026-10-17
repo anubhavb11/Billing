@@ -1,6 +1,7 @@
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { deleteBill } from './api';
 import { billTotal, cleanNumber, emptyRow, rowHasContent, withAmount, withSpareRows } from './bill';
+import { exactItem, suggestCustomers, suggestItems } from './catalog';
 import { formatAmount, formatDate, formatMoney, formatWhen } from './format';
 import { ListIcon, NewBillIcon, SendIcon, TrashIcon } from './Icons';
 import Logo from './Logo';
@@ -49,8 +50,36 @@ const SAVE_TEXT = {
 
 // The bill on screen. It saves itself as he types (see App), so the only actions
 // are New bill (start the next one) and View & Send.
-export default function Billing({ draft, setDraft, settings, saveState, notify, onNewBill, onSend, onDeleted }) {
+const money = (n) => (n === null || n === undefined ? '' : `₹${formatAmount(n)}`);
+const chipText = (...parts) => parts.filter(Boolean).join(' · ');
+
+// Keeps the box focused when a chip is tapped, so the tap lands on the chip.
+const keepFocus = (e) => e.preventDefault();
+
+export default function Billing({
+  draft,
+  setDraft,
+  settings,
+  catalog,
+  saveState,
+  notify,
+  onNewBill,
+  onSend,
+  onDeleted,
+}) {
   const [busy, setBusy] = useState(false);
+  // Which box he is typing in, for the suggestion chips under it.
+  const [focus, setFocus] = useState(null); // { kind: 'customer', field } | { kind: 'item', index }
+  const blurTimer = useRef(null);
+  const focusOn = (next) => () => {
+    clearTimeout(blurTimer.current);
+    setFocus(next);
+  };
+  const blurLater = () => {
+    clearTimeout(blurTimer.current);
+    blurTimer.current = setTimeout(() => setFocus(null), 200);
+  };
+  useEffect(() => () => clearTimeout(blurTimer.current), []);
 
   const edit = (change) => setDraft((d) => ({ ...change(d), dirty: true, rev: d.rev + 1 }));
 
@@ -74,6 +103,62 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
   };
 
   const addRow = () => edit((d) => ({ ...d, items: [...d.items, emptyRow()] }));
+
+  const focusBox = (label) => requestAnimationFrame(() => document.querySelector(`[aria-label="${label}"]`)?.focus());
+
+  // Tapping an item chip fills the item, its usual details and last rate.
+  const pickItem = (index, item) => {
+    edit((d) => ({
+      ...d,
+      items: withSpareRows(
+        d.items.map((row, i) =>
+          i === index
+            ? withAmount({
+                ...row,
+                name: item.name,
+                description: row.description || item.details || '',
+                rate: row.rate !== '' || item.rate === null ? row.rate : String(item.rate),
+              })
+            : row
+        )
+      ),
+    }));
+    setFocus(null);
+    focusBox(`Row ${index + 1} quantity`);
+  };
+
+  // An item typed in full that he has sold before gets its last rate.
+  const fillKnownItem = (index) => {
+    const row = draft.items[index];
+    const known = row && row.rate === '' && exactItem(catalog.items, row.name);
+    if (known && (known.rate !== null || known.details)) pickItemQuietly(index, known);
+  };
+  const pickItemQuietly = (index, item) =>
+    edit((d) => ({
+      ...d,
+      items: d.items.map((row, i) =>
+        i === index && row.rate === ''
+          ? withAmount({
+              ...row,
+              description: row.description || item.details || '',
+              rate: item.rate === null ? '' : String(item.rate),
+            })
+          : row
+      ),
+    }));
+
+  // Tapping a customer chip fills address, phone and name.
+  const pickCustomer = (c) => {
+    edit((d) => ({
+      ...d,
+      customerAddress: c.address || d.customerAddress,
+      customerPhone: c.phone || d.customerPhone,
+      customerName: c.name || d.customerName,
+    }));
+    setFocus(null);
+    const firstEmpty = draft.items.findIndex((row) => !rowHasContent(row));
+    focusBox(`Row ${(firstEmpty < 0 ? draft.items.length - 1 : firstEmpty) + 1} item`);
+  };
 
   const deleteRow = (index) => {
     if (rowHasContent(draft.items[index]) && !window.confirm(`Remove row ${index + 1}?`)) return;
@@ -105,6 +190,10 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
   };
 
   const total = billTotal(draft.items);
+  const customerFieldText = { address: draft.customerAddress, phone: draft.customerPhone, name: draft.customerName };
+  const customerChips =
+    focus?.kind === 'customer' ? suggestCustomers(catalog.customers, customerFieldText[focus.field], focus.field) : [];
+  const itemChips = focus?.kind === 'item' ? suggestItems(catalog.items, draft.items[focus.index]?.name) : [];
   const saveText = draft.dirty ? SAVE_TEXT[saveState] : null;
   let status;
   if (!draft.billNo) status = draft.items.some(rowHasContent) ? 'Saving…' : `Today, ${formatDate(new Date())}`;
@@ -136,11 +225,13 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
 
       <div className="customer">
         <input
-          className="customer-name"
-          placeholder="Customer name"
-          aria-label="Customer name"
-          value={draft.customerName}
-          onChange={setField('customerName')}
+          className="customer-address"
+          placeholder="Address"
+          aria-label="Customer address"
+          value={draft.customerAddress}
+          onChange={setField('customerAddress')}
+          onFocus={focusOn({ kind: 'customer', field: 'address' })}
+          onBlur={blurLater}
           enterKeyHint="next"
         />
         <input
@@ -151,17 +242,37 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
           aria-label="Customer phone"
           value={draft.customerPhone}
           onChange={setField('customerPhone')}
+          onFocus={focusOn({ kind: 'customer', field: 'phone' })}
+          onBlur={blurLater}
           enterKeyHint="next"
         />
         <input
-          className="customer-address"
-          placeholder="Address"
-          aria-label="Customer address"
-          value={draft.customerAddress}
-          onChange={setField('customerAddress')}
+          className="customer-name"
+          placeholder="Name"
+          aria-label="Customer name"
+          value={draft.customerName}
+          onChange={setField('customerName')}
+          onFocus={focusOn({ kind: 'customer', field: 'name' })}
+          onBlur={blurLater}
           enterKeyHint="next"
         />
       </div>
+      {customerChips.length > 0 && (
+        <div className="suggest-chips" aria-label="Earlier customers">
+          {customerChips.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              className="suggest-chip"
+              onPointerDown={keepFocus}
+              onMouseDown={keepFocus}
+              onClick={() => pickCustomer(c)}
+            >
+              {chipText(c.address, c.name, c.phone)}
+            </button>
+          ))}
+        </div>
+      )}
 
       <table className="items">
         <colgroup>
@@ -188,7 +299,8 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
         </thead>
         <tbody>
           {draft.items.map((row, i) => (
-            <tr key={row.id}>
+            <Fragment key={row.id}>
+            <tr>
               <td className="sno">{i + 1}</td>
               <td>
                 <WrapText
@@ -196,6 +308,11 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
                   placeholder={i === 0 ? 'Sugar' : undefined}
                   value={row.name}
                   onChange={setCell(i, 'name')}
+                  onFocus={focusOn({ kind: 'item', index: i })}
+                  onBlur={() => {
+                    fillKnownItem(i);
+                    blurLater();
+                  }}
                   enterKeyHint="next"
                 />
               </td>
@@ -238,6 +355,28 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
                 </button>
               </td>
             </tr>
+            {focus?.kind === 'item' && focus.index === i && itemChips.length > 0 && (
+              <tr className="chip-row">
+                <td />
+                <td colSpan={6}>
+                  <div className="suggest-chips" aria-label="Items sold before">
+                    {itemChips.map((item) => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        className="suggest-chip"
+                        onPointerDown={keepFocus}
+                        onMouseDown={keepFocus}
+                        onClick={() => pickItem(i, item)}
+                      >
+                        {chipText(item.name, item.details, money(item.rate))}
+                      </button>
+                    ))}
+                  </div>
+                </td>
+              </tr>
+            )}
+            </Fragment>
           ))}
         </tbody>
       </table>

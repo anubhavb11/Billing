@@ -13,5 +13,7 @@ export const config = {
     "/api/bills/:billNo/sent",
     "/api/public/bills/:token",
     "/api/settings",
+    "/api/catalog",
+    "/api/catalog/rules",
   ],
 };
