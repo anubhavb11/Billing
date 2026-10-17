@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
-import { listBills } from './api';
-import { RANGES, SORTS, STATUSES, filterBills, isDraft, itemCount, itemPreview } from './billsFilter';
+import { handoverCash, listBills } from './api';
+import { PAY_FILTERS, RANGES, SORTS, STATUSES, filterBills, isDraft, itemCount, itemPreview } from './billsFilter';
 import { formatMoney, formatWhen } from './format';
 import { EditIcon, SendIcon } from './Icons';
 import StatusChips from './StatusChips';
+import { cashWithPeople } from './tracking.mjs';
 
 // Master View: every saved bill as a card with everything needed to pick it out
 // on a phone, plus Edit (finish a draft) and Send (share it with the customer).
-export default function Bills({ bills, setBills, filters, setFilters, onEdit, onSend }) {
+export default function Bills({ bills, setBills, filters, setFilters, onEdit, onSend, notify }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -40,9 +41,42 @@ export default function Bills({ bills, setBills, filters, setFilters, onEdit, on
   const shown = status === 'all' ? matching : matching.filter((b) => isDraft(b) === (status === 'draft'));
   const sum = shown.reduce((s, b) => s + b.total, 0);
   const set = (changes) => setFilters((f) => ({ ...f, ...changes }));
+  // Money still to come in, counted within the search and dates (not the money filter itself).
+  const payBase = useMemo(
+    () => (bills ? filterBills(bills, { ...filters, status: 'all', pay: '' }) : []),
+    [bills, filters]
+  );
+  const withBoys = bills ? cashWithPeople(bills) : [];
+
+  const gotCash = async ({ person, amount }) => {
+    if (!window.confirm(`Got ${formatMoney(amount)} cash from ${person.name}?`)) return;
+    try {
+      await handoverCash(person.id);
+      notify(`${formatMoney(amount)} from ${person.name} is in the shop`);
+      load();
+    } catch (err) {
+      if (err.status !== 401) notify(`Not saved. ${err.message}`);
+    }
+  };
 
   return (
     <section className="bills">
+      {withBoys.map((entry) => (
+        <div className="money-banner" key={entry.person.id}>
+          <span>
+            <strong>
+              {entry.person.name} has {formatMoney(entry.amount)} cash
+            </strong>
+            <small>
+              from {entry.billNos.length} {entry.billNos.length === 1 ? 'delivery' : 'deliveries'} · Bill{' '}
+              {entry.billNos.map((n) => `#${n}`).join(', ')}
+            </small>
+          </span>
+          <button type="button" className="btn btn-primary btn-small" onClick={() => gotCash(entry)}>
+            Got it
+          </button>
+        </div>
+      ))}
       {filters.customer && (
         <div className="bills-for">
           <span>
@@ -75,6 +109,24 @@ export default function Bills({ bills, setBills, filters, setFilters, onEdit, on
             {bills && <span className="segment-count">{counts[value]}</span>}
           </button>
         ))}
+      </div>
+
+      <div className="pay-filters" role="group" aria-label="Money to collect">
+        {PAY_FILTERS.map(([key, label, test]) => {
+          const count = payBase.filter(test).length;
+          const on = filters.pay === key;
+          return (
+            <button
+              key={key}
+              type="button"
+              className={on ? 'pay-filter on' : 'pay-filter'}
+              aria-pressed={on}
+              onClick={() => set({ pay: on ? '' : key })}
+            >
+              {label} <span className="segment-count">{count}</span>
+            </button>
+          );
+        })}
       </div>
 
       <div className="bills-bar">
@@ -139,7 +191,7 @@ export default function Bills({ bills, setBills, filters, setFilters, onEdit, on
                   {count} {count === 1 ? 'item' : 'items'}: {itemPreview(bill)}
                 </span>
                 <span className="bill-card-status">
-                  <StatusChips bill={bill} />
+                  <StatusChips bill={bill} withTracking />
                   {bill.sentAt && <span className="muted"> sent {formatWhen(bill.sentAt)}</span>}
                 </span>
               </button>

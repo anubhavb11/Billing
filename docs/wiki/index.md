@@ -31,6 +31,7 @@ Read this first. Every page in the wiki, with one line on what it holds. How the
 - [architecture/frontend.md](architecture/frontend.md): routing, state, the auto-save algorithm, chips, styling, gotchas.
 - [architecture/bill-picture-and-sending.md](architecture/bill-picture-and-sending.md): how the send flow evolved, the picture pipeline, WhatsApp text, share menu, PDF, customer page.
 - [architecture/matching-and-catalog.md](architecture/matching-and-catalog.md): **fuzzy matching deep dive**: normalisation, scores, grouping, clean-up rules, tests, known limits.
+- [architecture/delivery-and-payments.md](architecture/delivery-and-payments.md): **delivery and payment tracking**: statuses, who can change what, Raju's page `/d`, cash handover, UPI check, udhaar khata, live map, limits and costs.
 - [architecture/deployment-and-environments.md](architecture/deployment-and-environments.md): the sites, branches, env var names, build, functions, cost limits, deploy checks.
 - [architecture/security-and-privacy.md](architecture/security-and-privacy.md): the PIN model, public links, personal data, known weaknesses, rules for agents.
 
@@ -51,10 +52,12 @@ Read this first. Every page in the wiki, with one line on what it holds. How the
 
 - [sources/founder-chat-2026-10-16.md](sources/founder-chat-2026-10-16.md): the founder's messages and every question/answer round, word for word, 16–17 Oct 2026.
 - [sources/founder-chat-2026-10-17.md](sources/founder-chat-2026-10-17.md): the founder's follow-up messages on 17 Oct, including "We are only using this website" (D050).
+- [sources/founder-chat-2026-10-17-delivery.md](sources/founder-chat-2026-10-17-delivery.md): the founder's brief for delivery and payment tracking, word for word, and the four choices.
+- [sources/agent-proposals-2026-10-17-delivery.md](sources/agent-proposals-2026-10-17-delivery.md): the agent's plan for it (statuses, Raju's page, why not a live map, costs).
 - [sources/agent-proposals-2026-10-16.md](sources/agent-proposals-2026-10-16.md): the agent's plans, findings and offered options at each turning point, word for word (scrubbed).
 - [sources/research.md](sources/research.md): web research R1 (Netlify vs Neon), R2 (fuzzy address matching), R3 (LLM wiki practices), with links.
 
-## Decisions (50)
+## Decisions (58)
 
 Full table with status and supersede links: [decisions/README.md](decisions/README.md).
 Template: [decisions/_template.md](decisions/_template.md).
@@ -66,8 +69,8 @@ Template: [decisions/_template.md](decisions/_template.md).
 - [D003](decisions/D003-host-on-netlify.md) Host on Netlify (founder)
 - [D004](decisions/D004-neon-postgres.md) Store bills in Neon Postgres; drop Firebase (founder)
 - [D005](decisions/D005-api-through-netlify-functions.md) The browser talks only to Netlify Functions, never to the database (founder, agent's proposal)
-- [D006](decisions/D006-no-login-shop-pin.md) No user accounts; one shop PIN protects the API (founder)
-- [D007](decisions/D007-bill-fields.md) Each bill has a number, customer name, phone, address and date; no paid/due status (founder)
+- [D006](decisions/D006-no-login-shop-pin.md) No user accounts; one shop PIN protects the API (founder) · *partly superseded*
+- [D007](decisions/D007-bill-fields.md) Each bill has a number, customer name, phone, address and date; no paid/due status (founder) · *partly superseded*
 - [D008](decisions/D008-own-neon-not-netlify-database.md) Use the founder's own free Neon project, not Netlify Database (founder, agent's proposal)
 - [D009](decisions/D009-two-sites-one-database.md) Two Netlify sites share one database: main is checked on billingbansal before main-dev goes to the father (founder) · *superseded*
 - [D010](decisions/D010-keep-fathers-buttons.md) Keep the father's buttons and colours when replacing the Firebase version (agent) · *superseded*
@@ -129,3 +132,14 @@ Template: [decisions/_template.md](decisions/_template.md).
 - [D048](decisions/D048-agent-access-and-secrets.md) The founder holds the secrets; agents work through the CLIs the founder authorised (founder)
 - [D049](decisions/D049-keep-an-llm-wiki.md) Keep an LLM wiki of every decision in the repo (founder)
 - [D050](decisions/D050-one-live-site-main-dev-only.md) One live site: bansalstore.netlify.app; ship with one PR into main-dev; billingbansal is deprecated (founder)
+
+### Delivery and payments (17 Oct, 08:32–09:00)
+
+- [D051](decisions/D051-track-delivery-and-money-on-every-bill.md) Every bill tracks its delivery (packed, on the way, delivered) and what happened to the money (founder)
+- [D052](decisions/D052-cash-stays-with-delivery-boy-until-handover.md) Cash a delivery boy collects stays "with him" until the father taps "Got it" (founder, agent's proposal)
+- [D053](decisions/D053-father-confirms-upi.md) UPI the delivery boy reports waits until the father confirms it (founder)
+- [D054](decisions/D054-udhaar-khata-any-amount.md) Udhaar is a khata per customer; any amount received clears the oldest bills first (founder)
+- [D055](decisions/D055-delivery-boy-page-own-pin.md) Delivery boys use /d with their mobile number and their own PIN, and see only their orders (founder)
+- [D056](decisions/D056-live-map-while-on-the-way.md) The customer's link shows a live map while the order is on the way (founder)
+- [D057](decisions/D057-tracking-saved-apart-from-bill-contents.md) Delivery and payment status are saved apart from the bill's contents (agent)
+- [D058](decisions/D058-refresh-only-while-on-screen.md) Live updates refresh only while a page is on screen, and only when needed (agent)

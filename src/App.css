@@ -1316,3 +1316,476 @@ select:focus {
   height: 28px;
   fill: var(--orange);
 }
+
+/* Delivery and payment on a bill (TrackPanel) */
+.track {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 4px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+.track-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.track-label {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.track-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(66px, 1fr));
+  gap: 6px;
+}
+
+.track-chip {
+  min-height: 48px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.track-chip small {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.track-chip.on {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+  color: var(--orange-dark);
+}
+
+.track-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 0;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+/* Where the money is: shared by bills, cards and customers */
+.pay-chip {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pay-good {
+  background: #dcf1e5;
+  color: #155c3a;
+}
+
+.pay-wait {
+  background: #fff1cc;
+  color: #6b4e00;
+}
+
+.pay-due {
+  background: #fde2e4;
+  color: #a51d2d;
+}
+
+.pay-khata {
+  background: #e8e4f8;
+  color: #3d2f84;
+}
+
+.chip-delivery {
+  background: var(--soft);
+  color: var(--ink);
+}
+
+/* All bills: cash still with a delivery person, and money filters */
+.money-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  border: 1px solid #f0d78a;
+  border-radius: 12px;
+  background: #fff8e1;
+  color: #5c4300;
+}
+
+.money-banner span {
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+}
+
+.money-banner small {
+  font-size: 13px;
+}
+
+.pay-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 0;
+}
+
+.pay-filter {
+  min-height: 40px;
+  padding: 4px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: #fff;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.pay-filter.on {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+  color: var(--orange-dark);
+}
+
+/* Customers: udhaar khata */
+.khata {
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid #d6cff3;
+  border-radius: var(--radius);
+  background: #f7f5fd;
+}
+
+.khata-head {
+  display: flex;
+  flex-direction: column;
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.khata-receive {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.khata-receive input {
+  flex: 1 1 140px;
+  min-width: 0;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.khata-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 15px;
+}
+
+.khata-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+  border-top: 1px solid #e6e1f6;
+}
+
+.khata-paid {
+  color: #155c3a;
+}
+
+/* Delivery boy's page (/d) */
+.delivery-app {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 10px 12px 40px;
+}
+
+.delivery-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.delivery-top > span {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  font-size: 18px;
+}
+
+.delivery-top small {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.location-note {
+  margin: 0 0 10px;
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: var(--soft);
+  font-size: 15px;
+}
+
+.location-note.on {
+  background: #dcf1e5;
+  color: #155c3a;
+}
+
+.order-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.order-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-left: 5px solid var(--orange);
+  border-radius: 0;
+  background: #fff;
+}
+
+.order-card.done {
+  border-left-color: var(--green);
+}
+
+.order-head {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-address {
+  font-size: 21px;
+  line-height: 1.25;
+}
+
+.order-call {
+  align-self: flex-start;
+}
+
+.order-label {
+  margin: 4px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+.order-items {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.order-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 48px;
+  padding: 6px 8px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  font: inherit;
+  font-size: 18px;
+  text-align: left;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.order-item.ticked {
+  background: #eef8f2;
+  border-color: #b9dfc8;
+}
+
+.order-item.ticked strong {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.order-box {
+  flex: 0 0 26px;
+  height: 26px;
+  border: 2px solid var(--line);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--green);
+}
+
+.order-total {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 2px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.order-paid {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.order-pay {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.order-cash {
+  display: flex;
+  gap: 8px;
+}
+
+.order-cash input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px;
+  font-size: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+.order-done-title {
+  margin: 22px 0 8px;
+  font-size: 17px;
+  color: var(--muted);
+}
+
+.delivery-foot {
+  margin-top: 24px;
+  text-align: center;
+}
+
+.pin .delivery-phone {
+  letter-spacing: 1px;
+}
+
+/* Customer page: delivery steps and live map */
+.public-status {
+  margin: 0 0 12px;
+}
+
+.status-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0 0 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: #fff;
+  list-style: none;
+}
+
+.status-steps li {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 3px 0 3px 24px;
+  position: relative;
+  color: var(--muted);
+  font-size: 16px;
+}
+
+.status-steps li::before {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 9px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--line);
+  background: #fff;
+}
+
+.status-steps li.done {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.status-steps li.done::before {
+  border-color: var(--green);
+  background: var(--green);
+}
+
+.status-steps li.next::before {
+  border-color: var(--orange);
+}
+
+.public-live .muted {
+  margin: 6px 0 0;
+  font-size: 14px;
+}
+
+.live-map {
+  height: 220px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--soft);
+  overflow: hidden;
+}
+
+.public-paid {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.paid-paid {
+  color: #155c3a;
+}
+
+.paid-udhaar {
+  color: #3d2f84;
+}
+
+.btn-money {
+  border-color: #b9dfc8;
+  background: #eef8f2;
+  color: #155c3a;
+}

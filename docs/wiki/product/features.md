@@ -25,6 +25,7 @@ explains it. Keep this page in step with the code.
 | Spare rows | 5 rows minimum; typing in the last row adds 2 | `bill.js` `withSpareRows` | [D035](../decisions/D035-two-spare-rows.md) |
 | Number entry | Number keypad; digits and one dot only; Enter moves to the next box | `bill.js` `cleanNumber` | [D011](../decisions/D011-phone-fit-rules.md) |
 | Total | Under the table, decimals kept, ₹ with Indian grouping | `bill.js` `billTotal`, `format.js` | [D011](../decisions/D011-phone-fit-rules.md) |
+| Delivery and payment | One tap each: Packed / On the way / Delivered; Cash / UPI / UPI later / Udhaar; "Got ₹X from Raju", "UPI ₹X received" | `TrackPanel.jsx`, `tracking.mjs` | [D051](../decisions/D051-track-delivery-and-money-on-every-bill.md)–[D053](../decisions/D053-father-confirms-upi.md) |
 | Payment QR / Delivery | Two dropdowns at the end; the default payment QR is pre-filled, Delivery starts as "No delivery" | `Billing.jsx`, `shopSettings.js` | [D025](../decisions/D025-payment-qr-in-settings.md), [D026](../decisions/D026-delivery-people.md) |
 | Auto-save | 1 s after typing stops, once there's an item; one save at a time; retry when online | `App.js` `saveNow` | [D031](../decisions/D031-auto-save.md) |
 | New bill | Starts the next bill. Subline "saves as draft" or "kept in All bills" | `Billing.jsx`, `App.js` `newBill` | [D036](../decisions/D036-details-bin-new-bill.md) |
@@ -47,6 +48,8 @@ explains it. Keep this page in step with the code.
 |---|---|---|---|
 | Cards | Customer, total, #N, friendly time, phone, item preview, status, Edit, View & Send | `Bills.jsx`, `billsFilter.js` `itemPreview` | [D020](../decisions/D020-all-bills-cards-with-edit.md) |
 | Filters | All / Drafts / Sent with counts; search (name, phone digits, item, `#N`); date ranges; 5 sorts; count + total | `billsFilter.js` | [D020](../decisions/D020-all-bills-cards-with-edit.md) |
+| Cash banner | "Raju has ₹1,240 cash · from 3 deliveries · Got it" per delivery person | `Bills.jsx`, `tracking.mjs` `cashWithPeople` | [D052](../decisions/D052-cash-stays-with-delivery-boy-until-handover.md) |
+| Money filters | To collect · UPI to check · Udhaar, with counts | `billsFilter.js` `PAY_FILTERS` | [D051](../decisions/D051-track-delivery-and-money-on-every-bill.md) |
 | Customer filter | "Bills of …  · Show all" from Customers → See bills | `billsFilter.js` `filters.customer` | [D046](../decisions/D046-see-bills-by-customer-group.md) |
 | Tabs | Bills · Items · Customers, plus the Settings gear | `App.js` `DATA_TABS` | [D040](../decisions/D040-inventory-from-bills-items-customers-tabs.md) |
 
@@ -57,6 +60,7 @@ explains it. Keep this page in step with the code.
 | Items list | Name, details, last rate, bills, last sold, "Also typed as"; search; 3 sorts; show hidden | `ItemsPage.jsx` | [D040](../decisions/D040-inventory-from-bills-items-customers-tabs.md) |
 | Item clean-up | Tick + Merge (keeps most-sold name), Rename, Hide, Separate | `catalog.js` `mergeItems` … | [D041](../decisions/D041-cleanup-as-rules-bills-never-change.md) |
 | Customers list | Address/name/phone, bills, total, last bill; 3 sorts | `CustomersPage.jsx` | [D040](../decisions/D040-inventory-from-bills-items-customers-tabs.md), [D043](../decisions/D043-customer-identity-key.md) |
+| Udhaar khata | "Udhaar due ₹X"; record any amount (cash/UPI); oldest bills cleared first; Remove a wrong entry; sort by Most udhaar due | `CustomersPage.jsx` `Khata`, `tracking.mjs` `khata` | [D054](../decisions/D054-udhaar-khata-any-amount.md) |
 | Customer clean-up | Merge, edit details, Hide, Separate, See bills | `catalog.js` `mergeCustomers` … | [D041](../decisions/D041-cleanup-as-rules-bills-never-change.md), [D046](../decisions/D046-see-bills-by-customer-group.md) |
 
 ## Settings: `#/settings`, `src/Settings.jsx`
@@ -64,14 +68,25 @@ explains it. Keep this page in step with the code.
 | Feature | Behaviour | Code | Decision |
 |---|---|---|---|
 | Payment QRs | Add by UPI ID or QR photo (read with jsQR); label; default; remove | `Settings.jsx`, `qrPhoto.js`, `shopSettings.js` | [D025](../decisions/D025-payment-qr-in-settings.md) |
-| Delivery people | Name + mobile | `Settings.jsx` | [D026](../decisions/D026-delivery-people.md) |
+| Delivery people | Name + mobile + delivery-app PIN (Set/Change PIN) | `Settings.jsx` | [D026](../decisions/D026-delivery-people.md), [D055](../decisions/D055-delivery-boy-page-own-pin.md) |
 
 ## Customer page: `/b/<token>`, `src/PublicBill.jsx`
 
 | Feature | Behaviour | Code | Decision |
 |---|---|---|---|
+| Delivery status | Steps with times; live map while on the way; Paid / To pay / Udhaar | `PublicBill.jsx` `DeliveryStatus`, `LiveMap.jsx` | [D051](../decisions/D051-track-delivery-and-money-on-every-bill.md), [D056](../decisions/D056-live-map-while-on-the-way.md) |
 | Bill view | No PIN; only that bill | `PublicBill.jsx`, `GET /api/public/bills/:token` | [D021](../decisions/D021-private-bill-link.md) |
 | Actions | Call shop, Save picture, Download PDF | `PublicBill.jsx`, `share.js` `downloadPdf` | [D024](../decisions/D024-customer-page-three-actions.md) |
+
+## Delivery boy's page: `/d`, `src/DeliveryApp.jsx`
+
+| Feature | Behaviour | Code | Decision |
+|---|---|---|---|
+| Login | Mobile number + own PIN, once per phone | `DeliveryApp.jsx` `Login` | [D055](../decisions/D055-delivery-boy-page-own-pin.md) |
+| My orders | Only his: open ones, then delivered in the last 12 h; address, Call, items to tick, total (no rates) | `DeliveryApp.jsx` `Order` | [D055](../decisions/D055-delivery-boy-page-own-pin.md) |
+| Steps | पैक हो गया · Packed → निकल गया · On the way → पहुँच गया · Delivered | `DeliveryApp.jsx` | [D051](../decisions/D051-track-delivery-and-money-on-every-bill.md) |
+| Payment | पैसे कैसे मिले? Cash (amount) / UPI done / UPI later / Udhaar | `DeliveryApp.jsx` | [D052](../decisions/D052-cash-stays-with-delivery-boy-until-handover.md) |
+| Location | Every 20 s while on the way and the page is open; screen kept awake | `useShareLocation` | [D056](../decisions/D056-live-map-while-on-the-way.md) |
 
 ## Everywhere
 
@@ -83,6 +98,6 @@ explains it. Keep this page in step with the code.
 
 ## Not built (on purpose)
 
-Paid/Udhaar, Today-at-a-glance, Hindi labels, duplicate hints, repeat last order, usual rate,
+Today-at-a-glance, Hindi labels for the father's screens, duplicate hints, repeat last order, usual rate,
 Excel export, rate-list picture, stock counting, user accounts. Why and when to revisit:
 [ideas-and-backlog.md](ideas-and-backlog.md).

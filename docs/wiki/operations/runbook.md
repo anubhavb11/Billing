@@ -52,6 +52,8 @@ open **one PR into `main-dev`** (`--base main-dev`); merge; confirm the bansalst
 | Find recent bills | `select bill_no, customer_name, total, status, created_at from bills where deleted_at is null order by bill_no desc limit 20;` | Read-only |
 | Start numbering from 1 again | `truncate bills restart identity;` | **Erases every bill.** Only before real use, only with the founder's explicit OK |
 | Reset clean-up rules | In the app, undo with Separate / Show; or `PUT /api/catalog/rules` with `{}` | `{}` clears **all** merges, renames, hides and edits |
+| Give a delivery boy the app | Settings → Delivery people → his mobile number + Set PIN; tell him to open `bansalstore.netlify.app/d` | [D055](../decisions/D055-delivery-boy-page-own-pin.md) |
+| Undo a wrong "Got it" | `update bills set payment_status = payment_status - 'handedOverAt' where bill_no = N;` | Founder's OK; [D052](../decisions/D052-cash-stays-with-delivery-boy-until-handover.md) |
 | Change the PIN | The founder edits `SHOP_PIN` on both Netlify sites, then redeploys | [security](../architecture/security-and-privacy.md#if-the-pin-may-have-leaked) |
 | Copy env vars between sites | `netlify env:clone --from <site> --to <site>` (CLI logged in as the founder) | Names only in logs |
 | Check which code is live | see [deployment](../architecture/deployment-and-environments.md#checking-a-deploy) | |

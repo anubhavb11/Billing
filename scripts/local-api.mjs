@@ -19,7 +19,7 @@ http
       for await (const chunk of req) chunks.push(chunk);
       const hasBody = !["GET", "HEAD"].includes(req.method) && chunks.length > 0;
       const headers = {};
-      for (const name of ["content-type", "x-shop-pin"]) {
+      for (const name of ["content-type", "x-shop-pin", "x-delivery-phone", "x-delivery-pin"]) {
         if (req.headers[name]) headers[name] = req.headers[name];
       }
       const response = await handle(

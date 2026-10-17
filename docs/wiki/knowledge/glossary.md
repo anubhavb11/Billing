@@ -33,7 +33,13 @@ last-verified: 2026-10-17
 | **Bill link / customer page** | `/b/<share_token>`: one bill, no PIN. Call shop, Save picture, Download PDF. |
 | **Payment QR** | A UPI ID (QR made with the amount) or a QR photo, chosen per bill from Settings. |
 | **UPI** | India's instant bank payment system; `upi://pay?pa=<id>&am=<amount>` links open any UPI app. |
-| **Udhaar** | Credit: goods taken now, paid later. Not tracked in the app (held idea). |
+| **Udhaar** | Credit: goods taken now, paid later. A bill marked Udhaar goes on the customer's **khata** ([D054](../decisions/D054-udhaar-khata-any-amount.md)). |
+| **Khata / hisaab** | The customer's running credit account / settling it, usually at month end. Any amount received clears the oldest udhaar bills first. |
+| **Delivery status** | With <name> → Packed → On the way → Delivered (`deliveryEvents`). |
+| **Cash with <name>** | Cash a delivery person collected that hasn't reached the shop. Ends when the father taps **Got it** (handover). |
+| **UPI · check** | UPI the delivery person reported; waits for the father to see it in his UPI app. |
+| **To collect** | Delivered with nothing marked, or "UPI later". |
+| **Delivery page (`/d`)** | Raju's page: his own mobile number + PIN, only his orders. |
 | **Check site** | billingbansal.netlify.app (branch `main`). The founder tried changes there first until 17 Oct 2026; **deleted** that day ([D050](../decisions/D050-one-live-site-main-dev-only.md)). |
 | **Father's site** | bansalstore.netlify.app (branch `main-dev`): the only live site and the source of truth. Formerly billingdev.netlify.app. |
 | **Netlify credits** | The Free plan's monthly budget (300). When it runs out, every site on the account goes offline. |

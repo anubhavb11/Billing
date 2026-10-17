@@ -73,6 +73,8 @@ export const newDraft = () => ({
   shareToken: null,
   payment: null, // payment QR picked for this bill (see settings.js)
   delivery: null, // delivery person picked for this bill
+  deliveryEvents: {}, // packed / on the way / delivered times (see tracking.mjs)
+  paymentStatus: null, // how the money came (see tracking.mjs)
   customerName: '',
   customerPhone: '',
   customerAddress: '',
@@ -91,6 +93,8 @@ export const draftFromBill = (bill) => ({
   shareToken: bill.shareToken ?? null,
   payment: bill.payment ?? null,
   delivery: bill.delivery ?? null,
+  deliveryEvents: bill.deliveryEvents ?? {},
+  paymentStatus: bill.paymentStatus ?? null,
   customerName: bill.customerName || '',
   customerPhone: bill.customerPhone || '',
   customerAddress: bill.customerAddress || '',
@@ -115,6 +119,8 @@ export const draftAsBill = (draft) => ({
   shareToken: draft.shareToken,
   payment: draft.payment ?? null,
   delivery: draft.delivery ?? null,
+  deliveryEvents: draft.deliveryEvents ?? {},
+  paymentStatus: draft.paymentStatus ?? null,
   customerName: draft.customerName,
   customerPhone: draft.customerPhone,
   customerAddress: draft.customerAddress,

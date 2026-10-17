@@ -20,6 +20,7 @@ on port 8787 ([D014](../decisions/D014-one-api-handler-local-and-netlify.md)).
 - Every route except `/api/public/bills/:token` needs header `X-Shop-Pin` equal to the
   `SHOP_PIN` environment variable. It is compared as sha256 hashes with `timingSafeEqual`
   ([D006](../decisions/D006-no-login-shop-pin.md)).
+- `/api/delivery/*` routes skip the shop PIN and need `X-Delivery-Phone` + `X-Delivery-Pin` instead: a delivery person from Settings with that mobile number (last 10 digits) and a PIN whose salted hash matches. Otherwise `401 Wrong mobile number or PIN.`
 - Missing `SHOP_PIN` on the server → `500 {"error":"SHOP_PIN is not set on the server."}`.
 - Wrong PIN → `401 {"error":"Wrong PIN."}`. The app then forgets the PIN and shows the PIN screen.
 
@@ -37,7 +38,14 @@ on port 8787 ([D014](../decisions/D014-one-api-handler-local-and-netlify.md)).
 | GET | `/api/public/bills/:token` | — | `{ bill: PublicBill }` | **No PIN.** Token = 16 hex. QR photo filled in from settings ([D021](../decisions/D021-private-bill-link.md)) |
 | GET | `/api/settings` | — | `{ settings }` | |
 | PUT | `/api/settings` | Settings | `{ settings }` | Validated by `parseSettings` ([D025](../decisions/D025-payment-qr-in-settings.md)) |
-| GET | `/api/catalog` | — | `{ catalog, rules }` | Built from all bills ([D042](../decisions/D042-catalog-built-on-read.md)) |
+| GET | `/api/catalog` | — | `{ catalog, rules }` | Built from all bills ([D042](../decisions/D042-catalog-built-on-read.md)); customers carry their `khata` |
+| POST | `/api/bills/:n/track` | `{ step, undo? }` and/or `{ payment: { method, amount } \| null }` / `{ handover: true }` / `{ confirmUpi: true }` | `{ bill }` | Shop marks delivery and money ([D057](../decisions/D057-tracking-saved-apart-from-bill-contents.md)) |
+| POST | `/api/cash/handover` | `{ personId }` | `{ bills, amount }` | All that person's open cash is now with the shop ([D052](../decisions/D052-cash-stays-with-delivery-boy-until-handover.md)) |
+| POST | `/api/khata/payments` | `{ customerKey, amount, method: cash\|upi }` | `{ catalog, rules }` | Hisaab payment ([D054](../decisions/D054-udhaar-khata-any-amount.md)) |
+| DELETE | `/api/khata/payments/:id` | — | `{ catalog, rules }` | Remove a wrong entry (soft) |
+| GET | `/api/delivery/orders` | — | `{ person, orders }` | **Delivery PIN.** His orders only, no rates ([D055](../decisions/D055-delivery-boy-page-own-pin.md)) |
+| POST | `/api/delivery/orders/:n/step` | `{ step, payment? }` | `{ order }` | **Delivery PIN.** Only his bills; can't clear a payment |
+| POST | `/api/delivery/location` | `{ lat, lng, accuracy }` | 204 | **Delivery PIN.** Overwrites his last location ([D056](../decisions/D056-live-map-while-on-the-way.md)) |
 | PUT | `/api/catalog/rules` | Rules | `{ catalog, rules }` | Validated by `parseRules` ([D041](../decisions/D041-cleanup-as-rules-bills-never-change.md)) |
 
 **BillInput**: `{ customerName, customerPhone, customerAddress, items: [{ name, description, qty, rate }], payment, delivery }`.
@@ -48,7 +56,7 @@ least one row, and recomputes `amount` and `total`.
 **Bill** (response): `{ billNo, customerName, customerPhone, customerAddress, items, total,
 status, createdAt, updatedAt, sentAt, shareToken, payment, delivery }`.
 
-**PublicBill**: the same, without `status`, `updatedAt`, `sentAt` and `shareToken`.
+**PublicBill**: the same, without `status`, `updatedAt`, `sentAt`, `shareToken` and `paymentStatus`; plus `deliveryEvents`, `paid` (`paid` / `udhaar` / `due`), and `courier` `{ lat, lng, accuracy, at }` only while on the way and fresh (< 3 min).
 
 ## Errors
 

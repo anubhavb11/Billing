@@ -12,7 +12,7 @@ sources: [../sources/founder-chat-2026-10-16.md]
 WhatsApp from his phone, faster than writing it on paper. Every number he types is saved,
 and the shop gets a little smarter (items, rates, customers) with each bill.
 
-These principles come from the founder's own requests during the build. Each one links to
+These principles come from the founder's own requests during the build (16–17 Oct 2026). Each one links to
 the decisions that came from it. When a new idea conflicts with one of them, ask the founder.
 
 ## 1. The father is the user, and he is on a phone
@@ -72,6 +72,16 @@ the decisions that came from it. When a new idea conflicts with one of them, ask
 - Every change is shown locally first (production build), then shipped with one PR to the only live site ([D047](../decisions/D047-branch-demo-ship-workflow.md), [D050](../decisions/D050-one-live-site-main-dev-only.md)). "We are only using this website … This is the truth."
 - Prioritise, then build in small rounds. "Try to do them step by step, or prioritize them or something, and then we will do them." (founder, 16 Oct)
 - Hold extras until the core is used: "For now, nothing." ([D045](../decisions/D045-no-extras-in-first-build.md))
+
+## 9. Know where every rupee is
+
+> "The main pain point of this business is payment collection from the worker, or knowing
+> what happened with that customer." (founder, 17 Oct)
+
+- Every bill says where its delivery and its money are ([D051](../decisions/D051-track-delivery-and-money-on-every-bill.md)).
+- Cash stays with the delivery boy until the father says he got it, and reported UPI waits for his check ([D052](../decisions/D052-cash-stays-with-delivery-boy-until-handover.md), [D053](../decisions/D053-father-confirms-upi.md)).
+- Udhaar is a khata, not a notebook ([D054](../decisions/D054-udhaar-khata-any-amount.md)).
+- "I really want it to be simple. The simpler it can be, the app won't get overwhelming."
 
 ## How the principles changed
 

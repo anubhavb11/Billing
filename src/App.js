@@ -1,6 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import './App.css';
-import { createBill, getCatalog, getPin, getSettings, markSent, putCatalogRules, putSettings, updateBill } from './api';
+import {
+  createBill,
+  getCatalog,
+  getPin,
+  getSettings,
+  markSent,
+  putCatalogRules,
+  putSettings,
+  trackBill,
+  updateBill,
+} from './api';
 import Billing from './Billing';
 import Bills from './Bills';
 import { cacheCatalog, cachedCatalog } from './catalog';
@@ -121,7 +131,15 @@ export default function App() {
     upsertCached(bill);
     setDraft((d) =>
       d.billNo === bill.billNo
-        ? { ...d, status: bill.status, sentAt: bill.sentAt, updatedAt: bill.updatedAt, shareToken: bill.shareToken }
+        ? {
+            ...d,
+            status: bill.status,
+            sentAt: bill.sentAt,
+            updatedAt: bill.updatedAt,
+            shareToken: bill.shareToken,
+            deliveryEvents: bill.deliveryEvents ?? {},
+            paymentStatus: bill.paymentStatus ?? null,
+          }
         : d
     );
   };
@@ -152,6 +170,8 @@ export default function App() {
               status: bill.status,
               sentAt: bill.sentAt,
               shareToken: bill.shareToken,
+              deliveryEvents: bill.deliveryEvents ?? {},
+              paymentStatus: bill.paymentStatus ?? null,
               dirty: d.rev !== rev, // anything typed while saving is saved next
             }
       );
@@ -245,6 +265,17 @@ export default function App() {
     startNewBill();
   };
 
+  // Delivery step or payment for the bill on screen (saved at once, apart from auto-save).
+  const onTrack = async (body) => {
+    const { billNo } = draftRef.current;
+    if (!billNo) return;
+    try {
+      applyBill(await trackBill(billNo, body));
+    } catch (err) {
+      if (err.status !== 401) notify(`Not saved. ${err.message}`);
+    }
+  };
+
   const onSent = async (bill) => {
     try {
       applyBill(await markSent(bill.billNo));
@@ -301,6 +332,7 @@ export default function App() {
           onNewBill={newBill}
           onSend={viewAndSend}
           onDeleted={onDeleted}
+          onTrack={onTrack}
         />
       )}
       {page === 'send' && (
@@ -323,6 +355,7 @@ export default function App() {
           setFilters={setFilters}
           onEdit={(bill) => openBill(bill, '#/')}
           onSend={(bill) => openBill(bill, '#/send')}
+          notify={notify}
         />
       )}
       {page === 'items' && (
@@ -334,6 +367,7 @@ export default function App() {
           onRefresh={refreshCatalog}
           onRulesChange={saveRules}
           onShowBills={showCustomerBills}
+          onCatalog={applyCatalog}
           notify={notify}
         />
       )}

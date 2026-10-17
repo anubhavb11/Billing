@@ -15,7 +15,7 @@ export default function Settings({ settings, onChange, notify }) {
   const [upi, setUpi] = useState({ label: '', upiId: '' });
   const [qrLabel, setQrLabel] = useState('');
   const [reading, setReading] = useState(false);
-  const [person, setPerson] = useState({ name: '', phone: '' });
+  const [person, setPerson] = useState({ name: '', phone: '', pin: '' });
   const [error, setError] = useState('');
 
   const save = async (next, message) => {
@@ -87,8 +87,26 @@ export default function Settings({ settings, onChange, notify }) {
       setError('Write the delivery person’s name.');
       return;
     }
-    const next = { ...settings, delivery: [...settings.delivery, { id: newId(), name, phone: person.phone.trim() }] };
-    if (await save(next, `${name} added`)) setPerson({ name: '', phone: '' });
+    const pin = person.pin.trim();
+    if (pin && !/^\d{4,6}$/.test(pin)) {
+      setError('The PIN must be 4 to 6 digits.');
+      return;
+    }
+    const added = { id: newId(), name, phone: person.phone.trim(), ...(pin && { pin }) };
+    const next = { ...settings, delivery: [...settings.delivery, added] };
+    if (await save(next, `${name} added`)) setPerson({ name: '', phone: '', pin: '' });
+  };
+
+  // The PIN he types on the delivery page, with his mobile number. Stored only as a hash.
+  const setPin = (p) => {
+    const pin = window.prompt(`New delivery-app PIN for ${p.name} (4 to 6 digits):`, '');
+    if (pin === null) return;
+    if (!/^\d{4,6}$/.test(pin.trim())) {
+      setError('The PIN must be 4 to 6 digits.');
+      return;
+    }
+    const delivery = settings.delivery.map((d) => (d.id === p.id ? { ...d, pin: pin.trim() } : d));
+    save({ ...settings, delivery }, `${p.name}'s PIN is set`);
   };
 
   const removePerson = (p) => {
@@ -172,15 +190,23 @@ export default function Settings({ settings, onChange, notify }) {
       </div>
 
       <h3>Delivery people</h3>
-      <p className="muted">Pick one at the end of a bill; their name and number show on it.</p>
+      <p className="muted">
+        Pick one at the end of a bill; their name and number show on it. With a PIN, they open{' '}
+        <strong>{window.location.host}/d</strong> on their phone and log in with their mobile number and PIN to see
+        their orders.
+      </p>
       <ul className="settings-list">
         {settings.delivery.map((p) => (
           <li key={p.id} className="settings-item">
             <div className="settings-text">
               <strong>{p.name}</strong>
               <span className="muted">{p.phone || 'No number'}</span>
+              <span className={p.hasPin ? 'chip-status chip-sent' : 'muted'}>{p.hasPin ? 'App PIN set' : 'No app PIN'}</span>
             </div>
             <div className="settings-actions">
+              <button type="button" className="link" onClick={() => setPin(p)}>
+                {p.hasPin ? 'Change PIN' : 'Set PIN'}
+              </button>
               <button type="button" className="link-danger" onClick={() => removePerson(p)}>
                 Remove
               </button>
@@ -198,6 +224,14 @@ export default function Settings({ settings, onChange, notify }) {
           placeholder="Mobile number"
           value={person.phone}
           onChange={(e) => setPerson({ ...person, phone: e.target.value })}
+        />
+        <input
+          type="text"
+          inputMode="numeric"
+          autoComplete="off"
+          placeholder="PIN for the delivery app (4–6 digits)"
+          value={person.pin}
+          onChange={(e) => setPerson({ ...person, pin: e.target.value.replace(/\D/g, '').slice(0, 6) })}
         />
         <button type="submit" className="btn btn-primary">
           Add delivery person

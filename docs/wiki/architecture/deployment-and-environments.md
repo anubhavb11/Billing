@@ -51,6 +51,10 @@ them between sites with `netlify env:clone` when asked, and may list names with
   from = "/b/*"            # customer bill links are served by the app (D015)
   to = "/index.html"
   status = 200
+[[redirects]]
+  from = "/d"              # the delivery boy's page (D055)
+  to = "/index.html"
+  status = 200
 ```
 `netlify.toml` overrides the build command set in the Netlify UI. The agent saw a Node 16
 warning in Netlify's build on 16 Oct 2026; the build works. Pinning a current LTS is in the

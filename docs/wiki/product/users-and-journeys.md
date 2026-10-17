@@ -15,7 +15,7 @@ sources: [../sources/founder-chat-2026-10-16.md]
 | **The father** (shopkeeper) | Makes every bill, finishes drafts, sends bills | His phone (Android or iPhone not confirmed) | The primary user. Item names on his bills are in Hindi and English (अरहर दाल तूर, Sugar). Started using the rebuilt app on 17 Oct 2026. |
 | **The founder** (repo owner) | Decides features, reviews every change, tries it on bansalstore after each release | Phone + Mac | Talks to agents, approves commits and merges. |
 | **Customers** | Receive the bill on WhatsApp, open the link, pay by UPI | Their phones | Known by address ("A-135") or phone more than name. |
-| **Delivery people** | Deliver orders; their name and phone are printed on the bill | — | Set in Settings ([D026](../decisions/D026-delivery-people.md)). |
+| **Delivery people** (e.g. Raju) | Pick the items, deliver, collect payment, hand cash to the shop | Their phones, `/d` | Own mobile + PIN set in Settings ([D055](../decisions/D055-delivery-boy-page-own-pin.md)). Name and phone printed on the bill. |
 | **AI agents** | Build, test and document changes | — | Follow [AGENTS.md](../../../AGENTS.md). |
 
 ## Journey 1: a normal bill (father, phone)
@@ -56,3 +56,18 @@ meaning the father. Whether the founder helps is an [open question](../knowledge
 
 Local demo → "Commit it, push and merge" → one PR into `main-dev` → bansalstore updates → the
 founder tries it on the phone ([D050](../decisions/D050-one-live-site-main-dev-only.md)). See [release process](../operations/release-process.md).
+
+## Journey 6: a delivery with Raju ([delivery and payments](../architecture/delivery-and-payments.md))
+
+1. The father types the order and picks **Delivery: Raju** at the end of the bill. Rates can wait.
+2. Within about 30 s, Raju's page (`/d`) shows the order with its items. He ticks each item as he picks it ("सामान निकालो"). No calling out "sugar 1 kg nikal" any more.
+3. He taps **Packed**, then **On the way**. While his page is open, the customer's link shows the steps and where he is on a map.
+4. At the door he taps **Delivered** and answers **पैसे कैसे मिले?**: Cash ₹ (amount), UPI done, UPI later, or Udhaar.
+5. Back at the shop, All bills shows **Raju has ₹1,240 cash · Got it**. The father taps it when Raju hands the money over. UPI the boy reported shows under **UPI to check** until the father sees it in his UPI app and taps **received**.
+6. Busy day, no app for Raju? The father marks the same steps and payment himself on the bill.
+
+## Journey 7: month-end hisaab (udhaar)
+
+1. **Customers** tab → sort **Most udhaar due** → open the customer: "Udhaar due ₹2,450", with the bills listed.
+2. The customer pays ₹2,000: type it, tap **Cash received** (or UPI). The oldest bills are cleared first and the rest stays due ("₹450 left").
+3. A mistake can be removed from the list.

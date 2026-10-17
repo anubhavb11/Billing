@@ -1,8 +1,16 @@
 import { rowHasContent } from './bill';
 import { customerKey } from './normalize.mjs';
+import { onUdhaar, toCollect, upiToCheck } from './tracking.mjs';
 
 // customer: { label, keys } from the Customers tab ("See bills"), or null.
-export const DEFAULT_FILTERS = { q: '', status: 'all', range: 'all', from: '', to: '', sort: 'newest', customer: null };
+// pay: '' | 'collect' | 'check' | 'udhaar' (money still to come in).
+export const DEFAULT_FILTERS = { q: '', status: 'all', range: 'all', from: '', to: '', sort: 'newest', customer: null, pay: '' };
+
+export const PAY_FILTERS = [
+  ['collect', 'To collect', toCollect],
+  ['check', 'UPI to check', upiToCheck],
+  ['udhaar', 'Udhaar', onUdhaar],
+];
 
 const billCustomerKey = (bill) =>
   customerKey({ phone: bill.customerPhone, address: bill.customerAddress, name: bill.customerName });
@@ -102,6 +110,8 @@ export function filterBills(bills, filters, now = new Date()) {
       if (filters.status === 'draft' && !isDraft(bill)) return false;
       if (filters.status === 'sent' && isDraft(bill)) return false;
       if (filters.customer && !filters.customer.keys.includes(billCustomerKey(bill))) return false;
+      const pay = PAY_FILTERS.find(([key]) => key === filters.pay);
+      if (pay && !pay[2](bill)) return false;
       return matchesSearch(bill, q);
     })
     .sort(SORTERS[filters.sort] || byNewest);

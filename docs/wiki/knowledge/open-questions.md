@@ -15,7 +15,7 @@ answered, record the answer (a decision or a page update) and strike it here wit
 
 | # | Question | Why it matters | Raised |
 |---|---|---|---|
-| Q1 | Does the father want credit (udhaar) tracked in the app? | The biggest remaining everyday feature ([D037](../decisions/D037-suggestions-before-other-ideas.md)) | 17 Oct |
+| ~~Q1~~ | ~~Does the father want credit (udhaar) tracked in the app?~~ **Answered 17 Oct 08:32: yes** ([D054](../decisions/D054-udhaar-khata-any-amount.md)) | — | 17 Oct |
 | Q2 | Which phone does the father use: Android or iPhone? | Decides whether the picture carries the link caption ([D034](../decisions/D034-iphone-picture-without-caption.md)) | 17 Oct (wiki) |
 | Q3 | The founder said the father "can sit on a computer" for the weekly clean-up: will he, or will the founder help? On which computer? | Shapes the Items/Customers tab design | 17 Oct |
 | Q4 | Would Hindi button labels help him? | [D037](../decisions/D037-suggestions-before-other-ideas.md) | 17 Oct |
@@ -33,6 +33,8 @@ answered, record the answer (a decision or a page update) and strike it here wit
 | V2 | The number keypad and Enter-to-next on the father's phone keyboard | Watch him type one bill |
 | V3 | Suggestion chips on the father's real data (first live use on 17 Oct) | Ask after a few days; collect misses as tests |
 | V4 | The `catalog_rules` table creation on production | Happens on the first API request after deploy (any route); open the Items tab once |
+| V6 | Raju's live location from a real phone in the colony: how often it updates, and what happens when he pockets the phone | Watch one delivery on the customer link |
+| V7 | `delivery_events`, `payment_status`, `khata_payments` and `courier_locations` created on production | Created on the first API request after the deploy |
 | V5 | Neon Free limits and Netlify credit costs (read 16 Oct 2026) | Re-check the docs every few months ([deployment](../architecture/deployment-and-environments.md#cost-and-limits-as-read-on-16-oct-2026-so-re-check)) |
 
 ## Accepted risks
@@ -46,3 +48,5 @@ answered, record the answer (a decision or a page update) and strike it here wit
 | R5 | `/api/catalog` grows with every bill | Fine at shop scale | Over ~1 s response or ~10,000 bills ([D042](../decisions/D042-catalog-built-on-read.md)) |
 | R6 | Bill links can't be revoked | Delete the bill | A customer complaint |
 | R7 | No backups beyond what Neon Free keeps | — | Check Neon's restore window; add an export |
+| R8 | Live location keeps the database awake during deliveries ([D056](../decisions/D056-live-map-while-on-the-way.md)) | Sent only while on the way and open; 20 s spacing | Neon usage page nears 100 hours a month |
+| R9 | A wrong "Got it" can't be undone in the app | Confirm dialog | It happens once |

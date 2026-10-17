@@ -31,7 +31,9 @@ connects to it; billingbansal was deleted on 17 Oct 2026 ([D050](../decisions/D0
 | `sent_at` | timestamptz null | Set by `POST /api/bills/:n/sent` | D019 |
 | `share_token` | text, unique, default 16 hex from `gen_random_uuid()` | The customer link `/b/<token>` | [D021](../decisions/D021-private-bill-link.md) |
 | `payment` | jsonb null | Snapshot of the chosen payment QR | [D027](../decisions/D027-bill-keeps-a-snapshot.md) |
-| `delivery` | jsonb null | Snapshot `{ id, name, phone }` | D027 |
+| `delivery` | jsonb null | Snapshot `{ id, name, phone }`; also who the order is assigned to | D027, [D055](../decisions/D055-delivery-boy-page-own-pin.md) |
+| `delivery_events` | jsonb, default `{}` | `{ packed?, onTheWay?, delivered? }` times | [D051](../decisions/D051-track-delivery-and-money-on-every-bill.md) |
+| `payment_status` | jsonb null | `{ method, amount, at, by, person, handedOverAt?, upiConfirmedAt? }` ([tracking](delivery-and-payments.md)) | [D051](../decisions/D051-track-delivery-and-money-on-every-bill.md)–[D053](../decisions/D053-father-confirms-upi.md) |
 
 Index: `bills_created_at_idx` on `created_at desc` where not deleted. The list query orders
 by `bill_no desc`.
@@ -59,6 +61,20 @@ missing). A row with nothing in it is dropped. A bill must have at least one row
 Limits: 20 payments, 30 delivery people, QR photo ≤600 KB data URL (png/jpeg/webp). UPI IDs
 must match `^[a-zA-Z0-9._-]{2,256}@[a-zA-Z][a-zA-Z0-9.-]{1,64}$`.
 
+Delivery people in `settings.delivery[]` may also have `pinHash` = sha256(`<id>:<pin>`) for
+their page. `GET /api/settings` strips it and sends `hasPin` instead ([D055](../decisions/D055-delivery-boy-page-own-pin.md)).
+
+### `khata_payments`
+
+`id` identity, `customer_key` (a [customer key](#derived-data-the-catalog-not-stored)), `amount`
+numeric(14,2), `method` (`cash`/`upi`), `created_at`, `deleted_at` (soft delete). Money received
+against udhaar at the hisaab ([D054](../decisions/D054-udhaar-khata-any-amount.md)).
+
+### `courier_locations`
+
+`person_id` primary key, `lat`, `lng`, `accuracy`, `at`. The last place each delivery person
+was seen while an order was on the way, overwritten every ~20 s ([D056](../decisions/D056-live-map-while-on-the-way.md)).
+
 ### `catalog_rules` (one row, `id = 1`)
 
 `data` jsonb holds the clean-up rules ([D041](../decisions/D041-cleanup-as-rules-bills-never-change.md)):
@@ -84,7 +100,9 @@ Limits: 2,000 entries per map or list; keys and values ≤200 chars, except `cus
 - **item**: `{ key, name, spellings[], spellingKeys[], details, rate, bills, lastAt, hidden }`.
   `name` is the renamed name, or else the most common spelling. `details` is the most common;
   `rate` is the last one used; `bills` counts bills, not rows.
-- **customer**: `{ key, keys[], name, phone, address, bills, total, lastAt, hidden }`. The
+- **customer**: `{ key, keys[], name, phone, address, bills, total, lastAt, hidden, khata }`.
+  `khata` is `null`, or `{ total, paid, due, bills: [{ billNo, total, createdAt, cleared, left }], payments }`
+  from `tracking.mjs` `khata()`, computed from udhaar bills and `khata_payments`. The
   name, phone and address are the latest non-empty values, then `customerEdits` are applied.
   `keys` are all the own-keys merged into this group (used by See bills,
   [D046](../decisions/D046-see-bills-by-customer-group.md)).
@@ -98,6 +116,8 @@ Limits: 2,000 entries per map or list; keys and values ≤200 chars, except `cus
 | `shopPin` | The shop PIN | `src/api.js` |
 | `shopSettings` | Cached settings | `src/shopSettings.js` |
 | `shopCatalog` | Cached `{ catalog, rules }` | `src/catalog.js` |
+| `deliveryLogin` | The delivery person's `{ phone, pin }` (on his phone) | `src/DeliveryApp.jsx` |
+| `deliveryTicks:<billNo>` | Items he ticked while picking | `src/DeliveryApp.jsx` |
 
 ## Changing the schema safely
 

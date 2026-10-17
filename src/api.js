@@ -76,3 +76,12 @@ export const putSettings = (settings) =>
 // -> { catalog: { items, customers }, rules }
 export const getCatalog = () => request('/api/catalog');
 export const putCatalogRules = (rules) => request('/api/catalog/rules', { method: 'PUT', body: rules });
+// Delivery step and payment for one bill: { step, undo } and/or { payment } / { handover } / { confirmUpi }
+export const trackBill = (billNo, body) =>
+  request(`/api/bills/${billNo}/track`, { method: 'POST', body }).then((d) => d.bill);
+// -> { bills: [billNo], amount }
+export const handoverCash = (personId) => request('/api/cash/handover', { method: 'POST', body: { personId } });
+// Both return the rebuilt { catalog, rules }.
+export const addKhataPayment = (customerKey, amount, method) =>
+  request('/api/khata/payments', { method: 'POST', body: { customerKey, amount, method } });
+export const removeKhataPayment = (id) => request(`/api/khata/payments/${id}`, { method: 'DELETE' });
