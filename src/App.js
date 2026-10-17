@@ -165,7 +165,7 @@ export default function App() {
     const current = draftRef.current;
     if (!current.items.some(rowHasContent) && hasUnsavedWork(current)) {
       // Only customer details typed: nothing to save yet.
-      return window.confirm(`Clear what you typed? ${leaving}`);
+      return window.confirm(`${leaving}? What you typed here will be cleared.`);
     }
     try {
       await saveNow();
@@ -176,11 +176,11 @@ export default function App() {
     }
   };
 
-  const clearBill = async () => {
-    const billNo = draftRef.current.billNo;
+  const newBill = async () => {
+    const { billNo, status } = draftRef.current;
     if (!(await settleCurrent('Start a new bill'))) return;
     startNewBill();
-    if (billNo) notify(`Bill #${billNo} is saved in All bills`);
+    if (billNo) notify(status === 'sent' ? `Bill #${billNo} is in All bills` : `Bill #${billNo} saved as draft`);
   };
 
   const viewAndSend = async () => {
@@ -250,7 +250,7 @@ export default function App() {
           settings={settings}
           saveState={saveState}
           notify={notify}
-          onClear={clearBill}
+          onNewBill={newBill}
           onSend={viewAndSend}
           onDeleted={onDeleted}
         />

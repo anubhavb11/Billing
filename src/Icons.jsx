@@ -37,12 +37,6 @@ export const SendIcon = (p) => (
   </Icon>
 );
 
-export const ClearIcon = (p) => (
-  <Icon {...p}>
-    <path d="M20 20H8.5L3.6 15.1a2 2 0 0 1 0-2.8l8.7-8.7a2 2 0 0 1 2.8 0l4.3 4.3a2 2 0 0 1 0 2.8L12 18.1" />
-    <path d="M7 10.5l6.5 6.5" />
-  </Icon>
-);
 
 export const SettingsIcon = (p) => (
   <Icon {...p}>
@@ -75,5 +69,22 @@ export const PictureIcon = (p) => (
     <rect x="3" y="3" width="18" height="18" rx="2" />
     <circle cx="8.5" cy="8.5" r="1.5" />
     <path d="M21 15l-5-5L5 21" />
+  </Icon>
+);
+
+export const TrashIcon = (p) => (
+  <Icon {...p}>
+    <path d="M3 6h18" />
+    <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" />
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+    <path d="M10 11v6M14 11v6" />
+  </Icon>
+);
+
+export const NewBillIcon = (p) => (
+  <Icon {...p}>
+    <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
+    <path d="M14 3v6h6" />
+    <path d="M12 12v6M9 15h6" />
   </Icon>
 );
