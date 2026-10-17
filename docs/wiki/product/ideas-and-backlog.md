@@ -34,7 +34,6 @@ record the answer as a decision.
 | **Test sending on real phones** | WhatsApp share on iPhone and Android hasn't been checked by an agent. Is the caption dropped on iPhone ([D034](../decisions/D034-iphone-picture-without-caption.md))? Does the picture arrive styled? | Small (needs the founder's phones) |
 | **Collect missed matches** | The father's real typing will show which addresses and items the matcher misses. Add each as a test in `src/catalog.test.js`, then fix `normalize.mjs` ([D044](../decisions/D044-fuzzy-matching-own-normaliser.md)). | Ongoing |
 | **Limit PIN guesses** | There is no rate limit on wrong PINs ([security](../architecture/security-and-privacy.md)). A small counter in the database, or a Netlify rate-limit rule. | Small |
-| **Make `main-dev` the GitHub default branch** | `main` is stale; clones and `gh pr create` still default to it. Needs repo admin, so the founder does it: GitHub → Settings → General → Default branch. Then `main` can be deleted. | Small |
 | **Clear test data** | Bills, settings and rules made while checking on billingbansal live in the father's database. | Small (ask first) |
 | **Move off Create React App** | CRA is deprecated; Netlify's build image or Node may stop supporting it. Move to Vite while the app is small ([D001](../decisions/D001-build-on-the-2022-app.md)). | Medium |
 | **Node version on Netlify** | The agent saw a Node 16 warning in Netlify's build on 16 Oct; set a current LTS (`NODE_VERSION` or `.nvmrc`) and test the build. | Small |

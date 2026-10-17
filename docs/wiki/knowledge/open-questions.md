@@ -23,7 +23,7 @@ answered, record the answer (a decision or a page update) and strike it here wit
 | Q6 | Should test bills made on billingbansal be deleted from the shared database? | They show in the father's All bills and catalog | 16 Oct |
 | Q7 | Is the shop's signal reliable? | Decides whether an offline queue is worth it | 16 Oct |
 | ~~Q8~~ | ~~billingbansal is deprecated: delete it or remove its env vars?~~ **Answered 17 Oct 08:23: deleted** ([D050](../decisions/D050-one-live-site-main-dev-only.md)) | — | 17 Oct |
-| Q9 | Switch GitHub's default branch from `main` to `main-dev` (then delete `main`)? Needs repo admin, so only the founder can | Agents and `gh` default to the stale `main` | 17 Oct |
+| ~~Q9~~ | ~~Switch GitHub's default branch to `main-dev` and delete `main`?~~ **Done 17 Oct: the founder switched it at 08:29, and `main` was deleted at 08:30** ([D050](../decisions/D050-one-live-site-main-dev-only.md)) | — | 17 Oct |
 
 ## Never verified (agents couldn't test these)
 

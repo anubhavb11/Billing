@@ -13,7 +13,7 @@ sources: [../../../netlify.toml, ../decisions/D008-own-neon-not-netlify-database
 | Environment | URL | Branch | Database | Who uses it |
 |---|---|---|---|---|
 | **Father's site** | https://bansalstore.netlify.app | `main-dev` | Neon (shared) | The father (his live site) |
-| ~~Check site~~ | ~~billingbansal.netlify.app~~ | `main` | — | **Deleted 17 Oct 2026** ([D050](../decisions/D050-one-live-site-main-dev-only.md)) |
+| ~~Check site~~ | ~~billingbansal.netlify.app~~ | `main` | — | **Deleted 17 Oct 2026**; branch `main` deleted too ([D050](../decisions/D050-one-live-site-main-dev-only.md)) |
 | Deploy Previews | `deploy-preview-N--<site>.netlify.app` | PR branches | Neon (shared, if the env vars apply to previews) | Optional checks |
 | Local dev | http://localhost:3000 (+ API :8787) | any | local Postgres `billing_dev` or a Neon branch | Agents and the founder |
 | Local production build | http://localhost:5050 (static server proxying `/api` to :8787) | any | same as local | Picture and style checks ([D030](../decisions/D030-bill-picture-html-to-image.md)) |

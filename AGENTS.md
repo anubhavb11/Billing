@@ -33,7 +33,7 @@ proxies `/api` to :8787. The dev server hides CSS-loading bugs
 
 - Design for the father's phone first: 360px wide, big text, everything he types on one
   screen ([principles](docs/wiki/product/vision-and-principles.md)).
-- Ship with **one PR into `main-dev`**: bansalstore.netlify.app is the only live site. Never open PRs into `main`: it is stale, and its site (billingbansal) was deleted ([D050](docs/wiki/decisions/D050-one-live-site-main-dev-only.md)). `gh` defaults to `main`, so pass `--base main-dev`.
+- Ship with **one PR into `main-dev`**: bansalstore.netlify.app is the only live site. `main-dev` is the default and only branch; `main` and its site (billingbansal) were deleted ([D050](docs/wiki/decisions/D050-one-live-site-main-dev-only.md)).
 - Make schema changes additive only. Phones may run a cached older app, and rollbacks republish old code.
 - Add every new API route to `config.path` in `netlify/functions/bills.mjs` as well as to `netlify/lib/bills-api.mjs`.
 - Run the tests and `CI=true npm run build` before asking to ship.

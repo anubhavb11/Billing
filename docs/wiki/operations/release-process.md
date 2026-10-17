@@ -24,7 +24,7 @@ flowchart LR
 
 ## Steps
 
-1. `git fetch origin && git switch -c feature/<slug> origin/main-dev`. Don't start from `main`: it is deprecated and stale, even though GitHub still shows it as the default branch.
+1. `git fetch origin && git switch -c feature/<slug> origin/main-dev`. `main-dev` is GitHub's default branch and the only one to ship to (`main` was deleted on 17 Oct 2026).
 2. Make the change. **Update the wiki in the same branch**: decision records, affected pages, a `log.md` entry ([conventions](../conventions.md)).
 3. Run the [checks](testing.md). Demo locally on the production build (`npm run serve:build`) and tell the founder what was and wasn't tested. There is no separate check site any more, so this is the last check before the father's site.
 4. Wait for the founder's words, typically "Commit it, push feature/<slug> and merge".
@@ -34,7 +34,7 @@ flowchart LR
    gh pr create --repo anubhavb11/Billing --base main-dev --head feature/<slug> --title "…" --body-file pr.md
    gh pr merge <n> --repo anubhavb11/Billing --merge
    ```
-   Always pass `--base main-dev`. Without it, `gh` targets `main`.
+   `--base main-dev` is the default now; passing it explicitly does no harm.
 7. Confirm the bansalstore deploy is `ready` and serves the new bundle ([deployment](../architecture/deployment-and-environments.md#checking-a-deploy)).
 8. Tell the founder what to try on the phone, and what agents couldn't check (for example real WhatsApp sharing).
 
@@ -55,7 +55,7 @@ flowchart LR
 
 ## Rules
 
-- **Never open a PR into `main`**, and don't redeploy billingbansal ([D050](../decisions/D050-one-live-site-main-dev-only.md)).
+- **Ship only to `main-dev`.** `main` and billingbansal were deleted ([D050](../decisions/D050-one-live-site-main-dev-only.md)). Don't recreate them.
 - **Additive database changes only**: phones may run a cached older app for a while, and a rollback republishes old code ([D012](../decisions/D012-schema-on-first-request.md)).
 - **New API route**: add it to `config.path`, or Netlify returns 404.
 - **Don't spend credits casually**: each production deploy costs Netlify credits. Batch small fixes.
@@ -63,6 +63,8 @@ flowchart LR
 
 ## History
 
-Until 17 Oct 2026 08:18 every change went out as two PRs, one into `main` (billingbansal, the
+Until 17 Oct 2026 08:16 every change went out as two PRs, one into `main` (billingbansal, the
 founder's check site) and one into `main-dev` ([D009](../decisions/D009-two-sites-one-database.md)),
 the last pair being #18/#19. The founder ended that: "We are only using this website."
+billingbansal was deleted at 08:23 and the `main` branch at 08:30, after the founder made
+`main-dev` GitHub's default branch.

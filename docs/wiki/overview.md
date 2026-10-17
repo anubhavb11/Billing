@@ -23,7 +23,7 @@ where they gave them.
 | | Address | Git branch | Role |
 |---|---|---|---|
 | **The site** | https://bansalstore.netlify.app | `main-dev` | **The only live site and the source of truth.** Was billingdev.netlify.app until 16 Oct 2026 ([D029](decisions/D029-site-name-bansalstore.md)). |
-| ~~Check site~~ | ~~billingbansal.netlify.app~~ | `main` | **Deleted 17 Oct 2026** ([D050](decisions/D050-one-live-site-main-dev-only.md)). `main` is stale. |
+| ~~Check site~~ | ~~billingbansal.netlify.app~~ | `main` | **Deleted 17 Oct 2026**, and the `main` branch with it ([D050](decisions/D050-one-live-site-main-dev-only.md)). |
 | Database | The founder's own Neon Postgres project | — | The father's data; only bansalstore connects to it ([D008](decisions/D008-own-neon-not-netlify-database.md)). |
 
 ## What it does today (17 Oct 2026)

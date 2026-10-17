@@ -3,7 +3,7 @@ type: source
 title: Founder chat, 17 Oct 2026 (after the wiki was written)
 status: immutable
 captured: 2026-10-17
-covers: 2026-10-17 07:58 UTC → 2026-10-17 08:23 UTC
+covers: 2026-10-17 07:58 UTC → 2026-10-17 08:29 UTC
 ---
 
 # Founder chat, 17 Oct 2026 (follow-up)
@@ -13,11 +13,11 @@ The founder's messages after the wiki was first written; the earlier session is 
 never edit it. The real customer bill link the founder pasted was replaced with a
 placeholder (the repo is public).
 
-## 2026-10-17 08:10 · Founder
+## 2026-10-17 08:14 · Founder
 
 Commit it, push docs/llm-wiki and merge into both main and main-dev.
 
-## 2026-10-17 08:18 · Founder (while the agent was working)
+## 2026-10-17 08:16 · Founder (while the agent was working)
 
 https://bansalstore.netlify.app/b/<a customer's bill token>
 We are only using this website. I don't know why we always do two merges, two pull requests. We need to deprecate or just don't use the old one anymore. This is the truth.
@@ -32,3 +32,23 @@ Q: Ship this wiki update (D050, one-site rule) now, as one PR into main-dev?
 ## 2026-10-17 08:23 · Founder answered
 
 "What should happen to it?"="Delete the site (Recommended)", "Ship this wiki update (D050, one-site rule) now, as one PR into main-dev?"="Yes, one PR and merge".
+
+## 2026-10-17 08:26 · Founder
+
+I've switched the default branch to main-dev. Delete the main branch and record it in the wiki.
+
+## 2026-10-17 08:26 · Founder
+
+how can i switch ?
+
+## 2026-10-17 08:27 · Founder
+
+how to do it ?
+
+## 2026-10-17 08:28 · Founder
+
+give me steps i will do it
+
+## 2026-10-17 08:29 · Founder
+
+done
