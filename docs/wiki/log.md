@@ -160,7 +160,7 @@ Created 49 decision records, product, architecture, operations and knowledge pag
 its 11 wrong facts and ~10 unsupported claims were fixed, and the agent's proposals were
 added as a second source so they can be cited.
 
-## [2026-10-17 08:40] ship | Wiki merged (PR #18 main, PR #19 main-dev)
+## [2026-10-17 08:16] ship | Wiki merged (PR #18 main, PR #19 main-dev)
 
 The founder: "Commit it, push docs/llm-wiki and merge into both main and main-dev." Docs and
 scripts only; both sites redeployed with the app unchanged.
