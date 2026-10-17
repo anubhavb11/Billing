@@ -10,8 +10,8 @@ sources: [../../../netlify/lib/bills-api.mjs, ../../../netlify/lib/catalog.mjs, 
 
 The source of truth is `SCHEMA` in `netlify/lib/bills-api.mjs`. It runs on the first
 request of each function instance, under an advisory lock, and is **additive only**
-([D012](../decisions/D012-schema-on-first-request.md)). Both Netlify sites share this one
-database ([D009](../decisions/D009-two-sites-one-database.md)).
+([D012](../decisions/D012-schema-on-first-request.md)). bansalstore is the only site that
+connects to it; billingbansal was deleted on 17 Oct 2026 ([D050](../decisions/D050-one-live-site-main-dev-only.md)).
 
 ## Tables
 
@@ -102,5 +102,5 @@ Limits: 2,000 entries per map or list; keys and values ≤200 chars, except `cus
 ## Changing the schema safely
 
 1. Add the column with `add column if not exists` and a default that old code can ignore.
-2. Ship to both sites. The old site keeps working because it never selects the new column.
+2. Ship it. Older code (a phone's cached app, a rollback) keeps working because it never selects the new column.
 3. Never rename or drop in the same release. If you must, do it in two releases, with a decision record.

@@ -69,7 +69,7 @@ the decisions that came from it. When a new idea conflicts with one of them, ask
 
 ## 8. The founder sees it before the father does
 
-- Every change is shown locally, then on billingbansal, then on the father's site ([D047](../decisions/D047-branch-demo-ship-workflow.md), [D009](../decisions/D009-two-sites-one-database.md)).
+- Every change is shown locally first (production build), then shipped with one PR to the only live site ([D047](../decisions/D047-branch-demo-ship-workflow.md), [D050](../decisions/D050-one-live-site-main-dev-only.md)). "We are only using this website … This is the truth."
 - Prioritise, then build in small rounds. "Try to do them step by step, or prioritize them or something, and then we will do them." (founder, 16 Oct)
 - Hold extras until the core is used: "For now, nothing." ([D045](../decisions/D045-no-extras-in-first-build.md))
 

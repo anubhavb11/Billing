@@ -164,3 +164,19 @@ added as a second source so they can be cited.
 
 The founder: "Commit it, push docs/llm-wiki and merge into both main and main-dev." Docs and
 scripts only; both sites redeployed with the app unchanged.
+
+## [2026-10-17 08:18] decision | One live site: bansalstore only; one PR into main-dev
+
+"We are only using this website. I don't know why we always do two merges, two pull requests.
+We need to deprecate or just don't use the old one anymore. This is the truth." billingbansal
+and `main` are deprecated; every change is now one PR into `main-dev`.
+→ [D050](decisions/D050-one-live-site-main-dev-only.md) (supersedes [D009](decisions/D009-two-sites-one-database.md)
+and the two-PR step of [D047](decisions/D047-branch-demo-ship-workflow.md)), lesson L18. Still open:
+switching GitHub's default branch (Q9; needs the founder, as repo admin).
+
+## [2026-10-17 08:23] ship | billingbansal.netlify.app deleted
+
+The founder chose "Delete the site" over removing its database access. Deleted with
+`netlify sites:delete` after confirming the site id was billingbansal (branch `main`).
+billingbansal.netlify.app now returns 404; bansalstore loads and its API still asks for the PIN.
+Shipped this wiki update as one PR into `main-dev`.

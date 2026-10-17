@@ -37,7 +37,7 @@ third parties except what the father sends on WhatsApp himself.
 3. **PIN kept in `localStorage`** on the phone. Anyone holding the unlocked phone has access.
 4. **Bill links don't expire** and can be forwarded. Whoever has one sees that bill's
    customer details.
-5. **Test and real data share one database** ([D009](../decisions/D009-two-sites-one-database.md)).
+5. **Old test data is mixed in with real data**: bills, settings and rules made while testing on billingbansal (deleted 17 Oct 2026, [D050](../decisions/D050-one-live-site-main-dev-only.md)) are in the father's database.
 
 ## If the PIN may have leaked
 

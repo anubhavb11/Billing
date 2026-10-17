@@ -22,7 +22,7 @@ proxies `/api` to :8787. The dev server hides CSS-loading bugs
 ## Map
 
 - What and who: [docs/wiki/overview.md](docs/wiki/overview.md)
-- Why it is built this way: [docs/wiki/decisions/README.md](docs/wiki/decisions/README.md) (49 decisions)
+- Why it is built this way: [docs/wiki/decisions/README.md](docs/wiki/decisions/README.md) (50 decisions)
 - How it works: [docs/wiki/architecture/overview.md](docs/wiki/architecture/overview.md)
 - How to run, test and ship: [docs/wiki/operations/](docs/wiki/operations/runbook.md)
 - What must not break: [docs/wiki/knowledge/invariants.md](docs/wiki/knowledge/invariants.md)
@@ -33,7 +33,8 @@ proxies `/api` to :8787. The dev server hides CSS-loading bugs
 
 - Design for the father's phone first: 360px wide, big text, everything he types on one
   screen ([principles](docs/wiki/product/vision-and-principles.md)).
-- Make schema changes additive only. Two sites share one database and may run different code.
+- Ship with **one PR into `main-dev`**: bansalstore.netlify.app is the only live site. Never open PRs into `main`: it is stale, and its site (billingbansal) was deleted ([D050](docs/wiki/decisions/D050-one-live-site-main-dev-only.md)). `gh` defaults to `main`, so pass `--base main-dev`.
+- Make schema changes additive only. Phones may run a cached older app, and rollbacks republish old code.
 - Add every new API route to `config.path` in `netlify/functions/bills.mjs` as well as to `netlify/lib/bills-api.mjs`.
 - Run the tests and `CI=true npm run build` before asking to ship.
 - Update the wiki in the same change: new or superseded decision records, affected pages,

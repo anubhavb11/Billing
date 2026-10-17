@@ -2,13 +2,13 @@
 id: D047
 title: "Feature branch, demo on local, ship only on the founder's word"
 type: decision
-status: accepted
+status: partly superseded
 date: 2026-10-16
 time-utc: "17:02"
 decision-makers: [founder]
 area: [process]
 supersedes: []
-superseded-by: []
+superseded-by: [D050]
 related: [D009, D048]
 evidence:
   - "chat 2026-10-16 17:02"
@@ -21,7 +21,8 @@ last-verified: 2026-10-17
 
 # D047 · Feature branch, demo on local, ship only on the founder's word
 
-> **Status:** accepted · **Decided by:** Founder · **When:** 16 Oct 2026, 17:02 UTC
+> **Status:** partly superseded · **Decided by:** Founder · **When:** 16 Oct 2026, 17:02 UTC
+> **Superseded by:** [D050](D050-one-live-site-main-dev-only.md)
 
 ## Context and problem
 
@@ -44,7 +45,7 @@ PR descriptions say what changed, what was tested and what wasn't.
 
 ## Consequences
 
-- Two PRs per feature (one per branch) with the same commits.
+- Two PRs per feature (one per branch) with the same commits, until 17 Oct 08:18. **Superseded by D050:** now one PR into `main-dev` only. Branch, demo and "only on the founder's word" still hold.
 
 ## More information
 

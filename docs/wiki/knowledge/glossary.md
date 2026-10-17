@@ -34,8 +34,8 @@ last-verified: 2026-10-17
 | **Payment QR** | A UPI ID (QR made with the amount) or a QR photo, chosen per bill from Settings. |
 | **UPI** | India's instant bank payment system; `upi://pay?pa=<id>&am=<amount>` links open any UPI app. |
 | **Udhaar** | Credit: goods taken now, paid later. Not tracked in the app (held idea). |
-| **Check site** | billingbansal.netlify.app (branch `main`), where the founder tries changes first. |
-| **Father's site** | bansalstore.netlify.app (branch `main-dev`). Formerly billingdev.netlify.app. |
+| **Check site** | billingbansal.netlify.app (branch `main`). The founder tried changes there first until 17 Oct 2026; **deleted** that day ([D050](../decisions/D050-one-live-site-main-dev-only.md)). |
+| **Father's site** | bansalstore.netlify.app (branch `main-dev`): the only live site and the source of truth. Formerly billingdev.netlify.app. |
 | **Netlify credits** | The Free plan's monthly budget (300). When it runs out, every site on the account goes offline. |
 | **Neon** | Hosted serverless Postgres. The founder's own free project holds all data. |
 | **Ji / aunty** | Respectful suffixes in Indian names ("Sharma ji", "Gupta aunty"), common in test data. |
