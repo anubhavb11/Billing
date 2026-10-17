@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { deleteBill } from './api';
 import { billTotal, cleanNumber, emptyRow, rowHasContent, withAmount, withSpareRows } from './bill';
 import { formatAmount, formatDate, formatMoney, formatWhen } from './format';
-import { ClearIcon, ListIcon, SendIcon } from './Icons';
+import { ListIcon, NewBillIcon, SendIcon, TrashIcon } from './Icons';
 import Logo from './Logo';
 import { deliverySnapshot, paymentSnapshot } from './shopSettings';
 import StatusChips from './StatusChips';
@@ -48,8 +48,8 @@ const SAVE_TEXT = {
 };
 
 // The bill on screen. It saves itself as he types (see App), so the only actions
-// are Clear (start the next bill) and View & Send.
-export default function Billing({ draft, setDraft, settings, saveState, notify, onClear, onSend, onDeleted }) {
+// are New bill (start the next one) and View & Send.
+export default function Billing({ draft, setDraft, settings, saveState, notify, onNewBill, onSend, onDeleted }) {
   const [busy, setBusy] = useState(false);
 
   const edit = (change) => setDraft((d) => ({ ...change(d), dirty: true, rev: d.rev + 1 }));
@@ -177,7 +177,7 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
           <tr>
             <th>#</th>
             <th>Item</th>
-            <th>Desc.</th>
+            <th>Details</th>
             <th>Qty</th>
             <th>Rate</th>
             <th className="num">Amount</th>
@@ -193,6 +193,7 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
               <td>
                 <WrapText
                   aria-label={`Row ${i + 1} item`}
+                  placeholder={i === 0 ? 'Sugar' : undefined}
                   value={row.name}
                   onChange={setCell(i, 'name')}
                   enterKeyHint="next"
@@ -200,7 +201,8 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
               </td>
               <td>
                 <WrapText
-                  aria-label={`Row ${i + 1} description`}
+                  aria-label={`Row ${i + 1} details`}
+                  placeholder={i === 0 ? '1 kg' : undefined}
                   value={row.description}
                   onChange={setCell(i, 'description')}
                   enterKeyHint="next"
@@ -232,7 +234,7 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
                   aria-label={`Remove row ${i + 1}`}
                   onClick={() => deleteRow(i)}
                 >
-                  ×
+                  <TrashIcon size={18} />
                 </button>
               </td>
             </tr>
@@ -295,9 +297,14 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
       )}
 
       <div className="bill-actions">
-        <button type="button" className="btn btn-secondary" onClick={run(onClear)} disabled={busy}>
-          <ClearIcon />
-          Clear
+        <button type="button" className="btn btn-secondary btn-two-line" onClick={run(onNewBill)} disabled={busy}>
+          <NewBillIcon />
+          <span className="btn-label">
+            New bill
+            {(draft.billNo || draft.items.some(rowHasContent)) && (
+              <small>{draft.status === 'sent' ? 'kept in All bills' : 'saves as draft'}</small>
+            )}
+          </span>
         </button>
         <button type="button" className="btn btn-primary" onClick={run(onSend)} disabled={busy}>
           <SendIcon />
@@ -305,14 +312,10 @@ export default function Billing({ draft, setDraft, settings, saveState, notify, 
         </button>
       </div>
       <p className="bill-hint">
-        Clear starts a new bill. This one stays saved in All bills.
         {draft.billNo && (
-          <>
-            {' '}
-            <button type="button" className="link-danger" onClick={remove}>
-              Delete this bill
-            </button>
-          </>
+          <button type="button" className="link-danger" onClick={remove}>
+            Delete this bill
+          </button>
         )}
       </p>
     </form>
