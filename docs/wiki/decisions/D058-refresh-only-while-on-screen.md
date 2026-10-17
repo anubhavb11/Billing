@@ -11,6 +11,7 @@ supersedes: []
 superseded-by: []
 related: [D008, D055, D056]
 evidence:
+  - "PR #22"
   - "web research 2026-10-17 08:33"
 code:
   - "src/DeliveryApp.jsx (REFRESH_MS, LOCATION_EVERY_MS)"
@@ -59,5 +60,5 @@ Polling with limits:
 ## More information
 
 - **Code:** `src/DeliveryApp.jsx (REFRESH_MS, LOCATION_EVERY_MS)`; `src/PublicBill.jsx (LIVE_EVERY_MS)`
-- **Evidence:** [web research 2026-10-17 08:33](../sources/research.md)
+- **Evidence:** PR [#22](https://github.com/anubhavb11/Billing/pull/22) · [web research 2026-10-17 08:33](../sources/research.md)
 - **Related:** [D008 · Use the founder's own free Neon project, not Netlify Database](D008-own-neon-not-netlify-database.md) · [D055 · Delivery boys use /d with their mobile number and their own PIN, and see only their orders](D055-delivery-boy-page-own-pin.md) · [D056 · The customer's link shows a live map while the order is on the way](D056-live-map-while-on-the-way.md)

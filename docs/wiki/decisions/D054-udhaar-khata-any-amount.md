@@ -11,6 +11,7 @@ supersedes: []
 superseded-by: []
 related: [D037, D043, D051]
 evidence:
+  - "PR #22"
   - "chat 2026-10-17 08:32 (delivery)"
   - "chat 2026-10-17 08:36 (delivery)"
 code:
@@ -67,5 +68,5 @@ record **any amount** received, cash or UPI, at the hisaab. Payments are stored 
 ## More information
 
 - **Code:** `src/tracking.mjs (khata)`; `src/CustomersPage.jsx (Khata)`; `netlify/lib/catalog.mjs`; `netlify/lib/bills-api.mjs (khataRoute, khata_payments)`
-- **Evidence:** [chat 2026-10-17 08:32](../sources/founder-chat-2026-10-17-delivery.md) · [chat 2026-10-17 08:36](../sources/founder-chat-2026-10-17-delivery.md)
+- **Evidence:** PR [#22](https://github.com/anubhavb11/Billing/pull/22) · [chat 2026-10-17 08:32](../sources/founder-chat-2026-10-17-delivery.md) · [chat 2026-10-17 08:36](../sources/founder-chat-2026-10-17-delivery.md)
 - **Related:** [D037 · Build item and customer suggestions first; the other three ideas were not picked](D037-suggestions-before-other-ideas.md) · [D043 · A customer is identified by phone, else address, else name](D043-customer-identity-key.md) · [D051 · Every bill tracks its delivery (packed, on the way, delivered) and what happened to the money](D051-track-delivery-and-money-on-every-bill.md)

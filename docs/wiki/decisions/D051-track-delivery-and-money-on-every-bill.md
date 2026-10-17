@@ -11,6 +11,7 @@ supersedes: [D007]
 superseded-by: []
 related: [D019, D052, D053, D054, D057]
 evidence:
+  - "PR #22"
   - "chat 2026-10-17 08:32 (delivery)"
   - "agent 2026-10-17 08:35 (delivery plan)"
 code:
@@ -73,5 +74,5 @@ delivery boy's page isn't used. All bills shows the statuses on every card and a
 ## More information
 
 - **Code:** `src/tracking.mjs`; `src/TrackPanel.jsx`; `netlify/lib/bills-api.mjs (delivery_events, payment_status, applyTracking)`
-- **Evidence:** [chat 2026-10-17 08:32](../sources/founder-chat-2026-10-17-delivery.md) · [agent 2026-10-17 08:35 (delivery plan)](../sources/agent-proposals-2026-10-17-delivery.md)
+- **Evidence:** PR [#22](https://github.com/anubhavb11/Billing/pull/22) · [chat 2026-10-17 08:32](../sources/founder-chat-2026-10-17-delivery.md) · [agent 2026-10-17 08:35 (delivery plan)](../sources/agent-proposals-2026-10-17-delivery.md)
 - **Related:** [D019 · Bills are Drafts until sent; edited-after-sending and missing rates are flagged](D019-draft-and-sent-status.md) · [D052 · Cash a delivery boy collects stays "with him" until the father taps "Got it"](D052-cash-stays-with-delivery-boy-until-handover.md) · [D053 · UPI the delivery boy reports waits until the father confirms it](D053-father-confirms-upi.md) · [D054 · Udhaar is a khata per customer; any amount received clears the oldest bills first](D054-udhaar-khata-any-amount.md) · [D057 · Delivery and payment status are saved apart from the bill's contents](D057-tracking-saved-apart-from-bill-contents.md)

@@ -11,6 +11,7 @@ supersedes: []
 superseded-by: []
 related: [D051, D055]
 evidence:
+  - "PR #22"
   - "chat 2026-10-17 08:32 (delivery)"
   - "agent 2026-10-17 08:35 (delivery plan)"
   - "chat 2026-10-17 08:36 (delivery)"
@@ -65,5 +66,5 @@ his open cash bills. Cash the **father** marks himself counts as already in the 
 ## More information
 
 - **Code:** `src/tracking.mjs (paymentState, cashWithPeople)`; `src/Bills.jsx (money-banner)`; `netlify/lib/bills-api.mjs (handoverRoute)`
-- **Evidence:** [chat 2026-10-17 08:32](../sources/founder-chat-2026-10-17-delivery.md) · [agent 2026-10-17 08:35 (delivery plan)](../sources/agent-proposals-2026-10-17-delivery.md) · [chat 2026-10-17 08:36](../sources/founder-chat-2026-10-17-delivery.md)
+- **Evidence:** PR [#22](https://github.com/anubhavb11/Billing/pull/22) · [chat 2026-10-17 08:32](../sources/founder-chat-2026-10-17-delivery.md) · [agent 2026-10-17 08:35 (delivery plan)](../sources/agent-proposals-2026-10-17-delivery.md) · [chat 2026-10-17 08:36](../sources/founder-chat-2026-10-17-delivery.md)
 - **Related:** [D051 · Every bill tracks its delivery (packed, on the way, delivered) and what happened to the money](D051-track-delivery-and-money-on-every-bill.md) · [D055 · Delivery boys use /d with their mobile number and their own PIN, and see only their orders](D055-delivery-boy-page-own-pin.md)

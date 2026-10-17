@@ -11,6 +11,7 @@ supersedes: []
 superseded-by: []
 related: [D051, D052]
 evidence:
+  - "PR #22"
   - "chat 2026-10-17 08:35 (delivery)"
   - "chat 2026-10-17 08:36 (delivery)"
 code:
@@ -53,5 +54,5 @@ is confirmed at once.
 ## More information
 
 - **Code:** `src/tracking.mjs (upiToCheck)`; `src/TrackPanel.jsx`
-- **Evidence:** [chat 2026-10-17 08:35](../sources/founder-chat-2026-10-17-delivery.md) · [chat 2026-10-17 08:36](../sources/founder-chat-2026-10-17-delivery.md)
+- **Evidence:** PR [#22](https://github.com/anubhavb11/Billing/pull/22) · [chat 2026-10-17 08:35](../sources/founder-chat-2026-10-17-delivery.md) · [chat 2026-10-17 08:36](../sources/founder-chat-2026-10-17-delivery.md)
 - **Related:** [D051 · Every bill tracks its delivery (packed, on the way, delivered) and what happened to the money](D051-track-delivery-and-money-on-every-bill.md) · [D052 · Cash a delivery boy collects stays "with him" until the father taps "Got it"](D052-cash-stays-with-delivery-boy-until-handover.md)

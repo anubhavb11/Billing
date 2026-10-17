@@ -11,6 +11,7 @@ supersedes: []
 superseded-by: []
 related: [D021, D055, D058]
 evidence:
+  - "PR #22"
   - "chat 2026-10-17 08:32 (delivery)"
   - "agent 2026-10-17 08:35 (delivery plan)"
   - "chat 2026-10-17 08:36 (delivery)"
@@ -71,5 +72,5 @@ The founder chose the live map anyway.
 ## More information
 
 - **Code:** `src/LiveMap.jsx`; `src/PublicBill.jsx (DeliveryStatus)`; `src/DeliveryApp.jsx (useShareLocation)`; `netlify/lib/bills-api.mjs (courier_locations)`
-- **Evidence:** [chat 2026-10-17 08:32](../sources/founder-chat-2026-10-17-delivery.md) · [agent 2026-10-17 08:35 (delivery plan)](../sources/agent-proposals-2026-10-17-delivery.md) · [chat 2026-10-17 08:36](../sources/founder-chat-2026-10-17-delivery.md) · [web research 2026-10-17 08:33](../sources/research.md)
+- **Evidence:** PR [#22](https://github.com/anubhavb11/Billing/pull/22) · [chat 2026-10-17 08:32](../sources/founder-chat-2026-10-17-delivery.md) · [agent 2026-10-17 08:35 (delivery plan)](../sources/agent-proposals-2026-10-17-delivery.md) · [chat 2026-10-17 08:36](../sources/founder-chat-2026-10-17-delivery.md) · [web research 2026-10-17 08:33](../sources/research.md)
 - **Related:** [D021 · Every bill has a private link the customer can open without the PIN](D021-private-bill-link.md) · [D055 · Delivery boys use /d with their mobile number and their own PIN, and see only their orders](D055-delivery-boy-page-own-pin.md) · [D058 · Live updates refresh only while a page is on screen, and only when needed](D058-refresh-only-while-on-screen.md)

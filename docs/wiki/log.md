@@ -212,3 +212,11 @@ D006 and D007 partly superseded.
   - The khata takes a part payment.
   - The customer link shows the steps, the live map and Paid.
 - **Not tested:** real phones and real GPS.
+
+## [2026-10-17 11:08] ship | Delivery and payments merged (PR #22, one PR into main-dev)
+
+The founder: "Commit it, push feature/delivery-payments and merge it into main-dev." The new
+tables and columns are created on bansalstore's first API request after the deploy. Next step
+for the founder: give each delivery person a mobile number and PIN in Settings, and send them
+`/d`.
+

@@ -11,7 +11,7 @@ supersedes: []
 superseded-by: []
 related: [D031, D041, D051]
 evidence:
-  - "PR (delivery and payments)"
+  - "PR #22"
 code:
   - "netlify/lib/bills-api.mjs (applyTracking, POST /api/bills/:n/track)"
   - "src/App.js (onTrack)"
@@ -52,5 +52,5 @@ never touches them, so auto-save can't undo a delivery boy's tap. Status changes
 ## More information
 
 - **Code:** `netlify/lib/bills-api.mjs (applyTracking, POST /api/bills/:n/track)`; `src/App.js (onTrack)`
-- **Evidence:** PR (delivery and payments)
+- **Evidence:** PR [#22](https://github.com/anubhavb11/Billing/pull/22)
 - **Related:** [D031 · Bills save themselves; no Save button](D031-auto-save.md) · [D041 · Clean-ups are stored as rules; bills are never rewritten](D041-cleanup-as-rules-bills-never-change.md) · [D051 · Every bill tracks its delivery (packed, on the way, delivered) and what happened to the money](D051-track-delivery-and-money-on-every-bill.md)
