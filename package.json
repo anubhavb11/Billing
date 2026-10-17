@@ -19,8 +19,10 @@
   "scripts": {
     "start": "react-scripts start",
     "api": "node --env-file-if-exists=.env scripts/local-api.mjs",
+    "serve:build": "node scripts/serve-build.mjs build 5050",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "wiki:lint": "node scripts/wiki-lint.mjs",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {

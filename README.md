@@ -28,6 +28,12 @@ Code:
 - Every API call except `/api/public/bills/:token` needs the shop PIN (`SHOP_PIN`). The phone
   asks for it once and remembers it.
 
+## Why it is built this way
+
+[AGENTS.md](AGENTS.md) and the wiki in [docs/wiki/](docs/wiki/index.md) record every product and
+architecture decision (who made it, why, and what was rejected), the invariants, the runbook
+and the backlog. Agents read them before changing anything and update them in the same PR.
+
 ## Run it locally
 
 Needs Node 20+ and a Postgres database (local Postgres, or a Neon branch).
