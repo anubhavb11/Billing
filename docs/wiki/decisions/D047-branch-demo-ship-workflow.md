@@ -45,7 +45,7 @@ PR descriptions say what changed, what was tested and what wasn't.
 
 ## Consequences
 
-- Two PRs per feature (one per branch) with the same commits, until 17 Oct 08:18. **Superseded by D050:** now one PR into `main-dev` only. Branch, demo and "only on the founder's word" still hold.
+- Two PRs per feature (one per branch) with the same commits, until 17 Oct 08:16. **Superseded by D050:** now one PR into `main-dev` only. Branch, demo and "only on the founder's word" still hold.
 
 ## More information
 

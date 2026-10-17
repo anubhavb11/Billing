@@ -74,7 +74,7 @@ Records are never deleted or rewritten. When a decision changes, add a new recor
 | [D047](D047-branch-demo-ship-workflow.md) | Feature branch, demo on local, ship only on the founder's word | partly superseded | founder | 2026-10-16 17:02 | — | [D050](D050-one-live-site-main-dev-only.md) |
 | [D048](D048-agent-access-and-secrets.md) | The founder holds the secrets; agents work through the CLIs the founder authorised | accepted | founder | 2026-10-16 17:26 | — | — |
 | [D049](D049-keep-an-llm-wiki.md) | Keep an LLM wiki of every decision in the repo | accepted | founder | 2026-10-17 07:38 | — | — |
-| [D050](D050-one-live-site-main-dev-only.md) | One live site: bansalstore.netlify.app; ship with one PR into main-dev; billingbansal is deprecated | accepted | founder | 2026-10-17 08:18 | [D009](D009-two-sites-one-database.md), [D047](D047-branch-demo-ship-workflow.md) | — |
+| [D050](D050-one-live-site-main-dev-only.md) | One live site: bansalstore.netlify.app; ship with one PR into main-dev; billingbansal is deprecated | accepted | founder | 2026-10-17 08:16 | [D009](D009-two-sites-one-database.md), [D047](D047-branch-demo-ship-workflow.md) | — |
 
 ## By area
 
