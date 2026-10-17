@@ -155,5 +155,12 @@ Merged before Netlify's previews finished, after a local strict build (lesson L1
 Sources: [founder chat](sources/founder-chat-2026-10-16.md) and [agent proposals](sources/agent-proposals-2026-10-16.md) (48 founder messages, 4 question
 rounds with 9 questions), PRs #1–#17, the full git history, the code at `375a811`, and research R1–R3.
 Created 49 decision records, product, architecture, operations and knowledge pages,
-`AGENTS.md`/`CLAUDE.md`, `scripts/wiki-lint.mjs` and `scripts/serve-build.mjs`. Branch
-`docs/llm-wiki`; not shipped yet.
+`AGENTS.md`/`CLAUDE.md`, `scripts/wiki-lint.mjs` and `scripts/serve-build.mjs` on branch
+`docs/llm-wiki`. An independent agent fact-checked every page against the chat and the code;
+its 11 wrong facts and ~10 unsupported claims were fixed, and the agent's proposals were
+added as a second source so they can be cited.
+
+## [2026-10-17 08:40] ship | Wiki merged (PR #18 main, PR #19 main-dev)
+
+The founder: "Commit it, push docs/llm-wiki and merge into both main and main-dev." Docs and
+scripts only; both sites redeployed with the app unchanged.
