@@ -14,7 +14,11 @@ A one-screen billing page for the shop, made to be used on a phone.
 - **Items** and **Customers** tabs (next to All bills) list everything from the bills for a
   weekly clean-up: merge spellings of the same item or customer, rename, hide, fix details.
   Bills are never changed; the clean-up rules only decide grouping and suggestions.
-- **Bill link** `/b/<token>` shows one bill to the customer without the PIN.
+- **Bill link** `/b/<token>` shows one bill to the customer without the PIN, with delivery
+  steps and a live map while it is on the way.
+- **Delivery and money**: every bill tracks Packed → On the way → Delivered and how it was paid
+  (cash with the delivery boy until the shop gets it, UPI to check, UPI later, udhaar khata).
+  Delivery boys use `/d` with their mobile number and their own PIN from Settings.
 
 Code:
 

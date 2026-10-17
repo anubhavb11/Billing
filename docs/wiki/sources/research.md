@@ -71,6 +71,29 @@ to add." Shaped [conventions.md](../conventions.md) and [D049](../decisions/D049
   - a lint script
   - scrubbing secrets from sources
 
+## R4: Live location, free maps and free-plan costs
+
+*17 Oct 2026, 08:33 UTC*
+
+Question: can the customer see where the delivery boy is, for free, without hurting the free
+plans? Led to [D056](../decisions/D056-live-map-while-on-the-way.md) and [D058](../decisions/D058-refresh-only-while-on-screen.md).
+
+- [Netlify credits](https://docs.netlify.com/manage/accounts-and-billing/billing/billing-for-credit-based-plans/how-credits-work/):
+  - production deploy 15 credits;
+  - compute 10 credits per GB-hour;
+  - web requests 2 credits per 10,000;
+  - bandwidth 20 credits per GB;
+  - Deploy Previews 0;
+  - Free plan 300 a month, hard stop (all sites paused).
+- [Neon Free plan](https://neon.com/faqs/free-plan-limits-and-quotas): 100 CU-hours per project per month, scale to zero after 5 idle minutes (can't be turned off). When used up, compute is suspended until next month.
+- [OpenStreetMap tile usage policy](https://operations.osmfoundation.org/policies/tiles/): free tiles for light use with visible credit; heavy use or bulk downloading can be blocked.
+- Browser location ([forum reports](https://forum.ionicframework.com/t/pwa-geolocation-watchposition-pauses/231595), older W3C threads): `watchPosition` stops when the screen is off or the tab is hidden. The Screen Wake Lock API only works for a visible page. Background tracking needs a native app.
+
+Conclusion:
+- **Live location from a web page works only while the page is open.**
+- **Constant updates would keep Neon awake all shop hours**, about 90 of its 100 hours.
+- So the agent recommended status steps only. The founder chose a live map, built to send and refresh only during a delivery and only while the page is on screen.
+
 ## How to add research
 
 Add a new `## R<n>: topic` section, with the date and time (UTC) in italics under it, and the question, the sources (links),

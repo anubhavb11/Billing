@@ -1,10 +1,65 @@
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import './App.css';
 import InvoiceSheet from './InvoiceSheet';
 import Logo from './Logo';
 import { formatMoney } from './format';
 import { downloadPdf, renderBillImage } from './share';
 import { SHOP } from './shop';
+import { deliveryStep } from './tracking.mjs';
+
+const LiveMap = lazy(() => import('./LiveMap'));
+const LIVE_EVERY_MS = 20_000; // only while the order is on the way and this page is open
+const time = (iso) => new Date(iso).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
+
+// Received → Packed → On the way (with the delivery person, and a live map) → Delivered,
+// and whether the bill is paid.
+function DeliveryStatus({ bill }) {
+  const step = deliveryStep(bill);
+  const events = bill.deliveryEvents || {};
+  const who = bill.delivery;
+  const rows = [
+    ['Order received', bill.createdAt],
+    ['Packed', events.packed],
+    [who ? `On the way with ${who.name}` : 'On the way', events.onTheWay],
+    ['Delivered', events.delivered],
+  ];
+  const ago = bill.courier ? Math.max(0, Math.round((Date.now() - new Date(bill.courier.at)) / 1000)) : null;
+  return (
+    <section className="public-status" aria-label="Delivery">
+      {step !== 'none' && (
+        <ol className="status-steps">
+          {rows.map(([label, at], i) => (
+            <li key={label} className={at ? 'done' : i === 3 && step === 'onTheWay' ? 'next' : ''}>
+              <span>{label}</span>
+              {at && <small>{time(at)}</small>}
+            </li>
+          ))}
+        </ol>
+      )}
+      {step === 'onTheWay' && bill.courier && (
+        <div className="public-live">
+          <Suspense fallback={<div className="live-map" />}>
+            <LiveMap lat={bill.courier.lat} lng={bill.courier.lng} label={`${who?.name || 'Delivery'} on the map`} />
+          </Suspense>
+          <p className="muted">
+            {who?.name || 'Delivery'} was here {ago < 60 ? 'just now' : `${Math.round(ago / 60)} min ago`}
+            {who?.phone && (
+              <>
+                {' · '}
+                <a href={`tel:${who.phone}`}>Call {who.phone}</a>
+              </>
+            )}
+          </p>
+        </div>
+      )}
+      <p className={`public-paid paid-${bill.paid}`}>
+        {bill.paid === 'paid' && 'Paid · thank you'}
+        {bill.paid === 'udhaar' && 'Added to your account (udhaar)'}
+        {bill.paid === 'due' && bill.total > 0 && <>To pay {formatMoney(bill.total)}</>}
+      </p>
+    </section>
+  );
+}
 
 const Icon = ({ d }) => (
   <svg className="action-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -25,6 +80,7 @@ export default function PublicBill({ token }) {
   const [picture, setPicture] = useState(null); // { file, url }
   const [pdfBusy, setPdfBusy] = useState(false);
   const [pdfError, setPdfError] = useState('');
+  const [live, setLive] = useState(null); // fresher delivery status while it is on the way
 
   useEffect(() => {
     fetch(`/api/public/bills/${token}`)
@@ -36,6 +92,29 @@ export default function PublicBill({ token }) {
       })
       .catch((err) => setError(err.message));
   }, [token]);
+
+  // While the order is on the way and this page is on screen, refresh the status and map.
+  const onTheWay = bill && deliveryStep({ ...bill, ...live }) === 'onTheWay';
+  useEffect(() => {
+    if (!onTheWay) return undefined;
+    const refresh = () => {
+      if (document.visibilityState !== 'visible') return;
+      fetch(`/api/public/bills/${token}`)
+        .then((res) => (res.ok ? res.json() : null))
+        .then((data) => {
+          if (!data) return;
+          const { deliveryEvents, courier = null, paid } = data.bill;
+          setLive({ deliveryEvents, courier, paid });
+        })
+        .catch(() => {});
+    };
+    const timer = setInterval(refresh, LIVE_EVERY_MS);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [onTheWay, token]);
 
   useEffect(() => {
     if (!bill) return undefined;
@@ -81,6 +160,7 @@ export default function PublicBill({ token }) {
           Your bill from <strong>{SHOP.name}</strong> · {formatMoney(bill.total)}
         </span>
       </p>
+      <DeliveryStatus bill={{ ...bill, ...live }} />
       <InvoiceSheet bill={bill} linkPhones />
 
       <div className="public-actions">

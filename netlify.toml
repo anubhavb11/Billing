@@ -12,3 +12,9 @@
   from = "/b/*"
   to = "/index.html"
   status = 200
+
+# The delivery boy's page (/d) is served by the app too.
+[[redirects]]
+  from = "/d"
+  to = "/index.html"
+  status = 200

@@ -39,9 +39,15 @@ where they gave them.
   missing-rate chips, search, date filters, sort, totals, **Edit** and **View & Send**.
 - **Items** and **Customers** tabs (`#/items`, `#/customers`): lists worked out from the
   bills, for a weekly clean-up (merge spellings, rename, hide, fix customer details).
-- **Settings** (`#/settings`): payment QRs (UPI ID or QR photo) and delivery people.
-- **Customer page** (`/b/<token>`): no PIN. The bill with Call shop, Save picture and
-  Download PDF.
+- **Delivery and money** ([details](architecture/delivery-and-payments.md)):
+  - Every bill tracks Packed → On the way → Delivered, and how it was paid (Cash · UPI · UPI later · Udhaar).
+  - Cash a delivery boy collects shows as "Cash with Raju" until the father taps **Got it**.
+  - UPI the boy reports waits for the father's check.
+  - Udhaar goes on the customer's khata, and any amount received clears the oldest bills first.
+- **Delivery boy's page** (`/d`): his own mobile number and PIN; only his orders, with items to tick and big Packed / On the way / Delivered buttons; shares his location while on the way.
+- **Settings** (`#/settings`): payment QRs (UPI ID or QR photo), and delivery people with their app PIN.
+- **Customer page** (`/b/<token>`): no PIN. Delivery steps, a live map while the order is on
+  the way, paid or to-pay, then the bill with Call shop, Save picture and Download PDF.
 - **Access**: one shop PIN, typed once per phone ([D006](decisions/D006-no-login-shop-pin.md)).
 
 The full list, with the code behind each part, is in [product/features.md](product/features.md).

@@ -2,13 +2,13 @@
 id: D006
 title: "No user accounts; one shop PIN protects the API"
 type: decision
-status: accepted
+status: partly superseded
 date: 2026-10-16
 time-utc: "16:44"
 decision-makers: [founder]
 area: [security, ux]
 supersedes: []
-superseded-by: []
+superseded-by: [D055]
 related: [D005, D021, D048]
 evidence:
   - "chat 2026-10-16 16:43 (\"No login\")"
@@ -22,7 +22,8 @@ last-verified: 2026-10-17
 
 # D006 · No user accounts; one shop PIN protects the API
 
-> **Status:** accepted · **Decided by:** Founder · **When:** 16 Oct 2026, 16:44 UTC
+> **Status:** partly superseded · **Decided by:** Founder · **When:** 16 Oct 2026, 16:44 UTC
+> **Superseded by:** [D055](D055-delivery-boy-page-own-pin.md)
 
 ## Context and problem
 

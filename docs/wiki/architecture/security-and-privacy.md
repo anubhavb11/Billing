@@ -17,6 +17,8 @@ That is proportionate for a family shop, but it has limits every agent should kn
 |---|---|
 | Database | Not reachable from browsers; only the Netlify Function holds `DATABASE_URL` ([D005](../decisions/D005-api-through-netlify-functions.md)) |
 | All bills, settings, catalog | `X-Shop-Pin` must match `SHOP_PIN` (sha256 + `timingSafeEqual`) |
+| A delivery person's orders | Own mobile number + PIN; PIN stored only as sha256(`id:pin`); only bills assigned to them, no rates, no other customers or settings ([D055](../decisions/D055-delivery-boy-page-own-pin.md)) |
+| Delivery person's location | Sent only while an order is on the way and his page is open; shown only on that order's link, only if under 3 minutes old; one row per person, overwritten ([D056](../decisions/D056-live-map-while-on-the-way.md)) |
 | One bill for its customer | Unguessable 16-hex `share_token` (about 60 random bits: one hex digit of a v4 UUID is fixed); public route returns only customer-facing fields ([D021](../decisions/D021-private-bill-link.md)) |
 | Deleted bills | Hidden from every route, including public links ([D013](../decisions/D013-soft-delete.md)) |
 | Input | Server-side validation and size limits on every write (`parseBill`, `parseSettings`, `parseRules`) |
@@ -24,8 +26,9 @@ That is proportionate for a family shop, but it has limits every agent should kn
 
 ## Personal data held
 
-Customer names, phone numbers and addresses (in `bills`), what they bought, delivery
-people's names and phones, and UPI IDs or QR photos (in `settings`). Nothing is shared with
+Customer names, phone numbers and addresses (in `bills`), what they bought, how they paid
+and their udhaar (in `bills.payment_status` and `khata_payments`), delivery people's names,
+phones, PIN hashes and last location while delivering, and UPI IDs or QR photos (in `settings`). Nothing is shared with
 third parties except what the father sends on WhatsApp himself.
 
 ## Known weaknesses (accepted for now)
@@ -34,7 +37,9 @@ third parties except what the father sends on WhatsApp himself.
    per-person accounts and no audit trail.
 2. **No limit on PIN guesses**: a 6-digit PIN could be brute-forced by someone determined.
    Fix: a counter in the database or a Netlify rate-limit rule ([backlog](../product/ideas-and-backlog.md)).
-3. **PIN kept in `localStorage`** on the phone. Anyone holding the unlocked phone has access.
+3. **Delivery PINs are short and unthrottled too**; a delivery person's page shows only their orders, but customers' addresses and phones are on it.
+4. **Anyone with a bill link sees the delivery person's location while that order is on the way.**
+5. **PIN kept in `localStorage`** on the phone. Anyone holding the unlocked phone has access.
 4. **Bill links don't expire** and can be forwarded. Whoever has one sees that bill's
    customer details.
 5. **Old test data is mixed in with real data**: bills, settings and rules made while testing on billingbansal (deleted 17 Oct 2026, [D050](../decisions/D050-one-live-site-main-dev-only.md)) are in the father's database.

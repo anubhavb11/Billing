@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { addKhataPayment, removeKhataPayment } from './api';
 import { editCustomer, mergeCustomers, norm, separateCustomer, toggleHideCustomer } from './catalog';
 import { formatMoney, formatWhen } from './format';
 
@@ -6,7 +7,97 @@ const SORTS = {
   bills: (a, b) => b.bills - a.bills || new Date(b.lastAt) - new Date(a.lastAt),
   recent: (a, b) => new Date(b.lastAt) - new Date(a.lastAt),
   spent: (a, b) => b.total - a.total,
+  due: (a, b) => (b.khata?.due ?? 0) - (a.khata?.due ?? 0) || new Date(b.lastAt) - new Date(a.lastAt),
 };
+
+const shortDate = (iso) => new Date(iso).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+
+// A customer's udhaar: what is due, and the month-end hisaab. Any amount can be
+// received; it clears the oldest bills first (src/tracking.mjs khata).
+function Khata({ customer, onCatalog, notify }) {
+  const k = customer.khata;
+  const [amount, setAmount] = useState('');
+  const [busy, setBusy] = useState(false);
+  const receive = async (method) => {
+    const value = Number(amount);
+    if (!(value > 0)) {
+      notify('Write the amount received.');
+      return;
+    }
+    setBusy(true);
+    try {
+      onCatalog(await addKhataPayment(customer.key, value, method));
+      notify(`${formatMoney(value)} received${method === 'upi' ? ' by UPI' : ' in cash'}`);
+      setAmount('');
+    } catch (err) {
+      if (err.status !== 401) notify(`Not saved. ${err.message}`);
+    } finally {
+      setBusy(false);
+    }
+  };
+  const undo = async (payment) => {
+    if (!window.confirm(`Remove the ${formatMoney(payment.amount)} payment of ${shortDate(payment.at)}?`)) return;
+    try {
+      onCatalog(await removeKhataPayment(payment.id));
+    } catch (err) {
+      if (err.status !== 401) notify(`Not saved. ${err.message}`);
+    }
+  };
+  return (
+    <div className="khata">
+      <p className="khata-head">
+        <strong>Udhaar due {formatMoney(k.due)}</strong>
+        <span className="muted">
+          {formatMoney(k.total)} on udhaar · {formatMoney(k.paid)} paid
+        </span>
+      </p>
+      {k.due > 0 && (
+        <div className="khata-receive">
+          <input
+            type="text"
+            inputMode="decimal"
+            placeholder={`Amount, up to ${formatMoney(k.due)}`}
+            aria-label="Amount received"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value.replace(/[^0-9.]/g, ''))}
+          />
+          <button type="button" className="btn btn-secondary btn-money btn-small" onClick={() => receive('cash')} disabled={busy}>
+            Cash received
+          </button>
+          <button type="button" className="btn btn-secondary btn-money btn-small" onClick={() => receive('upi')} disabled={busy}>
+            UPI received
+          </button>
+        </div>
+      )}
+      <ul className="khata-list">
+        {k.bills.map((b) => (
+          <li key={`b${b.billNo}`}>
+            <span>
+              Bill #{b.billNo} · {shortDate(b.createdAt)}
+            </span>
+            <span>
+              {formatMoney(b.total)}
+              {b.left === 0 ? ' · cleared' : b.cleared > 0 ? ` · ${formatMoney(b.left)} left` : ''}
+            </span>
+          </li>
+        ))}
+        {k.payments.map((p) => (
+          <li key={`p${p.id}`} className="khata-paid">
+            <span>
+              Paid {p.method === 'upi' ? 'by UPI' : 'cash'} · {shortDate(p.at)}
+            </span>
+            <span>
+              −{formatMoney(p.amount)}{' '}
+              <button type="button" className="link" onClick={() => undo(p)}>
+                Remove
+              </button>
+            </span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
 
 const label = (c) => c.address || c.name || c.phone || 'No details';
 
@@ -18,7 +109,7 @@ const describeKey = (key) => {
 
 // Customers from the bills, grouped by phone (or address, or name). Merge the same
 // customer typed two ways; open one to fix their details or see their bills.
-export default function CustomersPage({ data, onRefresh, onRulesChange, onShowBills, notify }) {
+export default function CustomersPage({ data, onRefresh, onRulesChange, onShowBills, onCatalog, notify }) {
   const { catalog, rules } = data;
   const [q, setQ] = useState('');
   const [sort, setSort] = useState('bills');
@@ -95,6 +186,7 @@ export default function CustomersPage({ data, onRefresh, onRulesChange, onShowBi
           <option value="bills">Most bills</option>
           <option value="recent">Recent</option>
           <option value="spent">Most spent</option>
+          <option value="due">Most udhaar due</option>
         </select>
         {hiddenCount > 0 && (
           <button type="button" className="btn btn-secondary btn-small" onClick={() => setShowHidden((v) => !v)}>
@@ -127,10 +219,12 @@ export default function CustomersPage({ data, onRefresh, onRulesChange, onShowBi
                     {c.bills} {c.bills === 1 ? 'bill' : 'bills'} · {formatMoney(c.total)}
                     {c.lastAt && ` · last ${formatWhen(c.lastAt)}`}
                   </span>
+                  {c.khata?.due > 0 && <span className="pay-chip pay-khata">Udhaar due {formatMoney(c.khata.due)}</span>}
                   {c.hidden && <span className="data-sub">Hidden from suggestions</span>}
                 </button>
                 {open === c.key && form && (
                   <div className="data-detail">
+                    {c.khata && <Khata customer={c} onCatalog={onCatalog} notify={notify} />}
                     <div className="data-form">
                       <input
                         placeholder="Address"

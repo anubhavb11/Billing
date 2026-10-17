@@ -1,12 +1,13 @@
 import { Fragment, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { deleteBill } from './api';
-import { billTotal, cleanNumber, emptyRow, rowHasContent, withAmount, withSpareRows } from './bill';
+import { billTotal, cleanNumber, draftAsBill, emptyRow, rowHasContent, withAmount, withSpareRows } from './bill';
 import { exactItem, suggestCustomers, suggestItems } from './catalog';
 import { formatAmount, formatDate, formatMoney, formatWhen } from './format';
 import { ListIcon, NewBillIcon, SendIcon, TrashIcon } from './Icons';
 import Logo from './Logo';
 import { deliverySnapshot, paymentSnapshot } from './shopSettings';
 import StatusChips from './StatusChips';
+import TrackPanel from './TrackPanel';
 
 // Keeps a picked option visible even after it was removed from Settings.
 const withCurrent = (options, current) =>
@@ -66,6 +67,7 @@ export default function Billing({
   onNewBill,
   onSend,
   onDeleted,
+  onTrack,
 }) {
   const [busy, setBusy] = useState(false);
   // Which box he is typing in, for the suggestion chips under it.
@@ -434,6 +436,8 @@ export default function Billing({
           )}
         </div>
       )}
+
+      {draft.billNo && <TrackPanel bill={draftAsBill(draft)} onTrack={onTrack} />}
 
       <div className="bill-actions">
         <button type="button" className="btn btn-secondary btn-two-line" onClick={run(onNewBill)} disabled={busy}>

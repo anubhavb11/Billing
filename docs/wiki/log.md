@@ -188,3 +188,35 @@ no commits missing from `main-dev`, then deleted it on GitHub and locally. Last 
 `d115c81`. → [D050](decisions/D050-one-live-site-main-dev-only.md).
 Also fixed in place: the follow-up chat times (08:10 → 08:14, 08:18 → 08:16) in the source
 page, D050 and this log.
+
+## [2026-10-17 08:32] decision | Delivery and payment tracking: the founder's brief
+
+"The main pain point of this business is payment collection from the worker." The worker got
+cash and didn't hand it over; udhaar lives in a notebook. The founder asked for tracking on
+every bill, a page for delivery boys (own number + PIN), statuses on the customer link, a map
+if free, and "I really want it to be simple." → [source](sources/founder-chat-2026-10-17-delivery.md).
+
+## [2026-10-17 08:36] decision | Four choices: father confirms UPI, any-amount khata, live map, build both
+
+The agent's plan ([source](sources/agent-proposals-2026-10-17-delivery.md)) recommended status
+steps only. The founder chose a live map anyway. → [D051](decisions/D051-track-delivery-and-money-on-every-bill.md)–[D056](decisions/D056-live-map-while-on-the-way.md);
+D006 and D007 partly superseded.
+
+## [2026-10-17 09:00] build | Delivery and payments built on feature/delivery-payments
+
+- **Code:** `src/tracking.mjs` (shared statuses), the tracking/handover/khata/delivery routes, `TrackPanel`, the All bills banner and filters, the Customers khata, Settings PINs, `DeliveryApp` (`/d`), and `LiveMap` (Leaflet + OSM) on the customer page. → [D057](decisions/D057-tracking-saved-apart-from-bill-contents.md), [D058](decisions/D058-refresh-only-while-on-screen.md).
+- **Tests:** 46 unit tests pass, plus an end-to-end API run on local Postgres.
+- **Checked on a local production build at 375px:**
+  - Raju logs in (a wrong PIN is refused) and ticks items through to Delivered.
+  - Cash shows on the banner, and Got it clears it; UPI to check, then received.
+  - The khata takes a part payment.
+  - The customer link shows the steps, the live map and Paid.
+- **Not tested:** real phones and real GPS.
+
+## [2026-10-17 11:08] ship | Delivery and payments merged (PR #22, one PR into main-dev)
+
+The founder: "Commit it, push feature/delivery-payments and merge it into main-dev." The new
+tables and columns are created on bansalstore's first API request after the deploy. Next step
+for the founder: give each delivery person a mobile number and PIN in Settings, and send them
+`/d`.
+

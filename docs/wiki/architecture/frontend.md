@@ -13,7 +13,7 @@ router or state library.
 
 ## Entry and routing
 
-- `src/index.js`: if the path is `/b/<token>`, render `PublicBill`; otherwise render `App`.
+- `src/index.js`: `/b/<token>` renders `PublicBill`, `/d` renders `DeliveryApp` (the delivery boy's page), anything else renders `App`.
   React StrictMode is commented out.
 - `src/App.js` `useHash()` reads `window.location.hash`. Pages: `#/` bill, `#/send` (alias
   `#/view`), `#/bills`, `#/items`, `#/customers`, `#/settings`
@@ -75,7 +75,10 @@ couldn't be saved because there's no internet.
 - `ItemsPage.jsx` / `CustomersPage.jsx`: refresh the catalog on mount; tick rows; a fixed
   bottom merge bar; expand a row for actions; every action calls `onRulesChange(nextRules)`,
   which PUTs the rules and applies the returned catalog.
-- `Settings.jsx`: add payment QRs by UPI ID or photo; delivery people; saves with PUT.
+- `Settings.jsx`: add payment QRs by UPI ID or photo; delivery people with an app PIN (sent once as `pin`, stored hashed); saves with PUT.
+- `TrackPanel.jsx` (on a saved bill): Delivery and Payment chips plus the Got-it / UPI-received buttons. It calls `onTrack(body)` in `App.js`, which POSTs `/api/bills/:n/track` and applies the returned bill ([delivery and payments](delivery-and-payments.md)).
+- `DeliveryApp.jsx` (`/d`): its own login, order list, steps, payment choices, a 30 s refresh while visible, and location sharing (`useShareLocation`).
+- `LiveMap.jsx`: lazy-loaded Leaflet map on the customer page while an order is on the way.
 - `PinScreen.jsx`: checks with `/api/ping`, then stores the PIN.
 
 ## Styling

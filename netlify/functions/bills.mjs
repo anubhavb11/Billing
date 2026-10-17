@@ -15,5 +15,12 @@ export const config = {
     "/api/settings",
     "/api/catalog",
     "/api/catalog/rules",
+    "/api/bills/:billNo/track",
+    "/api/cash/handover",
+    "/api/khata/payments",
+    "/api/khata/payments/:id",
+    "/api/delivery/orders",
+    "/api/delivery/orders/:billNo/step",
+    "/api/delivery/location",
   ],
 };

@@ -20,6 +20,7 @@ npm run wiki:lint                                 # wiki links, frontmatter, sec
 | `src/bill.test.js` | Number cleaning, decimal amounts and totals, payload drops empty rows, 5-row minimum, legacy `userOrder` import, spare rows |
 | `src/billsFilter.test.js` | Sort, date ranges, search (name, phone digits, item, `#N`), status filter, item preview, **bills of one customer group** |
 | `src/share.test.js` | Missing rates, changed-after-sending, friendly dates, UPI QR text, QR photo lookup, Android vs iPhone caption, `waNumber`, WhatsApp text |
+| `src/tracking.test.js` | Delivery steps, cash with a delivery person and handover, UPI check, to collect / udhaar, cash per person, **khata clearing oldest bills first** |
 | `src/catalog.test.js` | Chip ranking and limits, spellings, customers by address/phone/name, merge/separate/rename/hide, **address variants and typos** |
 
 Server code (`netlify/lib/*.mjs`) is pure enough to test in Node directly. When changing
@@ -36,6 +37,12 @@ local API running, at **phone width 360–375px**.
 4. **Items/Customers**: merge, rename, hide, separate; reload and confirm they persist.
 5. **Customer page**: `/b/<token>` opens without the PIN; Save picture and Download PDF work.
 6. **Desktop width**: centred at 720px, merge bar at the bottom.
+7. **Delivery and money** ([details](../architecture/delivery-and-payments.md)):
+   - Give a made-up delivery person a mobile number and PIN in Settings, then pick him on a bill.
+   - Log in at `/d`: a wrong PIN is refused. Tick items, tap Packed and On the way, then Delivered with Cash.
+   - All bills shows "<name> has ₹X cash"; Got it clears it. UPI done shows under UPI to check, and "UPI received" clears it.
+   - Mark a bill Udhaar, then record part of it in Customers → the customer.
+   - The browser pane blocks location, so post a test location with `curl` (`/api/delivery/location` with the delivery headers) and open the bill link to see the map.
 
 Tips from the build session:
 - Confirmation pop-ups can be auto-accepted in tests (`window.confirm = () => true`); say so in the PR.

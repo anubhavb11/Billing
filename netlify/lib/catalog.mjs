@@ -11,6 +11,7 @@
 //   customerHidden  [customerKey]
 
 import { customerKey, norm } from "../../src/normalize.mjs";
+import { khata } from "../../src/tracking.mjs";
 
 export const EMPTY_RULES = {
   itemAliases: {},
@@ -36,8 +37,9 @@ const mostCommon = (counts) => {
 
 const bump = (map, value) => map.set(value, (map.get(value) ?? 0) + 1);
 
-// bills: [{ billNo, createdAt, customerName, customerPhone, customerAddress, total, items }]
-export function buildCatalog(bills, rules) {
+// bills: [{ billNo, createdAt, customerName, customerPhone, customerAddress, total, items, paymentStatus }]
+// payments: [{ id, customerKey, amount, method, at }] received against udhaar (khata)
+export function buildCatalog(bills, rules, payments = []) {
   const r = { ...EMPTY_RULES, ...rules };
   const hiddenItems = new Set(r.itemHidden);
   const hiddenCustomers = new Set(r.customerHidden);
@@ -73,7 +75,7 @@ export function buildCatalog(bills, rules) {
     const key = follow(r.customerAliases, ownKey);
     let c = customers.get(key);
     if (!c) {
-      c = { key, keys: new Set(), name: '', phone: '', address: '', bills: 0, total: 0, lastAt: null };
+      c = { key, keys: new Set(), name: '', phone: '', address: '', bills: 0, total: 0, lastAt: null, udhaar: [], paid: [] };
       customers.set(key, c);
     }
     c.keys.add(ownKey);
@@ -83,6 +85,15 @@ export function buildCatalog(bills, rules) {
     c.bills += 1;
     c.total += Number(bill.total) || 0;
     c.lastAt = bill.createdAt;
+    if (bill.paymentStatus?.method === 'udhaar') {
+      c.udhaar.push({ billNo: bill.billNo, total: Number(bill.total) || 0, createdAt: bill.createdAt });
+    }
+  }
+
+  // Hisaab payments belong to whichever customer their key now points to (merges included).
+  for (const p of payments) {
+    const c = customers.get(follow(r.customerAliases, p.customerKey));
+    if (c) c.paid.push({ id: p.id, amount: p.amount, method: p.method, at: p.at });
   }
 
   return {
@@ -106,6 +117,7 @@ export function buildCatalog(bills, rules) {
       total: Math.round(c.total * 100) / 100,
       lastAt: c.lastAt,
       hidden: hiddenCustomers.has(c.key),
+      khata: c.udhaar.length || c.paid.length ? khata(c.udhaar, c.paid) : null,
     })),
   };
 }

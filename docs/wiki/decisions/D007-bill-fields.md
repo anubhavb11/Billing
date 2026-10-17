@@ -2,13 +2,13 @@
 id: D007
 title: "Each bill has a number, customer name, phone, address and date; no paid/due status"
 type: decision
-status: accepted
+status: partly superseded
 date: 2026-10-16
 time-utc: "16:43"
 decision-makers: [founder]
 area: [data, product]
 supersedes: []
-superseded-by: []
+superseded-by: [D051]
 related: [D037, D039]
 evidence:
   - "chat 2026-10-16 16:41 (question)"
@@ -20,7 +20,8 @@ last-verified: 2026-10-17
 
 # D007 · Each bill has a number, customer name, phone, address and date; no paid/due status
 
-> **Status:** accepted · **Decided by:** Founder · **When:** 16 Oct 2026, 16:43 UTC
+> **Status:** partly superseded · **Decided by:** Founder · **When:** 16 Oct 2026, 16:43 UTC
+> **Superseded by:** [D051](D051-track-delivery-and-money-on-every-bill.md)
 
 ## Context and problem
 

@@ -16,7 +16,7 @@ record the answer as a decision.
 
 | Idea | What the father would see | Origin | Status and reason | Size |
 |---|---|---|---|---|
-| **Paid / Udhaar (credit)** | A Paid/Due switch per bill, a Due filter, "Sharma ji owes ₹1,250 across 3 bills" | Offered 16 Oct 16:41 (not picked, [D007](../decisions/D007-bill-fields.md)); again in the agent's 17 Oct 07:02 ideas ([D037](../decisions/D037-suggestions-before-other-ideas.md)) | Not picked. The agent advised asking the father first whether he wants credit tracked in the app; it's only as accurate as his marking. | Medium |
+| ~~**Paid / Udhaar (credit)**~~ **Built 17 Oct** ([D051](../decisions/D051-track-delivery-and-money-on-every-bill.md), [D054](../decisions/D054-udhaar-khata-any-amount.md)) | A Paid/Due switch per bill, a Due filter, "Sharma ji owes ₹1,250 across 3 bills" | Offered 16 Oct 16:41 (not picked, [D007](../decisions/D007-bill-fields.md)); again in the agent's 17 Oct 07:02 ideas ([D037](../decisions/D037-suggestions-before-other-ideas.md)) | Not picked. The agent advised asking the father first whether he wants credit tracked in the app; it's only as accurate as his marking. | Medium |
 | **Today at a glance** | "Today: 12 bills · ₹8,450 · 2 drafts waiting" at the top of All bills | Agent, 17 Oct 07:02 | Not picked ([D037](../decisions/D037-suggestions-before-other-ideas.md)). The Today date filter already gives the count and total. | Small |
 | **Hindi labels** | A Settings switch for नया बिल, देखें और भेजें, सभी बिल… (bills unchanged) | Agent, 17 Oct 07:02 | Not picked. The agent: only if he'd honestly find Hindi easier. | Small |
 | **Possible duplicates** | Items/Customers tabs list likely duplicates (चीनी · चिनी · Sugar → merge?) | 17 Oct 07:07 | Held ([D045](../decisions/D045-no-extras-in-first-build.md)). `matchScore` and `addressKey` could power it. | Small–medium |
@@ -26,6 +26,17 @@ record the answer as a decision.
 | **Rate list picture** | The Items list as a "Bansal Store rate list" image for WhatsApp | Agent, 17 Oct 07:07 (not in the question) | Not built. | Small |
 | **Stock counting** | How many bags are left | 17 Oct 07:05 | Out of scope: needs purchases entered too ([D040](../decisions/D040-inventory-from-bills-items-customers-tabs.md)). | Large |
 | **Forward billingdev.netlify.app** | Old links keep working | 16 Oct 18:45 | Declined: "Don't really care about old billings." ([D029](../decisions/D029-site-name-bansalstore.md)) | — |
+
+## Delivery and payment follow-ups (from the 17 Oct build)
+
+| Item | Why | Size |
+|---|---|---|
+| **Test on real phones** | Raju's location in the field (Android and iPhone), the screen wake lock, how often it drops when the phone is pocketed | Small (needs phones) |
+| **Undo "Got it" in the app** | A mistaken cash handover can only be undone in SQL today | Small |
+| **Partial cash handover** | If he hands over only part of his cash; today "Got it" settles all of it | Small |
+| **Khata statement** | A picture or PDF of a customer's udhaar for the hisaab, like the bill picture | Medium |
+| **New-order alert for Raju** | Today his page refreshes every 30 s while open; a push notification needs a service worker | Medium |
+| **Watch Neon hours** | Delivery updates keep the database awake while delivering ([D058](../decisions/D058-refresh-only-while-on-screen.md)) | Ongoing |
 
 ## Engineering follow-ups (agent recommendations, not yet discussed)
 
